@@ -6,6 +6,8 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.chatbot.backend.domain.chat.entity.source.Memory;
+
 import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,22 +19,19 @@ public class Chat {
 
 	@Id
 	private ObjectId chatId;
-
-	private String question;
-	private String answer;
-
 	private LocalDateTime createdAt;
 	@Setter
 	private Long chatRoomId;
+
+	private Memory memory;
 
 	@Setter
 	@Column(nullable = true)
 	private Boolean isPositive;
 
 	@Builder
-	public Chat(String question, String answer, Long chatRoomId) {
-		this.question = question;
-		this.answer = answer;
+	public Chat(Memory memory, Long chatRoomId) {
+		this.memory = memory;
 		this.chatRoomId = chatRoomId;
 		this.createdAt = LocalDateTime.now();
 	}

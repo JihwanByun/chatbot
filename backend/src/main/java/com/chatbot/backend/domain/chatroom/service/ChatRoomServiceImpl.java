@@ -7,7 +7,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.chatbot.backend.domain.chat.entity.Chat;
+import com.chatbot.backend.domain.chat.dto.ChatDto;
 import com.chatbot.backend.domain.chat.repository.MongoChatRepository;
 import com.chatbot.backend.domain.chatroom.dto.ChatRoomDto;
 import com.chatbot.backend.domain.chatroom.dto.request.CreateChatRoomRequestDto;
@@ -35,6 +35,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 		CreateChatRoomRequestDto createChatRoomRequestDto) {
 
 		User user = userRepository.findUserById(userId);
+
 		ChatRoom chatroom = chatRoomRepository.save(
 			ChatRoom.builder()
 				.user(user)
@@ -68,13 +69,18 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
 		ChatRoom chatRoom = chatRoomRepository.findChatRoomById(chatRoomId);
 
-		List<Chat> chat = chatRepository.findAllByChatRoomIdOrderByCreatedAtDesc(chatRoomId);
+		List<ChatDto> chats = chatRepository.findAllByChatRoomIdOrderByCreatedAtDesc(chatRoomId)
+			.stream().map(chat -> new ChatDto(
+				chat.getChatId().toHexString(),
+				chat.getMemory().getQuestion(),
+				chat.getMemory().getAnswer()
+			)).toList();
 
 		return new FindChatRoomDetailResponseDto(
 			chatRoomId,
 			chatRoom.getTitle(),
 			chatRoom.getCreatedAt(),
-			chat
+			chats
 		);
 	}
 

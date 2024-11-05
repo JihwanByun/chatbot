@@ -10,6 +10,7 @@ import com.chatbot.backend.domain.chat.dto.response.CreateChatFeedBackResponseDt
 import com.chatbot.backend.domain.chat.dto.response.CreateChatResponseDto;
 import com.chatbot.backend.domain.chat.entity.Chat;
 import com.chatbot.backend.domain.chat.entity.ChatFeedBack;
+import com.chatbot.backend.domain.chat.entity.source.Memory;
 import com.chatbot.backend.domain.chat.repository.MongoChatFeedBackRepository;
 import com.chatbot.backend.domain.chat.repository.MongoChatRepository;
 
@@ -27,18 +28,18 @@ public class ChatServiceImpl implements ChatService {
 	@Override
 	public CreateChatResponseDto createChat(CreateChatRequestDto createChatRequestDto) {
 
+		Memory memory = new Memory(createChatRequestDto.getMemory());
+
 		Chat savedChat = mongoChatRepository.save(
 			Chat.builder()
 				.chatRoomId(createChatRequestDto.getChatRoomId())
-				.question(createChatRequestDto.getQuestion())
-				.answer(createChatRequestDto.getAnswer())
+				.memory(memory)
 				.build()
 		);
 
 		return new CreateChatResponseDto(
 			savedChat.getChatId().toHexString(),
-			savedChat.getQuestion(),
-			savedChat.getAnswer()
+			savedChat.getMemory()
 		);
 
 	}
@@ -62,8 +63,8 @@ public class ChatServiceImpl implements ChatService {
 
 		ChatDto chatDto = new ChatDto(
 			chatId,
-			chat.getQuestion(),
-			chat.getAnswer()
+			chat.getMemory().getQuestion(),
+			chat.getMemory().getAnswer()
 		);
 
 		return new CreateChatFeedBackResponseDto(
