@@ -7,7 +7,7 @@ import com.chatbot.backend.domain.board.entity.Board;
 import com.chatbot.backend.domain.board.exception.BoardNotFoundException;
 
 @Repository
-public interface BoardRepository extends JpaRepository<Board, Long> {
+public interface BoardRepository extends JpaRepository<Board, Long>, BoardQueryRepository {
 	default Board findByIdOrElseThrow(Long id) {
 		return findById(id).orElseThrow(BoardNotFoundException::new);
 	}
