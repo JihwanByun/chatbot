@@ -10,6 +10,6 @@ import com.chatbot.backend.domain.chat.entity.ChatFeedBack;
 
 @Repository
 public interface MongoChatFeedBackRepository extends MongoRepository<ChatFeedBack, ObjectId> {
-	Page<ChatFeedBack> findAllOrderByCreatedAtByChatFeedBackIdDesc(Pageable pageable);
-	ChatFeedBack findChatFeedBackByChatId(ObjectId objectId);
+	Page<ChatFeedBack> findAllByOrderByCreatedAtDesc(Pageable pageable);
+	// ChatFeedBack findChatFeedBackByChatId(ObjectId objectId);
 }

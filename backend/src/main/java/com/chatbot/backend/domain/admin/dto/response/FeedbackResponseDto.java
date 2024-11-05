@@ -11,5 +11,5 @@ public class FeedbackResponseDto {
 	private Integer page;
 	private Integer size;
 	private Integer totalPages;
-	private Integer totalElements;
+	private Long totalElements;
 }

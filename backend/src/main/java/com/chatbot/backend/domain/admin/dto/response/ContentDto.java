@@ -4,9 +4,11 @@ import java.time.LocalDateTime;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
 @Builder
+@ToString
 public class ContentDto{
 	private String chatId;
 	private String question;
