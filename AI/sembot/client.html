@@ -1,0 +1,405 @@
+<!-- client.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>규정 챗봇</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            box-sizing: border-box;
+            overflow-y: auto; /* HTML 스크롤 사용 */
+        }
+        #chatContainer {
+            width: 100%;
+            max-width: 700px;
+            display: flex;
+            flex-direction: column;
+            border-radius: 8px;
+            margin: auto; /* 채팅이 비어있을 때 세로 중앙 정렬 */
+        }
+        #pastChatHistory, #currentChatSession {
+            padding: 10px;
+            white-space: pre-wrap;
+            display: flex;
+            flex-direction: column;
+        }
+        .messageContainer {
+            display: flex;
+            margin: 4px 0;
+        }
+        .userMessage {
+            padding: 8px;
+            border-radius: 8px;
+            background-color: #f0f0f0;
+            max-width: 75%;
+            text-align: left;
+            margin-left: auto;
+        }
+        .assistantMessage {
+            padding: 8px;
+            border-radius: 8px;
+            max-width: 100%;
+            text-align: left;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+        .docButtonsContainer {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 4px 0;
+            justify-content: flex-start; /* 버튼을 왼쪽 정렬 */
+        }
+        .docButton {
+            padding: 8px 12px;
+            margin: 4px;
+            border: none;
+            border-radius: 4px;
+            background-color: #cccccc;
+            color: #333;
+            cursor: pointer;
+        }
+        .docButton:hover {
+            background-color: #bbbbbb;
+        }
+        .docContentContainer {
+            padding: 8px;
+            border-radius: 8px;
+            background-color: #f5f5f5;
+            width: 100%; /* 문서 내용을 좌우로 꽉 채움 */
+            text-align: left;
+            margin: 8px 0;
+            line-height: 1.6;
+            font-size: 14px;
+            color: #333;
+        }
+        #inputContainer {
+            display: flex;
+            padding: 10px;
+            background-color: #fff;
+            margin-top: auto; /* 채팅이 비어있을 때 세로 중앙 정렬 */
+        }
+        #question {
+            flex-grow: 1;
+            padding: 8px;
+            font-size: 16px;
+        }
+        #submitButton {
+            margin-left: 10px;
+            padding: 8px 16px;
+            font-size: 16px;
+            background-color: #333333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="chatContainer">
+        <!-- 과거 채팅 기록 -->
+        <div id="pastChatHistoryContainer">
+            <div id="pastChatHistory"></div>
+        </div>
+        <!-- 현재 채팅 세션 -->
+        <div id="currentChatSessionContainer" style="display:none;">
+            <div id="currentChatSession"></div>
+        </div>
+        <div id="inputContainer">
+            <input type="text" id="question" name="question" placeholder="질문을 입력하세요..." autocomplete="off">
+            <button id="submitButton">↑</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script type="text/javascript" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script type="text/javascript">
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']], // 인라인 수식 표기
+                displayMath: [['$$', '$$'], ['\\[', '\\]']] // 디스플레이 수식 표기
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script>
+        // DOM 요소 가져오기
+        const questionInput = document.getElementById("question");
+        const pastChatHistory = document.getElementById("pastChatHistory");
+        const currentChatSession = document.getElementById("currentChatSession");
+        const currentChatSessionContainer = document.getElementById("currentChatSessionContainer");
+        const submitButton = document.getElementById("submitButton");
+        const inputContainer = document.getElementById("inputContainer");
+        const chatContainer = document.getElementById("chatContainer");
+
+        let memory = []; // 이전 QDA를 저장하는 배열
+        
+
+        let conversationStarted = false; // 대화가 시작되었는지 여부를 추적
+        let serverURL = "https://2214-34-16-23-197.ngrok-free.app";
+
+        // 과거 채팅 기록을 렌더링하는 함수
+        function renderPastChatHistory() {
+            pastChatHistory.innerHTML = '';
+            memory.forEach((entry, entryIndex) => {
+                // 사용자 메시지 표시
+                if (entry.question) {
+                    const userMessageContainer = document.createElement("div");
+                    userMessageContainer.className = "messageContainer";
+                    const userMessageDiv = document.createElement("div");
+                    userMessageDiv.className = "userMessage";
+                    userMessageDiv.textContent = entry.question;
+                    userMessageContainer.appendChild(userMessageDiv);
+                    pastChatHistory.appendChild(userMessageContainer);
+                }
+
+                // 문서 버튼 생성
+                if (entry.docs && entry.docs.length > 0) {
+                    const docButtonsContainer = document.createElement("div");
+                    docButtonsContainer.className = "docButtonsContainer";
+                    entry.docs.forEach((doc, docIndex) => {
+                        const docButton = document.createElement("button");
+                        docButton.className = "docButton";
+
+                        // 파일명 추출 및 확장자 제거
+                        let fileName = doc.metadata.source.split('/').pop().split('\\').pop();
+                        fileName = fileName.replace(/\.[^/.]+$/, "");
+
+                        // 페이지 번호 계산
+                        let pageNumber = (doc.metadata.page || 0) + 1;
+
+                        // 버튼 텍스트 설정
+                        docButton.textContent = `${fileName} - ${pageNumber}페이지`;
+
+                        docButton.onclick = () => {
+                            toggleDocContent(entryIndex, docIndex, false); // false는 과거 채팅임을 나타냄
+                        };
+                        docButtonsContainer.appendChild(docButton);
+                    });
+                    pastChatHistory.appendChild(docButtonsContainer);
+                }
+
+                // 공유 문서 내용 컨테이너 생성
+                const docContentDiv = document.createElement("div");
+                docContentDiv.className = "docContentContainer";
+                docContentDiv.style.display = "none";
+                pastChatHistory.appendChild(docContentDiv);
+                entry.docContentDiv = docContentDiv;
+                entry.currentDocIndex = null;
+
+                // 어시스턴트 답변 표시
+                if (entry.answer) {
+                    const assistantMessageContainer = document.createElement("div");
+                    assistantMessageContainer.className = "messageContainer";
+                    const assistantMessageDiv = document.createElement("div");
+                    assistantMessageDiv.className = "assistantMessage";
+                    assistantMessageDiv.innerHTML = marked.parse(entry.answer);
+                    assistantMessageContainer.appendChild(assistantMessageDiv);
+                    pastChatHistory.appendChild(assistantMessageContainer);
+                }
+            });
+            adjustInputPosition(); // 입력 위치 조정
+        }
+
+        // 문서 내용을 토글하는 함수
+        function toggleDocContent(entryIndex, docIndex, isCurrent) {
+            const entry = isCurrent ? currentQDA : memory[entryIndex];
+            const docContentDiv = isCurrent ? currentQDA.docContentDiv : entry.docContentDiv;
+
+            // 같은 문서가 이미 표시되어 있으면 숨김
+            if (docContentDiv.style.display === "block" && entry.currentDocIndex === docIndex) {
+                docContentDiv.style.display = "none";
+                entry.currentDocIndex = null;
+            } else {
+                // 내용 업데이트 후 표시
+                const doc = entry.docs[docIndex];
+                docContentDiv.textContent = doc.page_content;
+                docContentDiv.style.display = "block";
+                entry.currentDocIndex = docIndex;
+            }
+        }
+
+        // 현재 채팅 세션을 초기화하는 함수
+        function clearCurrentChatSession() {
+            currentChatSession.innerHTML = '';
+            currentChatSessionContainer.style.display = 'none';
+            currentQDA = null;
+        }
+
+        // 대화 시작 여부에 따라 입력 위치를 조정하는 함수
+        function adjustInputPosition() {
+            if (!conversationStarted) {
+                // 입력창을 세로로 가운데 정렬
+                chatContainer.style.height = '100vh';
+                inputContainer.style.marginTop = 'auto';
+                inputContainer.style.marginBottom = 'auto';
+            } else {
+                // 입력창을 아래로 고정
+                chatContainer.style.height = '';
+                inputContainer.style.marginTop = '';
+                inputContainer.style.marginBottom = '';
+            }
+        }
+
+        // 초기 입력 위치 조정
+        adjustInputPosition();
+
+        // 엔터 키로 제출 버튼 클릭하기
+        questionInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                submitButton.click();
+            }
+        });
+
+        let currentQDA = null; // 현재 QDA를 추적
+
+        // 질문 제출 이벤트 처리
+        submitButton.onclick = async () => {
+            const question = questionInput.value.trim();
+
+            if (!question) return;
+
+            // 대화가 시작되었음을 표시하고 입력 위치 조정
+            if (!conversationStarted) {
+                conversationStarted = true;
+                adjustInputPosition();
+            }
+
+            // currentQDA 객체 생성 (아직 메모리에 추가하지 않음)
+            currentQDA = { question };
+
+            // 현재 채팅 세션 초기화 및 표시
+            currentChatSession.innerHTML = '';
+            currentChatSessionContainer.style.display = 'block';
+
+            // 현재 채팅 세션에 질문 표시
+            const userMessageContainer = document.createElement("div");
+            userMessageContainer.className = "messageContainer";
+            const userMessageDiv = document.createElement("div");
+            userMessageDiv.className = "userMessage";
+            userMessageDiv.textContent = question;
+            userMessageContainer.appendChild(userMessageDiv);
+            currentChatSession.appendChild(userMessageContainer);
+            window.scrollTo(0, document.body.scrollHeight);
+
+            questionInput.value = "";
+
+            // 서버로 검색 요청 전송
+            const searchResponse = await fetch(serverURL+"/search", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ question })
+            });
+
+            const searchResult = await searchResponse.json();
+            const docs = searchResult.docs || [];
+
+            // 모든 문서를 currentQDA.docs에 저장
+            currentQDA.docs = docs;
+
+            // 문서 버튼 생성
+            if (docs.length > 0) {
+                const docButtonsContainer = document.createElement("div");
+                docButtonsContainer.className = "docButtonsContainer";
+                docs.forEach((doc, docIndex) => {
+                    const docButton = document.createElement("button");
+                    docButton.className = "docButton";
+
+                    // 파일명 추출 및 확장자 제거
+                    let fileName = doc.metadata.source.split('/').pop().split('\\').pop();
+                    fileName = fileName.replace(/\.[^/.]+$/, "");
+
+                    // 페이지 번호 계산
+                    let pageNumber = (doc.metadata.page || 0) + 1;
+
+                    // 버튼 텍스트 설정
+                    docButton.textContent = `${fileName} - ${pageNumber}페이지`;
+
+                    docButton.onclick = () => {
+                        toggleDocContent(null, docIndex, true); // true는 현재 채팅임을 나타냄
+                    };
+                    docButtonsContainer.appendChild(docButton);
+                });
+                currentChatSession.appendChild(docButtonsContainer);
+            }
+
+            // 현재 채팅을 위한 공유 문서 내용 컨테이너 생성
+            const docContentDiv = document.createElement("div");
+            docContentDiv.className = "docContentContainer";
+            docContentDiv.style.display = "none";
+            currentChatSession.appendChild(docContentDiv);
+            currentQDA.docContentDiv = docContentDiv;
+            currentQDA.currentDocIndex = null;
+
+            window.scrollTo(0, document.body.scrollHeight);
+
+            // generate 요청을 위한 메모리 준비 (각 QDA의 첫 번째 문서만 포함)
+            const generateMemory = memory.map(entry => {
+                return {
+                    question: entry.question,
+                    doc: entry.docs && entry.docs.length > 0 ? entry.docs[0] : null,
+                    answer: entry.answer || null
+                };
+            });
+
+            // 서버로 generate 요청 전송
+            const generateResponse = await fetch(serverURL+"/generate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ memory: generateMemory, question })
+            });
+
+            const reader = generateResponse.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let answer = "";
+
+            // 현재 채팅 세션에 어시스턴트 메시지 컨테이너 생성
+            const assistantMessageContainer = document.createElement("div");
+            assistantMessageContainer.className = "messageContainer";
+            const assistantMessageDiv = document.createElement("div");
+            assistantMessageDiv.className = "assistantMessage";
+            assistantMessageContainer.appendChild(assistantMessageDiv);
+            currentChatSession.appendChild(assistantMessageContainer);
+
+            // 스트리밍 응답 읽기
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value, { stream: true });
+                answer += chunk;
+                assistantMessageDiv.innerHTML = marked.parse(answer);
+                MathJax.typesetPromise(); // MathJax를 수식에 적용
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+
+            // 응답 완료 후 currentQDA에 답변 저장
+            currentQDA.answer = answer;
+
+            // currentQDA를 메모리에 추가
+            memory.push(currentQDA);
+
+            // 현재 채팅 세션 초기화
+            clearCurrentChatSession();
+
+            // 과거 채팅 기록 다시 렌더링
+            renderPastChatHistory();
+            window.scrollTo(0, document.body.scrollHeight);
+        };
+
+        // 초기 과거 채팅 기록 렌더링
+        renderPastChatHistory();
+    </script>
+</body>
+</html>

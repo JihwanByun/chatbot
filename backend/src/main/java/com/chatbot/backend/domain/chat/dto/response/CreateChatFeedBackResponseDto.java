@@ -1,6 +1,6 @@
 package com.chatbot.backend.domain.chat.dto.response;
 
-import org.bson.types.ObjectId;
+import com.chatbot.backend.domain.chat.dto.ChatDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,8 +9,7 @@ import lombok.Data;
 @Data
 public class CreateChatFeedBackResponseDto {
 
-	private ObjectId chatId;
-	private boolean isPositive;
+	private ChatDto chatDto;
 	private String negativeReason;
 
 }
