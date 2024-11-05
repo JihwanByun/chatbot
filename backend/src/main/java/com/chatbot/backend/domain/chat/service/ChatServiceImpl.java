@@ -3,6 +3,7 @@ package com.chatbot.backend.domain.chat.service;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
+import com.chatbot.backend.domain.chat.dto.ChatDto;
 import com.chatbot.backend.domain.chat.dto.request.CreateChatFeedBackRequestDto;
 import com.chatbot.backend.domain.chat.dto.request.CreateChatRequestDto;
 import com.chatbot.backend.domain.chat.dto.response.CreateChatFeedBackResponseDto;
@@ -49,18 +50,26 @@ public class ChatServiceImpl implements ChatService {
 		Chat chat = mongoChatRepository.findById(new ObjectId(chatId)).
 			orElseThrow();
 
+		chat.setIsPositive(createChatFeedBackRequestDto.isPositive());
+		mongoChatRepository.save(chat);
+
 		ChatFeedBack savedFeedBack = chatFeedBackRepository.save(
 			ChatFeedBack.builder()
-				.chatId(chat.getChatId())
-				.isPositive(createChatFeedBackRequestDto.isPositive())
+				.chat(chat)
 				.negativeReason(createChatFeedBackRequestDto.getNegativeReason())
 				.build()
 		);
 
+		ChatDto chatDto = new ChatDto(
+			chatId,
+			chat.getQuestion(),
+			chat.getAnswer()
+		);
+
 		return new CreateChatFeedBackResponseDto(
-			savedFeedBack.getChatId(),
-			savedFeedBack.isPositive(),
+			chatDto,
 			savedFeedBack.getNegativeReason()
 		);
+
 	}
 }

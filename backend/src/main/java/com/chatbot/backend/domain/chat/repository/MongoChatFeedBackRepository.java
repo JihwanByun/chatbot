@@ -8,5 +8,4 @@ import com.chatbot.backend.domain.chat.entity.ChatFeedBack;
 
 @Repository
 public interface MongoChatFeedBackRepository extends MongoRepository<ChatFeedBack, ObjectId> {
-	ChatFeedBack findChatFeedBackByChatId(ObjectId objectId);
 }
