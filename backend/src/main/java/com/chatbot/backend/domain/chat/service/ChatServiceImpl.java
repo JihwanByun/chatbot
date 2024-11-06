@@ -2,6 +2,7 @@ package com.chatbot.backend.domain.chat.service;
 
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.chatbot.backend.domain.chat.dto.ChatDto;
 import com.chatbot.backend.domain.chat.dto.request.CreateChatFeedBackRequestDto;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class ChatServiceImpl implements ChatService {
 
 	private final MongoChatRepository mongoChatRepository;
