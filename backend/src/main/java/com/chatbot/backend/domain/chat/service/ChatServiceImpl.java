@@ -52,14 +52,14 @@ public class ChatServiceImpl implements ChatService {
 		CreateChatFeedBackRequestDto createChatFeedBackRequestDto) {
 
 		//긍정 피드백이지만 부정 피드백의 이유가 있는 경우
-		if (createChatFeedBackRequestDto.isPositive() && createChatFeedBackRequestDto.getNegativeReason() != null) {
+		if (createChatFeedBackRequestDto.getIsPositive() && createChatFeedBackRequestDto.getNegativeReason() != null) {
 			throw new FeedBackContradictionException();
 		}
 
 		Chat chat = mongoChatRepository.findById(new ObjectId(chatId)).
 			orElseThrow();
 
-		chat.setIsPositive(createChatFeedBackRequestDto.isPositive());
+		chat.setIsPositive(createChatFeedBackRequestDto.getIsPositive());
 		mongoChatRepository.save(chat);
 
 		ChatFeedBack savedFeedBack = chatFeedBackRepository.save(
