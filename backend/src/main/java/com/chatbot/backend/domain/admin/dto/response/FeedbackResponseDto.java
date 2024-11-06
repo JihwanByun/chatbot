@@ -1,28 +1,34 @@
 package com.chatbot.backend.domain.admin.dto.response;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-import lombok.AllArgsConstructor;
+import com.chatbot.backend.domain.chat.entity.ChatFeedBack;
 
-@AllArgsConstructor
+import lombok.Builder;
+import lombok.Getter;
+import lombok.ToString;
+
+@Getter
+@Builder
+@ToString
 public class FeedbackResponseDto {
-	private List<Content> contents;
-	
+	private String chatId;
+	private String question;
+	private String answer;
+	private Boolean isPositive;
+	private String negativeReason;
+	private LocalDateTime createdAt;
 
-	// 지환님 채팅 피드백 저장한거 가져와야돼서 기다려야할듯?
-
-	static class Content{
-		private String chatId;
-		private String question;
-		private String answer;
-		private LocalDateTime createdAt;
-
-		static class FeedbackInfo{
-			private Boolean isPositive;
-			private String negativeReason;
-			// private LocalDateTime
-		}
+	public static FeedbackResponseDto of(ChatFeedBack chatFeedBack){
+		return
+			FeedbackResponseDto.builder()
+				.chatId(String.valueOf(chatFeedBack.getChat().getChatId()))
+				.question(chatFeedBack.getChat().getQuestion())
+				.answer(chatFeedBack.getChat().getAnswer())
+				.isPositive(chatFeedBack.getChat().getIsPositive())
+				.negativeReason(chatFeedBack.getNegativeReason())
+				.createdAt(LocalDateTime.now())
+				.build();
 	}
-}
 
+}
