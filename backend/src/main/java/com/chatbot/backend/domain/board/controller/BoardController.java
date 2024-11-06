@@ -2,6 +2,7 @@ package com.chatbot.backend.domain.board.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -135,5 +136,18 @@ public class BoardController {
 	) {
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(boardService.getBoardList(userDetails.getId(), boardSearchCondition, pageable));
+	}
+
+	@Operation(
+		summary = "게시글 즐겨찾기 목록 조회",
+		description = "게시글에 즐겨찾기 목록을 조회합니다."
+	)
+	@GetMapping("/favorite")
+	public ResponseEntity<Slice<BoardBaseResponse>> getFavoriteBoardList(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+	) {
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(boardLikeService.getFavoriteBoardList(userDetails.getId(), pageable));
 	}
 }
