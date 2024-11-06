@@ -13,8 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.chatbot.backend.domain.board.dto.request.BoardCreateRequest;
-import com.chatbot.backend.domain.board.dto.response.BoardDetailResponse;
+import com.chatbot.backend.domain.board.dto.request.BoardCreateRequestDto;
+import com.chatbot.backend.domain.board.dto.response.BoardDetailResponseDto;
 import com.chatbot.backend.domain.board.entity.Board;
 import com.chatbot.backend.domain.board.repository.BoardRepository;
 import com.chatbot.backend.domain.category.entity.Category;
@@ -46,7 +46,7 @@ public class BoardServiceImplTest {
 	void createBoard_Success() {
 		// Given
 		Long userId = 1L;
-		BoardCreateRequest request = new BoardCreateRequest(
+		BoardCreateRequestDto request = new BoardCreateRequestDto(
 			"테스트 제목",
 			"테스트 내용",
 			"카테고리1",
@@ -87,7 +87,7 @@ public class BoardServiceImplTest {
 		given(boardRepository.save(any(Board.class))).willReturn(savedBoard);
 
 		// When
-		BoardDetailResponse response = boardService.createBoard(userId, request, file);
+		BoardDetailResponseDto response = boardService.createBoard(userId, request, file);
 
 		// Then
 		assertThat(response).isNotNull();
@@ -112,7 +112,7 @@ public class BoardServiceImplTest {
 	void createBoard_WithoutFile_Success() {
 		// Given
 		Long userId = 1L;
-		BoardCreateRequest request = new BoardCreateRequest(
+		BoardCreateRequestDto request = new BoardCreateRequestDto(
 			"테스트 제목",
 			"테스트 내용",
 			"카테고리1",
@@ -142,7 +142,7 @@ public class BoardServiceImplTest {
 		given(boardRepository.save(any(Board.class))).willReturn(savedBoard);
 
 		// When
-		BoardDetailResponse response = boardService.createBoard(userId, request, null);
+		BoardDetailResponseDto response = boardService.createBoard(userId, request, null);
 
 		// Then
 		assertThat(response).isNotNull();

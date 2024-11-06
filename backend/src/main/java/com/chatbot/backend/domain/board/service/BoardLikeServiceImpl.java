@@ -5,7 +5,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.chatbot.backend.domain.board.dto.response.BoardBaseResponse;
+import com.chatbot.backend.domain.board.dto.response.BoardBaseResponseDto;
 import com.chatbot.backend.domain.board.entity.Board;
 import com.chatbot.backend.domain.board.entity.BoardLike;
 import com.chatbot.backend.domain.board.repository.BoardLikeRepository;
@@ -58,8 +58,8 @@ public class BoardLikeServiceImpl implements BoardLikeService {
 	}
 
 	@Override
-	public Slice<BoardBaseResponse> getFavoriteBoardList(Long userId, Pageable pageable) {
+	public Slice<BoardBaseResponseDto> getFavoriteBoardList(Long userId, Pageable pageable) {
 		return boardLikeRepository.findByUserId(userId, pageable)
-			.map(boardLike -> BoardBaseResponse.of(boardLike.getBoard(), boardLike));
+			.map(boardLike -> BoardBaseResponseDto.of(boardLike.getBoard(), boardLike));
 	}
 }

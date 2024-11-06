@@ -1,6 +1,6 @@
 package com.chatbot.backend.domain.board.entity;
 
-import com.chatbot.backend.domain.board.dto.request.BoardUpdateRequest;
+import com.chatbot.backend.domain.board.dto.request.BoardUpdateRequestDto;
 import com.chatbot.backend.domain.category.entity.Category;
 import com.chatbot.backend.domain.user.entity.User;
 import com.chatbot.backend.global.shared.BaseTimeEntity;
@@ -71,10 +71,10 @@ public class Board extends BaseTimeEntity {
 	}
 
 	// Board 정보 수정
-	public void updateBoard(BoardUpdateRequest boardUpdateRequest, Category category, String fileUrl) {
-		this.title = boardUpdateRequest.title();
-		this.contents = boardUpdateRequest.contents();
-		this.level = boardUpdateRequest.level();
+	public void updateBoard(BoardUpdateRequestDto boardUpdateRequestDto, Category category, String fileUrl) {
+		this.title = boardUpdateRequestDto.title();
+		this.contents = boardUpdateRequestDto.contents();
+		this.level = boardUpdateRequestDto.level();
 		this.category = category;
 		this.fileUrl = fileUrl;
 	}
