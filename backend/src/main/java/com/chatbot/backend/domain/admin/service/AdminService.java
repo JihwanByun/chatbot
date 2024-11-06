@@ -4,9 +4,9 @@ package com.chatbot.backend.domain.admin.service;
 
 import org.springframework.data.domain.Pageable;
 
-import com.chatbot.backend.domain.admin.dto.response.FeedbackResponseDto;
+import com.chatbot.backend.domain.admin.dto.response.PageResponseDto;
 
 public interface AdminService {
 	void createCategory(Long userId, String name);
-	FeedbackResponseDto findFeedbackByPage(Long userId, Pageable pageable);
+	PageResponseDto findFeedbackByPage(Long userId, Pageable pageable);
 }
