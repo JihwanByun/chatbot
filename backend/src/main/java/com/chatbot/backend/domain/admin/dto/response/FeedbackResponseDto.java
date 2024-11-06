@@ -19,12 +19,12 @@ public class FeedbackResponseDto {
 	private String negativeReason;
 	private LocalDateTime createdAt;
 
-	public static FeedbackResponseDto of(ChatFeedBack chatFeedBack){
+	public static FeedbackResponseDto of(ChatFeedBack chatFeedBack) {
 		return
 			FeedbackResponseDto.builder()
 				.chatId(String.valueOf(chatFeedBack.getChat().getChatId()))
-				.question(chatFeedBack.getChat().getQuestion())
-				.answer(chatFeedBack.getChat().getAnswer())
+				.question(chatFeedBack.getChat().getMemory().getQuestion())
+				.answer(chatFeedBack.getChat().getMemory().getAnswer())
 				.isPositive(chatFeedBack.getChat().getIsPositive())
 				.negativeReason(chatFeedBack.getNegativeReason())
 				.createdAt(LocalDateTime.now())

@@ -15,4 +15,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 	default Category findByNameOrElseThrow(String name) {
 		return this.findByName(name).orElseThrow(CategoryNotFoundException::new);
 	}
+
+	default Category findByIdOrElseThrow(Long id) {
+		return findById(id).orElseThrow(CategoryNotFoundException::new);
+	}
 }
