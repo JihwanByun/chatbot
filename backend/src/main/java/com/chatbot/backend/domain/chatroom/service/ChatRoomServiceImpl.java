@@ -72,13 +72,12 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 		List<ChatDto> chats = chatRepository.findAllByChatRoomIdOrderByCreatedAtDesc(chatRoomId)
 			.stream().map(chat -> new ChatDto(
 				chat.getChatId().toHexString(),
-				chat.getMemory().getQuestion(),
-				chat.getMemory().getAnswer()
+				chat.getMemory(),
+				chat.getIsPositive()
 			)).toList();
 
 		return new FindChatRoomDetailResponseDto(
 			chatRoomId,
-			chatRoom.getTitle(),
 			chatRoom.getCreatedAt(),
 			chats
 		);

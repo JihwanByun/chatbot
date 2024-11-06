@@ -70,7 +70,10 @@ public enum ErrorCode {
 	INCORRECT_ID_OR_PASSWORD(401, "INCORRECT_ID_OR_PASSWORD", "아이디 혹은 비밀번호가 틀렸습니다."),
 
 	//채팅 관련 오류
-	CHAT_NOT_FOUND(404, "CHAT_ID_NOT_FOUND", "채팅을 찾을 수 없습니다");
+	CHAT_NOT_FOUND(404, "CHAT_ID_NOT_FOUND", "채팅을 찾을 수 없습니다"),
+
+	//채팅 피드백 관련 오류
+	CONTRADICTION_POSITIVE_OR_NEGATIVE(404, "CAN'T_CREATE_POSITIVE_FEEDBACK", "긍정 피드백에 부정 피드백을 작성할 수 없습니다.");
 
 	private final int httpStatus;
 	private final String code;

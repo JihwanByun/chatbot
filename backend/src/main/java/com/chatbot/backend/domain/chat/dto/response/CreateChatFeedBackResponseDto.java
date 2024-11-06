@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class CreateChatFeedBackResponseDto {
 
-	private ChatDto chatDto;
+	private ChatDto chat;
 	private String negativeReason;
 
 }
