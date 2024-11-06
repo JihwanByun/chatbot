@@ -11,6 +11,7 @@ import com.chatbot.backend.domain.chat.dto.response.CreateChatResponseDto;
 import com.chatbot.backend.domain.chat.entity.Chat;
 import com.chatbot.backend.domain.chat.entity.ChatFeedBack;
 import com.chatbot.backend.domain.chat.entity.source.Memory;
+import com.chatbot.backend.domain.chat.exception.FeedBackContradictionException;
 import com.chatbot.backend.domain.chat.repository.MongoChatFeedBackRepository;
 import com.chatbot.backend.domain.chat.repository.MongoChatRepository;
 
@@ -48,6 +49,11 @@ public class ChatServiceImpl implements ChatService {
 	public CreateChatFeedBackResponseDto createChatFeedBack(String chatId,
 		CreateChatFeedBackRequestDto createChatFeedBackRequestDto) {
 
+		//긍정 피드백이지만 부정 피드백의 이유가 있는 경우
+		if (createChatFeedBackRequestDto.isPositive() && createChatFeedBackRequestDto.getNegativeReason() != null) {
+			throw new FeedBackContradictionException();
+		}
+
 		Chat chat = mongoChatRepository.findById(new ObjectId(chatId)).
 			orElseThrow();
 
@@ -63,8 +69,8 @@ public class ChatServiceImpl implements ChatService {
 
 		ChatDto chatDto = new ChatDto(
 			chatId,
-			chat.getMemory().getQuestion(),
-			chat.getMemory().getAnswer()
+			chat.getMemory(),
+			chat.getIsPositive()
 		);
 
 		return new CreateChatFeedBackResponseDto(

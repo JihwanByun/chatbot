@@ -1,5 +1,7 @@
 package com.chatbot.backend.domain.chat.dto;
 
+import com.chatbot.backend.domain.chat.entity.source.Memory;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -8,7 +10,6 @@ import lombok.Data;
 public class ChatDto {
 
 	private String chatId;
-	private String question;
-	private String answer;
-
+	private Memory memory;
+	private Boolean isPositive;
 }
