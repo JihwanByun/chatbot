@@ -69,27 +69,40 @@ public class AdminServiceImpl implements AdminService {
 		categoryRepository.save(adminCategory);
 	}
 
+	/**
+	 * 카테고리 수정
+	 * @param userId
+	 * @param categoryId
+	 * @param name
+	 * @return 수정된 카테고리 Dto
+	 */
 	@Override
 	public CategoryItemDto updateCategory(Long userId, Long categoryId, String name) {
+		// 검증 & 조회
 		User user = userRepository.findByIdOrElseThrow(userId);
 		Category category = categoryRepository.findByIdOrElseThrow(categoryId);
 
+		// 검증
 		categoryValidator.validateUserAuthroization(user);
 		categoryValidator.validateCategoryExists(category);
 		categoryValidator.validateCategoryAlreadyExists(name);
 
+		// 카테고리 수정 처리
 		category.updateCategory(name);
 		return CategoryItemDto.of(category);
 	}
 
 	@Override
 	public void deleteCategory(Long userId, Long categoryId) {
+		// 검증 & 조회
 		User user = userRepository.findByIdOrElseThrow(userId);
 		Category category = categoryRepository.findByIdOrElseThrow(categoryId);
 
+		// 검증
 		categoryValidator.validateUserAuthroization(user);
 		categoryValidator.validateCategoryExists(category);
 
+		// 카테고리 삭제 처리
 		category.deleteCategory();
 	}
 }

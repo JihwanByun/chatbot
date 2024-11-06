@@ -17,18 +17,21 @@ import lombok.RequiredArgsConstructor;
 public class CategoryValidator {
 	private final CategoryRepository categoryRepository;
 
+	// 사용자 권한 검증
 	public void validateUserAuthroization(User user) {
 		if (user.getRole() != Role.ADMIN) {
 			throw new CategoryUnauthorizedException();
 		}
 	}
 
+	// 카테고리 존재 여부 검증
 	public void validateCategoryExists(Category category) {
 		if (category.getIsDeleted()) {
 			throw new CategoryAlreadyDeletedException();
 		}
 	}
 
+	// 카테고리 이름 중복 여부 검증
 	public void validateCategoryAlreadyExists(String name) {
 		if (categoryRepository.findByName(name).isPresent()) {
 			throw new CategoryAlreadyExistsException();
