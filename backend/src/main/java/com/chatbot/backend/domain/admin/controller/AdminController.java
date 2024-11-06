@@ -1,5 +1,6 @@
 package com.chatbot.backend.domain.admin.controller;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,6 +21,7 @@ import com.chatbot.backend.domain.admin.dto.response.PageResponseDto;
 import com.chatbot.backend.domain.admin.service.AdminService;
 import com.chatbot.backend.domain.category.dto.response.CategoryFindResponseDto;
 import com.chatbot.backend.domain.category.dto.response.CategoryItemDto;
+import com.chatbot.backend.domain.user.dto.request.UserSearchCondition;
 import com.chatbot.backend.domain.user.dto.request.UserUpdateRequestDto;
 import com.chatbot.backend.domain.user.dto.response.UserBaseResponseDto;
 import com.chatbot.backend.global.security.CustomUserDetails;
@@ -34,7 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @RequestMapping("/api/admins")
 public class AdminController {
-
 	private final AdminService adminService;
 
 	@GetMapping("/feedbacks")
@@ -96,5 +98,19 @@ public class AdminController {
 	) {
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(adminService.updateUser(userDetails.getId(), userId, userUpdateRequestDto));
+	}
+
+	@Operation(
+		summary = "사용자 정보 목록 조회",
+		description = "사용자 정보 목록을 조회합니다."
+	)
+	@GetMapping("/users")
+	public ResponseEntity<Page<UserBaseResponseDto>> getUserList(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@ModelAttribute UserSearchCondition userSearchCondition,
+		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+	) {
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(adminService.getUserList(userDetails.getId(), userSearchCondition, pageable));
 	}
 }

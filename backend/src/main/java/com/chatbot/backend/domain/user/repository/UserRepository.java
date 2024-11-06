@@ -9,9 +9,9 @@ import com.chatbot.backend.domain.user.entity.User;
 import com.chatbot.backend.domain.user.exception.UserNotFoundException;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, UserQueryRepository {
 
-	default User findByIdOrElseThrow(Long userId){
+	default User findByIdOrElseThrow(Long userId) {
 		return findById(userId).orElseThrow(UserNotFoundException::new);
 	}
 
@@ -19,8 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 		return findUserByEmail(email).orElseThrow(UserNotFoundException::new);
 	}
 
-    User findUserById(Long id);
-    Optional<User> findUserByEmail(String email);
+	User findUserById(Long id);
 
-
+	Optional<User> findUserByEmail(String email);
 }
