@@ -19,6 +19,8 @@ import com.chatbot.backend.domain.admin.dto.response.PageResponseDto;
 import com.chatbot.backend.domain.admin.service.AdminService;
 import com.chatbot.backend.domain.category.dto.response.CategoryFindResponseDto;
 import com.chatbot.backend.domain.category.dto.response.CategoryItemDto;
+import com.chatbot.backend.domain.user.dto.request.UserUpdateRequestDto;
+import com.chatbot.backend.domain.user.dto.response.UserBaseResponseDto;
 import com.chatbot.backend.global.security.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,8 +41,7 @@ public class AdminController {
 	public ResponseEntity<PageResponseDto> findCategoryByPage(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		Boolean isPositive,
-		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable)
-	{
+		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
 		Long userId = userDetails.getId();
 		PageResponseDto response = adminService.findFeedbackByPage(userId, pageable);
@@ -50,7 +51,7 @@ public class AdminController {
 	@PostMapping("/categories")
 	public ResponseEntity<CategoryFindResponseDto> createCategory(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
-		@RequestBody String name){
+		@RequestBody String name) {
 		Long userId = userDetails.getId();
 		adminService.createCategory(userId, name);
 		return ResponseEntity.ok().build();
@@ -81,5 +82,19 @@ public class AdminController {
 	) {
 		adminService.deleteCategory(userDetails.getId(), categoryId);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
+
+	@Operation(
+		summary = "회원 정보 수정",
+		description = "회원 정보를 수정합니다. 회원의 레벨, 역할을 선택적으로 수정할 수 있습니다."
+	)
+	@PutMapping("/users/{userId}")
+	public ResponseEntity<UserBaseResponseDto> updateUser(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@PathVariable Long userId,
+		@RequestBody UserUpdateRequestDto userUpdateRequestDto
+	) {
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(adminService.updateUser(userDetails.getId(), userId, userUpdateRequestDto));
 	}
 }
