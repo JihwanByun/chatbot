@@ -65,6 +65,8 @@ public enum ErrorCode {
 	// 카테고리 관련 오류
 	CATEGORY_NOT_FOUND(404, "CATEGORY_NOT_FOUND", "카테고리를 찾을 수 없습니다."),
 	CATEGORY_ALREADY_EXISTS(409, "CATEGORY_ALREADY_EXISTS", "이미 존재하는 카테고리입니다."),
+	CATEGORY_ALREADY_DELETED(400, "CATEGORY_ALREADY_DELETED", "이미 삭제된 카테고리입니다."),
+	CATEGORY_UNAUTHORIZED(403, "CATEGORY_UNAUTHORIZED", "카테고리 수정 / 삭제 권한이 없습니다."),
 
 	// 로그인 관련 오류
 	INCORRECT_ID_OR_PASSWORD(401, "INCORRECT_ID_OR_PASSWORD", "아이디 혹은 비밀번호가 틀렸습니다."),
