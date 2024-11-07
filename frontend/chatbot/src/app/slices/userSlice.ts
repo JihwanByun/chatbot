@@ -7,14 +7,12 @@ import { setAuthToken } from "@apis/common";
 
 interface UserState {
 	role: string | null;
-	token: string | null;
 	loading: boolean;
 	error: string | null;
 }
 
 const initialState: UserState = {
 	role: null,
-	token: null,
 	loading: false,
 	error: null,
 };
@@ -27,6 +25,7 @@ export const loginUser = createAsyncThunk(
 			// login API 호출
 			const response = await loginAPI(loginData);
 			console.log("Response Data:", response.data);
+			console.log(response.headers.authorization);
 
 			const { token, role } = response.data;
 
@@ -34,7 +33,7 @@ export const loginUser = createAsyncThunk(
 			setAuthToken(token);
 
 			// role과 token 반환
-			return { role, token };
+			return { role };
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
 				return rejectWithValue(error.response.data);
@@ -50,7 +49,6 @@ const userSlice = createSlice({
 	reducers: {
 		logout(state) {
 			state.role = null;
-			state.token = null;
 		},
 	},
 	extraReducers: (builder) => {
@@ -65,13 +63,11 @@ const userSlice = createSlice({
 					state,
 					action: PayloadAction<{
 						role: string;
-						token: string;
 					}>
 				) => {
 					console.log("Fulfilled Action Payload:", action.payload);
 					state.loading = false;
 					state.role = action.payload.role;
-					state.token = action.payload.token;
 				}
 			)
 			.addCase(loginUser.rejected, (state, action: PayloadAction<any>) => {
