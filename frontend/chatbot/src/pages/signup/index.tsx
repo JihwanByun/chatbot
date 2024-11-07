@@ -9,7 +9,7 @@ export interface SignUpFormProps {
     onSubmit: (formData: SignUpDTO) => void;
 }
 
-const SignUpForm: React.FC<> = () => {
+const SignUpForm: React.FC = () => {
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
     const [department, setDepartment] = useState('');
@@ -39,10 +39,25 @@ const SignUpForm: React.FC<> = () => {
     
     };
 
-    const handleEmailCheck = () => {
-        // Implement email duplication check logic here
-        console.log('Checking for email duplication:', email);
+    const handleEmailCheck = async () => {
+        try {
+            const response = await fetch(`/api/users?email=${email}`); // email 변수를 올바르게 연결
+            if (response.ok) {
+                const isDuplicate = await response.json();
+                if (isDuplicate) {
+                    alert('이메일이 이미 사용 중입니다.'); // 중복된 경우
+                } else {
+                    alert('사용 가능한 이메일입니다.'); // 중복되지 않은 경우
+                }
+            } else {
+                alert('이메일 중복 확인 중 오류가 발생했습니다.'); // 서버 오류
+            }
+        } catch (error) {
+            console.error('이메일 중복 확인 중 오류 발생:', error);
+            alert('이메일 중복 확인 중 오류가 발생했습니다. 다시 시도해 주세요.');
+        }
     };
+    
 
     return (
 
