@@ -11,4 +11,10 @@ public interface BoardRepository extends JpaRepository<Board, Long>, BoardQueryR
 	default Board findByIdOrElseThrow(Long id) {
 		return findById(id).orElseThrow(BoardNotFoundException::new);
 	}
+
+	default void existsByIdOrElseThrow(Long id) {
+		if (!existsById(id)) {
+			throw new BoardNotFoundException();
+		}
+	}
 }
