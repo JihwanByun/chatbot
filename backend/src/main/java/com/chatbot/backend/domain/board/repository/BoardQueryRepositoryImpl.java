@@ -36,15 +36,15 @@ public class BoardQueryRepositoryImpl extends Querydsl4RepositorySupport<Board, 
 	public Page<Board> findAllByConditions(Long userId, BoardSearchCondition boardSearchCondition,
 		Pageable pageable) {
 		return applyPagination(pageable,
-			selectFrom(board)
-				.leftJoin(board.user, user).fetchJoin()
+			select(board)
+				.from(board)
+				.leftJoin(board.user, user)
 				.leftJoin(boardLike).on(boardLike.board.eq(board).and(boardLike.user.id.eq(userId)))
 				.where(
 					isAccessibleByLevel(boardSearchCondition.level()),
 					hasName(boardSearchCondition.name()),
 					hasTitle(boardSearchCondition.title()),
-					board.isDeleted.isFalse()
-				));
+					board.isDeleted.isFalse()));
 	}
 
 	// 게시글 접근 권한 확인을 위한 메소드
@@ -54,8 +54,8 @@ public class BoardQueryRepositoryImpl extends Querydsl4RepositorySupport<Board, 
 	}
 
 	// 이름으로 게시글 작성자 필터링
-	private BooleanExpression hasName(String nickname) {
-		return nickname != null ? board.user.name.contains(nickname) : null;
+	private BooleanExpression hasName(String name) {
+		return name != null ? board.user.name.contains(name) : null;
 	}
 
 	// 제목으로 게시글 필터링
