@@ -1,5 +1,7 @@
 package com.chatbot.backend.domain.chat.dto.request;
 
+import com.chatbot.backend.domain.chat.entity.source.Memory;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,7 +10,6 @@ import lombok.Setter;
 public class CreateChatRequestDto {
 
 	private Long chatRoomId;
-	private String question;
-	private String answer;
+	private Memory memory;
 
 }

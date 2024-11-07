@@ -14,10 +14,12 @@ import com.chatbot.backend.domain.chat.dto.response.CreateChatResponseDto;
 import com.chatbot.backend.domain.chat.service.ChatService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("api/chats")
 @RequiredArgsConstructor
+@Slf4j
 public class ChatController {
 
 	private final ChatService chatService;
@@ -34,6 +36,8 @@ public class ChatController {
 	public ResponseEntity<CreateChatFeedBackResponseDto> createChatFeedBack(
 		@PathVariable String chatId,
 		@RequestBody CreateChatFeedBackRequestDto createChatFeedBackRequestDto) {
+
+		log.info("debug message with variable: {}", createChatFeedBackRequestDto.getIsPositive());
 
 		CreateChatFeedBackResponseDto chatFeedBack = chatService.createChatFeedBack(chatId,
 			createChatFeedBackRequestDto);

@@ -16,16 +16,14 @@ public class ChatFeedBack {
 	@Id
 	private ObjectId ChatFeedBackId;
 
-	private ObjectId chatId;
+	private Chat chat;
 
-	private boolean isPositive;
 	private String negativeReason;
 	private LocalDateTime createdAt;
 
 	@Builder
-	public ChatFeedBack(ObjectId chatId, boolean isPositive, String negativeReason) {
-		this.chatId = chatId;
-		this.isPositive = isPositive;
+	public ChatFeedBack(Chat chat, String negativeReason) {
+		this.chat = chat;
 		this.negativeReason = negativeReason;
 		this.createdAt = LocalDateTime.now();
 

@@ -6,8 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.chatbot.backend.domain.chat.entity.Chat;
+import com.chatbot.backend.domain.chat.dto.ChatDto;
 import com.chatbot.backend.domain.chat.repository.MongoChatRepository;
 import com.chatbot.backend.domain.chatroom.dto.ChatRoomDto;
 import com.chatbot.backend.domain.chatroom.dto.request.CreateChatRoomRequestDto;
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ChatRoomServiceImpl implements ChatRoomService {
 
 	private final ChatRoomRepository chatRoomRepository;
@@ -30,11 +32,13 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 	private final MongoChatRepository chatRepository;
 
 	@Override
+	@Transactional
 	public CreateChatRoomResponseDto createChatRoom(
 		Long userId,
 		CreateChatRoomRequestDto createChatRoomRequestDto) {
 
 		User user = userRepository.findUserById(userId);
+
 		ChatRoom chatroom = chatRoomRepository.save(
 			ChatRoom.builder()
 				.user(user)
@@ -68,13 +72,17 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
 		ChatRoom chatRoom = chatRoomRepository.findChatRoomById(chatRoomId);
 
-		List<Chat> chat = chatRepository.findAllByChatRoomIdOrderByCreatedAtDesc(chatRoomId);
+		List<ChatDto> chats = chatRepository.findAllByChatRoomIdOrderByCreatedAtDesc(chatRoomId)
+			.stream().map(chat -> new ChatDto(
+				chat.getChatId().toHexString(),
+				chat.getMemory(),
+				chat.getIsPositive()
+			)).toList();
 
 		return new FindChatRoomDetailResponseDto(
 			chatRoomId,
-			chatRoom.getTitle(),
 			chatRoom.getCreatedAt(),
-			chat
+			chats
 		);
 	}
 

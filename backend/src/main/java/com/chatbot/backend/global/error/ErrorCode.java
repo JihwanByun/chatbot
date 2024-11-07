@@ -65,12 +65,17 @@ public enum ErrorCode {
 	// 카테고리 관련 오류
 	CATEGORY_NOT_FOUND(404, "CATEGORY_NOT_FOUND", "카테고리를 찾을 수 없습니다."),
 	CATEGORY_ALREADY_EXISTS(409, "CATEGORY_ALREADY_EXISTS", "이미 존재하는 카테고리입니다."),
+	CATEGORY_ALREADY_DELETED(400, "CATEGORY_ALREADY_DELETED", "이미 삭제된 카테고리입니다."),
+	CATEGORY_UNAUTHORIZED(403, "CATEGORY_UNAUTHORIZED", "카테고리 수정 / 삭제 권한이 없습니다."),
 
 	// 로그인 관련 오류
 	INCORRECT_ID_OR_PASSWORD(401, "INCORRECT_ID_OR_PASSWORD", "아이디 혹은 비밀번호가 틀렸습니다."),
 
 	//채팅 관련 오류
-	CHAT_NOT_FOUND(404, "CHAT_ID_NOT_FOUND", "채팅을 찾을 수 없습니다");
+	CHAT_NOT_FOUND(404, "CHAT_ID_NOT_FOUND", "채팅을 찾을 수 없습니다"),
+
+	//채팅 피드백 관련 오류
+	CONTRADICTION_POSITIVE_OR_NEGATIVE(404, "CAN'T_CREATE_POSITIVE_FEEDBACK", "긍정 피드백에 부정 피드백을 작성할 수 없습니다.");
 
 	private final int httpStatus;
 	private final String code;

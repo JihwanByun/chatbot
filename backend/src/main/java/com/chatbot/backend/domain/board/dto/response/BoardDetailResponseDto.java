@@ -12,7 +12,7 @@ import lombok.Builder;
 // 게시글, 작성자, 좋아요 정보를 포함
 @Builder
 @Schema(description = "게시글 상세 정보 응답 DTO")
-public record BoardDetailResponse(
+public record BoardDetailResponseDto(
 	// Board
 	@Schema(description = "게시글 ID", example = "1")
 	Long boardId,
@@ -37,15 +37,15 @@ public record BoardDetailResponse(
 
 	// User
 	@Schema(description = "작성자 정보")
-	BoardWriterResponse writer,
+	BoardWriterResponseDto writer,
 
 	// BoardLike
 	@Schema(description = "좋아요 여부", example = "false")
 	Boolean isFavorite
 ) {
 	// 게시글, 사용자, 좋아요 정보를 조합하여 응답 DTO 생성
-	public static BoardDetailResponse of(Board board, BoardLike boardLike) {
-		return BoardDetailResponse.builder()
+	public static BoardDetailResponseDto of(Board board, BoardLike boardLike) {
+		return BoardDetailResponseDto.builder()
 			.boardId(board.getId())
 			.title(board.getTitle())
 			.contents(board.getContents())
@@ -54,13 +54,13 @@ public record BoardDetailResponse(
 			.fileUrl(board.getFileUrl())
 			.createdAt(board.getCreatedAt())
 
-			.writer(BoardWriterResponse.of(board.getUser()))
+			.writer(BoardWriterResponseDto.of(board.getUser()))
 
 			.isFavorite(boardLike == null ? false : true)
 			.build();
 	}
 
-	public static BoardDetailResponse of(Board board) {
-		return BoardDetailResponse.of(board, null);
+	public static BoardDetailResponseDto of(Board board) {
+		return BoardDetailResponseDto.of(board, null);
 	}
 }

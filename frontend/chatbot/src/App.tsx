@@ -9,6 +9,7 @@ import AdminPage from "../src/pages/admin/index";
 import { useState } from "react";
 import Chat from "@pages/chat";
 import BoardListPage from "@pages/board";
+import LoginForm from "@pages/login";
 
 function App() {
 	const [curPage, setCurPage] = useState(4);
@@ -43,14 +44,9 @@ function App() {
 					}
 				/>
 				<Route path="/adminPage" element={<AdminPage />} />
-				<Route
-					path="/chat"
-					element={<Chat />}
-				/>
-				<Route
-					path="/board"
-					element={<BoardListPage />}
-				/>
+				<Route path="/chat" element={<Chat />} />
+				<Route path="/board" element={<BoardListPage />} />
+				<Route path="/login" element={<LoginForm />} />
 			</Routes>
 		</>
 	);

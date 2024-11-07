@@ -1,0 +1,92 @@
+name: sembot
+
+services:
+  mongo:
+    image: mongo:latest  # MongoDB 공식 이미지 사용
+    container_name: sembot-mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}  # 관리자 사용자 이름
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}  # 관리자 비밀번호
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}  # 기본 데이터베이스 이름
+    ports:
+      - ${MONGO_BINDING_PORT}:${MONGO_PORT}  # MongoDB 기본 포트 맵핑 (로컬:컨테이너)
+    volumes:
+      - mongo-data:/data/db  # 데이터 영속성 보장 (로컬 볼륨 사용)
+    # healthcheck:
+    #   test: echo 'db.runCommand("ping").ok' | mongo mongo:${MONGO_PORT}/${MONGO_INITDB_DATABASE} --quiet
+    #   retries: 3         # 실패 시 재시도 횟수 (3회)
+    #   timeout: 10s       # 헬스 체크 응답 대기 시간
+    #   start_period: 5s  # 컨테이너 시작 후 첫 번째 헬스 체크까지 기다릴 시간
+    networks:		#사용할 네트워크 지정
+      - sembot-network
+  mysql:
+    image: mysql:latest	#불러올 image
+    container_name: sembot-mysql 	#container 이름 지정
+    environment:	# 환경 설정
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}  
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - TZ=Asia/Seoul
+    ports:
+        - ${MYSQL_BINDING_PORT}:${MYSQL_PORT}
+    volumes:	#볼륨 지정
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+        test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p$$MYSQL_ROOT_PASSWORD']
+        retries: 3         # 실패 시 재시도 횟수 (3회)
+        timeout: 10s
+        start_period: 5s  # 컨테이너 시작 후 첫 번째 헬스 체크까지 기다릴 시간
+    networks:		#사용할 네트워크 지정
+      - sembot-network
+  backend:
+    container_name: sembot-backend
+    build:
+      context: ./backend  # 현재 디렉토리에서 빌드 (Dockerfile 위치)
+      dockerfile: Dockerfile  # Dockerfile의 경로, 기본값은 'Dockerfile'
+    environment:
+      - TZ=Asia/Seoul
+      - SERVER_PORT=${BACKEND_PORT}
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:${MYSQL_PORT}/${MYSQL_DATABASE}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - SPRING_DATA_REDIS_HOST=${SPRING_DATA_REDIS_HOST}
+      - SPRING_DATA_REDIS_PORT=${REDIS_PORT}
+      - SPRING_DATA_MONGODB_URL=mongodb://mongo:${MONGO_PORT}/${MONGO_INITDB_DATABASE}
+      - CORS_ORIGIN_DEVELOPMENT=${CORS_ORIGIN_DEVELOPMENT}
+      - CORS_ORIGIN_PRODUCTION=${CORS_ORIGIN_PRODUCTION}
+      - FILE_UPLOAD_PATH=${FILE_UPLOAD_PATH}
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - JWT_ACCESS_TOKEN_EXPIRATION=${JWT_ACCESS_TOKEN_EXPIRATION}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_REFRESH_TOKEN_EXPIRATION=${JWT_REFRESH_TOKEN_EXPIRATION}
+    ports:
+      - '${BACKEND_PORT}:${BACKEND_PORT}'
+    depends_on:   
+      mysql:
+        condition: service_healthy
+      mongo:
+        condition: service_started
+    networks:
+      - sembot-network
+
+  # frontend:
+  #   container_name: sembot-frontend
+  #   build:
+  #     context: ./frontend/chatbot  # 현재 디렉토리에서 빌드 (Dockerfile 위치)
+  #     dockerfile: Dockerfile  # Dockerfile의 경로, 기본값은 'Dockerfile'
+  #   networks:
+  #     - sembot-network
+  #   environment:
+  #     - TZ=Asia/Seoul
+  #   ports:
+  #     - '${FRONTEND_PORT}:${FRONTEND_PORT}'
+
+networks:
+  sembot-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  mongo-data:
+  mysql-data:

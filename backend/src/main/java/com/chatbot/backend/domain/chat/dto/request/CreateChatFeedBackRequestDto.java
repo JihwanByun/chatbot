@@ -1,14 +1,11 @@
 package com.chatbot.backend.domain.chat.dto.request;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class CreateChatFeedBackRequestDto {
 
-	private String chatId;
-	private boolean isPositive;
+	private Boolean isPositive;
 	private String negativeReason;
 
 }

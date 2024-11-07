@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.chatbot.backend.domain.chatroom.entity.ChatRoom;
+import com.chatbot.backend.domain.user.dto.request.UserUpdateRequestDto;
 import com.chatbot.backend.global.jwt.Role;
 import com.chatbot.backend.global.shared.BaseTimeEntity;
 
@@ -20,11 +21,13 @@ import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "users")
 @Getter
 @NoArgsConstructor
+@ToString
 public class User extends BaseTimeEntity {
 
 	@Builder
@@ -80,4 +83,15 @@ public class User extends BaseTimeEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private Role role;
+
+	// User 정보 수정
+	public void updateUser(UserUpdateRequestDto userUpdateRequestDto) {
+		this.level = userUpdateRequestDto.level() != null ? userUpdateRequestDto.level() : level;
+		this.role = userUpdateRequestDto.role() != null ? userUpdateRequestDto.role() : role;
+	}
+
+	// User 정보 삭제
+	public void deleteUser(User user) {
+		this.isDeleted = true;
+	}
 }

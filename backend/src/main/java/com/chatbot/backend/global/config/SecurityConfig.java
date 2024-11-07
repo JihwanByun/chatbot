@@ -70,6 +70,12 @@ public class SecurityConfig {
 					.requestMatchers(HttpMethod.GET, "/api/boards/**", "/api/categories", "/api/files/**")
 					.hasAnyAuthority(Role.ADMIN.getKey(), Role.USER.getKey(), Role.USER_WRITE.getKey())
 
+					.requestMatchers(HttpMethod.POST, "/api/boards/{boardId}/favorite")
+					.hasAnyAuthority(Role.USER.getKey(), Role.USER_WRITE.getKey(), Role.ADMIN.getKey())
+
+					.requestMatchers(HttpMethod.DELETE, "/api/boards/{boardId}/favorite")
+					.hasAnyAuthority(Role.USER.getKey(), Role.USER_WRITE.getKey(), Role.ADMIN.getKey())
+
 					.requestMatchers(HttpMethod.POST, "/api/boards/**")
 					.hasAuthority(Role.USER_WRITE.getKey())
 
