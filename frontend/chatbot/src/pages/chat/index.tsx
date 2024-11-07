@@ -3,14 +3,17 @@ import ChatView, { QnA } from "@components/chat/ChatView";
 import ButtonWithIcon from "@components/atoms/button/ButtonWithIcon";
 import { BaseMessage } from "@components/chat/ChatMessage";
 import SembotLayout from "@pages/SembotLayout";
-import { searchDocsAPI, generateAPI } from "@apis/chat/chatApi";
+import { searchDocsAPI, generateAPI, getChatroomListAPI, ChatroomList, ChatroomResponse } from "@apis/chat/chatApi";
 
 export type ButtonWithIconProps = React.ComponentProps<typeof ButtonWithIcon>;
 
 const Chat: React.FC = () => {
   const [curChatroomId, setCurChatroomId] = useState<number>(-1);
+  const [currentChatroomPage, setCurrentChatroomPage] = useState<number>(0);
+  const [hasNextChatroom, setHasNextChatroom] = useState<boolean>();
   const [qnas, setQnAs] = useState<QnA[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const initChatroom = () => {
     setCurChatroomId(-1);
@@ -25,11 +28,43 @@ const Chat: React.FC = () => {
   };
 
   const [chatroomComponents, setChatroomComponents] = useState<ButtonWithIconProps[]>([newChatProp]);
+  
+  const fetchChatroom = async (chatroomId : number) => {
+    
+  }
+
+  const fetchChatrooms = async () => {
+    setError(null);
+
+    const chatroomList : ChatroomList | null = await getChatroomListAPI(currentChatroomPage);
+    
+    if (!chatroomList) {
+      throw new Error('채팅방 목록을 가져오는데 실패했습니다.');
+    }
+
+    setHasNextChatroom(chatroomList.hasNext);
+    setCurrentChatroomPage(currentChatroomPage + 1);
+
+    chatroomList.contents.forEach((content : ChatroomResponse)=>{
+    
+      const chatroomBtnProp = {
+        btnName: content.title,
+        styleName: "flex bg-white text-semesBlue py-2 px-4 rounded mx-1",
+        icon: "src/assets/icons/delete.svg",
+        handleClick: ()=>fetchChatroom(content.chatRoomId)
+      };
+  
+      setChatroomComponents((prev) => [...prev, chatroomBtnProp]);
+    })
+
+    return chatroomList
+  };
 
   useEffect(() => {
     // 채팅방 목록 조회
-    // setChatroomComponents()
-  }, [curChatroomId]);
+    fetchChatrooms();
+
+  });
 
   const footStyle = "flex bg-transparent text-white py-2 px-4 rounded mx-1";
 
@@ -55,6 +90,7 @@ const Chat: React.FC = () => {
     };
 
     setCurChatroomId(result.data.chatroomId);
+
     const chatroomBtnProp = {
       btnName: result.data.title,
       styleName: "flex bg-white text-semesBlue py-2 px-4 rounded mx-1",

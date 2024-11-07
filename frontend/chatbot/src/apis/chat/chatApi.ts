@@ -1,4 +1,4 @@
-import { defaultAIAxios } from "@apis/common";
+import { defaultAIAxios, defaultAxios } from "@apis/common";
 import { Doc, DocMetadata, QnA } from "@components/chat/ChatView";
 import { AI_URL } from "@configs/config";
 
@@ -69,3 +69,42 @@ export const generateAPI = async (qnas: QnA[], question: string): Promise<Respon
 };
 
 //===== Backend API =====//
+
+export type ChatroomResponse = {
+  chatRoomId: number,
+  title: string,
+  createdAt: string
+}
+
+type ChatroomResponsePage = {
+  content: ChatroomResponse[]
+}
+
+type ChatroomListResponse = {
+  contents: ChatroomResponsePage,
+  hasNext: boolean
+}
+
+export type ChatroomList = {
+  contents: ChatroomResponse[],
+  hasNext: boolean
+}
+
+const convertToChatroomList = (chatroomListResponse : ChatroomListResponse) : ChatroomList => {
+  return {
+    contents: chatroomListResponse.contents.content,
+    hasNext: chatroomListResponse.hasNext
+  };
+}
+
+export const getChatroomListAPI = async (page : number = 0): Promise<ChatroomList | null> => {
+  return defaultAxios
+    .get<ChatroomListResponse>(`/api/chatrooms?page=${page}`)
+    .then((res) => {
+      return convertToChatroomList(res.data);
+    })
+    .catch((error) => {
+      console.error("Error in searchDocsAPI:", error);
+      return null;
+    });
+};
