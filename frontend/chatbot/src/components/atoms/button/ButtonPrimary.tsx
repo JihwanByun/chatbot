@@ -1,8 +1,7 @@
 export type ButtonProps = {
 	btnName: string;
 	styleName?: string;
-	// TODO
-	handleClick?: () => void;
+	handleClick?: () => void; // 함수 타입 지정
 	isDisabled?: boolean;
 };
 
@@ -17,7 +16,7 @@ const ButtonPrimary = ({
 			<button
 				className={styleName}
 				data-ripple-light="true"
-				onClick={handleClick}
+				onClick={handleClick} // 클릭 시 함수 호출
 				disabled={isDisabled}
 			>
 				{btnName}

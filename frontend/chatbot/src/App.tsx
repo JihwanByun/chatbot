@@ -10,6 +10,7 @@ import { useState } from "react";
 import Chat from "@pages/chat";
 import BoardListPage from "@pages/board";
 import LoginForm from "@pages/login";
+import RegisterPage from "../src/pages/signup/index";
 
 function App() {
 	const [curPage, setCurPage] = useState(4);
@@ -43,10 +44,13 @@ function App() {
 						<Paging curPage={curPage} totalPage={8} onPageChange={setCurPage} />
 					}
 				/>
+				
 				<Route path="/adminPage" element={<AdminPage />} />
 				<Route path="/chat" element={<Chat />} />
 				<Route path="/board" element={<BoardListPage />} />
 				<Route path="/login" element={<LoginForm />} />
+				<Route path="/register" element={<RegisterPage />}/>
+
 			</Routes>
 		</>
 	);

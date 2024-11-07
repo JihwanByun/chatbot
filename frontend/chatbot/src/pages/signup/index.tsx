@@ -3,12 +3,13 @@ import { SignUpDTO } from './SignUpDTO';
 import logo from '@/assets/images/head-register.png';
 import topLeftLogo from '@/assets/images/head-logo-group.png'; // Import your top-left logo
 import ButtonPrimary from '@components/atoms/button/ButtonPrimary';
+import { signUp } from '@apis/signup/signup';
 
 export interface SignUpFormProps {
     onSubmit: (formData: SignUpDTO) => void;
 }
 
-const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
+const SignUpForm: React.FC<> = () => {
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
     const [department, setDepartment] = useState('');
@@ -16,10 +17,26 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
     const [passwordVerify, setPasswordVerify] = useState('');
     const [termsAccepted, setTermsAccepted] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (!termsAccepted) {
+            alert('이용 약관에 동의해 주세요.');
+            return;
+        }
+
         const formData: SignUpDTO = { email, name, department, password, passwordVerify };
-        onSubmit(formData);
+
+        try{
+            const response =await signUp(formData);
+            console.log('회원가입 성공', response);
+            alert('회원가입에 성공했습니다!');
+        } catch(error){
+            console.error('회원가입 실패', error);
+            alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+        }
+        
+    
     };
 
     const handleEmailCheck = () => {
@@ -28,6 +45,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
     };
 
     return (
+
         <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         {/* Top-left logo */}
         <img
@@ -46,7 +64,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
                 
                 <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
                     <div className="mb-4">
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">이메일</label>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 text-left">이메일</label>
                         <div className="flex items-center">
                             <input
                                 type="email"
@@ -65,7 +83,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
                     </div>
 
                     <div className="mb-4">
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700">이름</label>
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 text-left">이름</label>
                         <input
                             type="text"
                             placeholder="Name"
@@ -76,7 +94,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
                         />
                     </div>
                     <div className="mb-4">
-                        <label htmlFor="department" className="block text-sm font-medium text-gray-700">부서</label>
+                        <label htmlFor="department" className="block text-sm font-medium text-gray-700 text-left">부서</label>
                         <select
                             id="department"
                             value={department}
@@ -92,7 +110,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
                         </select>
                     </div>
                     <div className="mb-4">
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">비밀번호</label>
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 text-left">비밀번호</label>
                         <input
                             type="password"
                             placeholder="Password"
@@ -103,7 +121,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
                         />
                     </div>
                     <div className="mb-4">
-                        <label htmlFor="passwordVerify" className="block text-sm font-medium text-gray-700">비밀번호 확인</label>
+                        <label htmlFor="passwordVerify" className="block text-sm font-medium text-gray-700 text-left">비밀번호 확인</label>
                         <input
                             type="password"
                             placeholder="Password"
@@ -129,6 +147,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
                 </form>
             </div>
         </div>
+    
     );
 }
 
