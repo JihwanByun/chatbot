@@ -20,11 +20,13 @@ import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "users")
 @Getter
 @NoArgsConstructor
+@ToString
 public class User extends BaseTimeEntity {
 
 	@Builder

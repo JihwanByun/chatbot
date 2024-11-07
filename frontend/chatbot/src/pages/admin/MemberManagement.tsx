@@ -2,13 +2,33 @@ import React, { useState, useEffect } from "react";
 import TableWithIconAndButton from "@components/atoms/table/TableWithIcon";
 import Paging from "@components/atoms/paging/Paging";
 import InputSearch from "@components/atoms/input/InputSearch";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
+import { fetchMembersByPage } from "@app/slices/memberSlice";
 
 const header = ["", "사번", "이름", "부서", "쓰기 권한", "회원레벨"];
 const columns = ["ssafy_1", "김광현", "개발부", "O", "3"];
 
 const MemberManagement = () => {
-	const [curPage, setCurPage] = useState(1);
-	const [itemsPerPage, setItemsPerPage] = useState(10); // 초기값 설정
+	const dispatch = useAppDispatch();
+	const { members, loading } = useAppSelector((state) => state.members);
+	const [page, setPage] = useState(1);
+	const [size, setSize] = useState(10); // 초기값 설정
+	const [sortBy, setSortBy] = useState("createdAt");
+	const [sortDir, setSortDir] = useState("desc");
+
+	// 일단 출력까지만 해봅시다.
+	useEffect(() => {
+		dispatch(
+			fetchMembersByPage({
+				page,
+				size,
+				sortBy,
+				sortDir,
+			})
+		);
+		console.log(members);
+	}, [dispatch, page, size , sortBy, sortDir]);
+
 	const iconPaths = [];
 	for (let i = 1; i <= 13; i++) {
 		iconPaths.push("/src/assets/icons/user-profile-ex.svg");
@@ -25,7 +45,7 @@ const MemberManagement = () => {
 
 	useEffect(() => {
 		// 페이지 로드 시와 화면 크기 변경 시 itemsPerPage 업데이트
-		const updateItemsPerPage = () => setItemsPerPage(calculateItemsPerPage());
+		const updateItemsPerPage = () => setSize(calculateItemsPerPage());
 		updateItemsPerPage();
 
 		window.addEventListener("resize", updateItemsPerPage);
@@ -44,10 +64,7 @@ const MemberManagement = () => {
 	};
 
 	// 현재 페이지에 맞는 항목들을 필터링
-	const currentItems = getTableRowData().slice(
-		itemsPerPage * (curPage - 1),
-		itemsPerPage * curPage
-	);
+	const currentItems = getTableRowData().slice(size * (page - 1), size * page);
 
 	const handleClick = () => {};
 
@@ -68,9 +85,9 @@ const MemberManagement = () => {
 			<div className="flex justify-center">
 				<div className="absolute bottom-5 mt-4 mb-[8%]">
 					<Paging
-						curPage={curPage}
-						onPageChange={setCurPage}
-						totalPage={Math.ceil(getTableRowData().length / itemsPerPage)} // 전체 페이지 수 계산
+						curPage={page}
+						onPageChange={setPage}
+						totalPage={Math.ceil(getTableRowData().length / size)} // 전체 페이지 수 계산
 					/>
 				</div>
 			</div>

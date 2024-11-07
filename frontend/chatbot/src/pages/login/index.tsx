@@ -1,106 +1,142 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LoginDTO } from "./LoginDTO";
-import logo from '@/assets/images/logo-login.png';
-import topLeftLogo from '@/assets/images/head-logo-group.png';
+import logo from "@/assets/images/logo-login.png";
+import topLeftLogo from "@/assets/images/head-logo-group.png";
 import ButtonPrimary from "@components/atoms/button/ButtonPrimary";
+import { useAppDispatch, useAppSelector } from "@app/hooks"; // Redux hooks 사용
+import { loginUser } from "@app/slices/userSlice"; // loginUser thunk import
+import { useNavigate } from "react-router-dom";
 
-export interface LoginFormProps {
-    onSubmit: (formData: LoginDTO) => void;
-}
+const LoginForm: React.FC = () => {
+	const navigate = useNavigate();
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [rememberMe, setRememberMe] = useState(false);
+	const dispatch = useAppDispatch();
+	const { role, loading, error } = useAppSelector((state) => state.users); // 상태 조회
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [rememberMe, setRememberMe] = useState(false);
+	useEffect(() => {
+		if (role) {
+			if (role === "관리자") {
+				navigate("/adminPage");
+			} else {
+				navigate("/chat");
+			}
+		}
+	}, [role, navigate]);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        const formData: LoginDTO = { email, password };
-        onSubmit(formData);
-    };
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		const formData: LoginDTO = { email, password };
+		dispatch(loginUser(formData)); // loginUser thunk를 dispatch하여 로그인 요청
+		console.log(role);
+		if (!role) {
+			// TODO : 로그인 안되면?
+			return;
+		}
+		if (role == "관리자") {
+			navigate("/adminPage");
+		} else {
+			navigate("/chat");
+		}
+	};
 
-    return (
-        <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            {/* Top-left logo */}
-            <img
-                src={topLeftLogo}
-                alt="Top Left Logo"
-                className="absolute top-4 left-4 w-16 h-auto"
-            />
+	return (
+		<div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+			{/* Top-left logo */}
+			<img
+				src={topLeftLogo}
+				alt="Top Left Logo"
+				className="absolute top-4 left-4 w-16 h-auto"
+			/>
 
-            <div className="max-w-md w-full p-4 bg-white shadow-md rounded">
-                <div className="text-center mb-6">
-                    <img
-                        src={logo}
-                        alt="Logo"
-                        className="mx-auto mb-2 w-full max-h-32 h-auto object-contain"
-                    />
-                </div>
+			<div className="max-w-md w-full p-4 bg-white shadow-md rounded">
+				<div className="text-center mb-6">
+					<img
+						src={logo}
+						alt="Logo"
+						className="mx-auto mb-2 w-full max-h-32 h-auto object-contain"
+					/>
+				</div>
 
-                <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-                    <div className="mb-4">
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">이메일</label>
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="border p-2 w-full"
-                            required
-                        />
-                    </div>
+				{/* 에러 메시지 출력 */}
+				{error && (
+					<div className="text-red-500 text-sm mb-4 text-center">{error}</div>
+				)}
 
-                    <div className="mb-4">
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">비밀번호</label>
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="border p-2 w-full"
-                            required
-                        />
-                    </div>
+				<form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+					<div className="mb-4">
+						<label
+							htmlFor="email"
+							className="block text-sm font-medium text-gray-700"
+						>
+							이메일
+						</label>
+						<input
+							type="email"
+							placeholder="Email"
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
+							className="border p-2 w-full"
+							required
+						/>
+					</div>
 
-                    {/* Remember Me checkbox */}
-                    <div className="flex items-center mb-4">
-                        <input
-                            type="checkbox"
-                            checked={rememberMe}
-                            onChange={(e) => setRememberMe(e.target.checked)}
-                            className="mr-2"
-                        />
-                        <label className="text-sm text-gray-700">로그인 정보 기억하기</label>
-                    </div>
-               {/* Login and Sign Up buttons */}
-                    <div className="flex w-full">
-                        {/* Left button - 로그인 */}
-                        <div className="flex-1">
-                            <ButtonPrimary 
-                                btnName="로그인" 
-                                handleClick={() => onSubmit({ email, password })} 
-                                styleName="bg-[#004F9F] text-white py-2 px-4 rounded w-full" // Updated color
-                                isDisabled={!email || !password}
-                            />
-                        </div>
-                        {/* Right button - 회원가입하기 */}
-                        <div className="flex-1">
-                            <ButtonPrimary 
-                                btnName="회원가입하기" 
-                                handleClick={() => console.log("회원가입 페이지로 이동")}
-                                styleName="bg-white text-[#004F9F] py-2 px-4 rounded w-full border" // Updated color
-                                isDisabled={false}
-                            />
-                        </div>
-                    </div>
+					<div className="mb-4">
+						<label
+							htmlFor="password"
+							className="block text-sm font-medium text-gray-700"
+						>
+							비밀번호
+						</label>
+						<input
+							type="password"
+							placeholder="Password"
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+							className="border p-2 w-full"
+							required
+						/>
+					</div>
 
+					{/* Remember Me checkbox */}
+					<div className="flex items-center mb-4">
+						<input
+							type="checkbox"
+							checked={rememberMe}
+							onChange={(e) => setRememberMe(e.target.checked)}
+							className="mr-2"
+						/>
+						<label className="text-sm text-gray-700">
+							로그인 정보 기억하기
+						</label>
+					</div>
 
-
-
-                </form>
-            </div>
-        </div>
-    );
+					{/* Login and Sign Up buttons */}
+					<div className="flex w-full">
+						{/* Left button - 로그인 */}
+						<div className="flex-1">
+							<ButtonPrimary
+								btnName={loading ? "로딩 중..." : "로그인"}
+								handleClick={() => handleSubmit}
+								styleName="bg-[#004F9F] text-white py-2 px-4 rounded w-full"
+								isDisabled={!email || !password || loading}
+							/>
+						</div>
+						{/* Right button - 회원가입하기 */}
+						<div className="flex-1">
+							<ButtonPrimary
+								btnName="회원가입하기"
+								handleClick={() => console.log("회원가입 페이지로 이동")}
+								styleName="bg-white text-[#004F9F] py-2 px-4 rounded w-full border"
+								isDisabled={false}
+							/>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	);
 };
 
 export default LoginForm;
