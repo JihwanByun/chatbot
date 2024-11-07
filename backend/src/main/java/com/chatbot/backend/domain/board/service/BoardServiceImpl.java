@@ -98,7 +98,6 @@ public class BoardServiceImpl implements BoardService {
 		Board board = boardRepository.findByIdOrElseThrow(boardId);
 
 		boardValidator.validateBoardExists(board);
-		boardValidator.validateUserAuthorization(user, board);
 
 		// File 저장
 		String fileUrl = null;
@@ -134,7 +133,6 @@ public class BoardServiceImpl implements BoardService {
 		Board board = boardRepository.findByIdOrElseThrow(boardId);
 
 		boardValidator.validateBoardExists(board);
-		boardValidator.validateUserAuthorization(user, board);
 
 		board.deleteBoard();
 	}
