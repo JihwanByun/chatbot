@@ -3,13 +3,11 @@ package com.chatbot.backend.domain.regulation.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.chatbot.backend.domain.board.entity.Board;
 import com.chatbot.backend.domain.board.repository.BoardRepository;
 import com.chatbot.backend.domain.regulation.dto.request.RegulationItemRequestDto;
 import com.chatbot.backend.domain.regulation.dto.request.RegulationRequestDto;
 import com.chatbot.backend.domain.regulation.dto.response.RegulationResponseDto;
 import com.chatbot.backend.domain.regulation.entity.Regulation;
-import com.chatbot.backend.domain.regulation.exception.RegulationNotFoundException;
 import com.chatbot.backend.domain.regulation.repository.RegulationRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -32,7 +30,7 @@ public class RegulationServiceImpl implements RegulationService {
 	@Override
 	public RegulationResponseDto createRegulation(Long boardId, RegulationRequestDto regulationRequestDto) {
 		// Board 존재 여부 확인
-		Board board = boardRepository.findByIdOrElseThrow(boardId);
+		boardRepository.existsByIdOrElseThrow(boardId);
 
 		// 규정 생성 및 저장
 		Regulation regulation = regulationRequestDto.toDocument(boardId);
@@ -48,9 +46,11 @@ public class RegulationServiceImpl implements RegulationService {
 	 */
 	@Override
 	public RegulationResponseDto updateRegulation(Long boardId, RegulationRequestDto regulationRequestDto) {
+		// Board 존재 여부 확인
+		boardRepository.existsByIdOrElseThrow(boardId);
+
 		// 기존 규정 조회
-		Regulation regulation = regulationRepository.findByBoardId(boardId)
-			.orElseThrow(RegulationNotFoundException::new);
+		Regulation regulation = regulationRepository.findByBoardIdOrElseThrow(boardId);
 
 		// 규정 업데이트 및 저장
 		regulation.updateRegulation(regulationRequestDto.itemList().stream()
@@ -67,7 +67,7 @@ public class RegulationServiceImpl implements RegulationService {
 	 */
 	@Override
 	public RegulationResponseDto getRegulation(Long boardId) {
-		return regulationRepository.findByBoardId(boardId).map(RegulationResponseDto::of).orElse(null);
+		return RegulationResponseDto.of(regulationRepository.findByBoardIdOrElseThrow(boardId));
 	}
 
 	/**
