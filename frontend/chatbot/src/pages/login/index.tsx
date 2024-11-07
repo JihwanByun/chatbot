@@ -15,16 +15,6 @@ const LoginForm: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const { role, loading, error } = useAppSelector((state) => state.users); // 상태 조회
 
-	useEffect(() => {
-		if (role) {
-			if (role === "관리자") {
-				navigate("/adminPage");
-			} else {
-				navigate("/chat");
-			}
-		}
-	}, [role, navigate]);
-
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		const formData: LoginDTO = { email, password };
