@@ -18,6 +18,7 @@ import com.chatbot.backend.global.jwt.JwtProvider;
 import com.chatbot.backend.global.jwt.Role;
 import com.chatbot.backend.global.jwt.exception.InvalidTokenException;
 import com.chatbot.backend.global.jwt.exception.NoTokenException;
+import com.chatbot.backend.global.security.CustomUserDetails;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
@@ -59,7 +60,7 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public void login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
+	public Role login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
 
 		// 이메일로 찾았는데 없으면 던지기
 		User loginUser = userRepository.findByEmailOrElseThrow(loginRequestDto.getEmail());
@@ -85,6 +86,8 @@ public class UserServiceImpl implements UserService{
 		response.addCookie(cookie);
 		String redisKey = loginUser.getEmail();
 		redisTemplate.opsForValue().set(redisKey, refreshToken);
+
+		return role;
 	}
 
 	@Override
