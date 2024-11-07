@@ -40,13 +40,14 @@ public class AdminController {
 	private final AdminService adminService;
 
 	@GetMapping("/feedbacks")
-	public ResponseEntity<PageResponseDto> findCategoryByPage(
+	public ResponseEntity<PageResponseDto> findFeedbackByPage(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		Boolean isPositive,
 		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
 		Long userId = userDetails.getId();
-		PageResponseDto response = adminService.findFeedbackByPage(userId, pageable);
+
+		PageResponseDto response = adminService.findFeedbackByPage(userId,isPositive, pageable);
 		return ResponseEntity.ok().body(response);
 	}
 

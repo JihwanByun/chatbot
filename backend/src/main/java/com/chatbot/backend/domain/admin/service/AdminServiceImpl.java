@@ -42,14 +42,15 @@ public class AdminServiceImpl implements AdminService {
 
 	//== ADMIN Feedback 관련 코드 ==//
 	@Override
-	public PageResponseDto findFeedbackByPage(Long userId, Pageable pageable) {
+	public PageResponseDto findFeedbackByPage(Long userId, Boolean isPositive, Pageable pageable) {
 		// admin 경우에만 feedback 조회 허용
 		User user = userRepository.findByIdOrElseThrow(userId);
 		if (user.getRole() != Role.ADMIN) {
 			throw new NoAuthorityException();
 		}
 
-		Page<ChatFeedBack> feedBacks = mongoChatFeedBackRepository.findAll(pageable);
+		Page<ChatFeedBack> feedBacks = (isPositive == null) ? mongoChatFeedBackRepository.findAll(pageable)
+			: (isPositive) ? mongoChatFeedBackRepository.findAllByPositiveFeedback(pageable) : mongoChatFeedBackRepository.findAllByNegativeFeedback(pageable);
 
 		return PageResponseDto.of(feedBacks.map(FeedbackResponseDto::of));
 	}

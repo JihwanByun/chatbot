@@ -39,6 +39,5 @@ export const findFeedbackListByPage = async (
 			sort: `${sortBy},${sortDir}`, // `sort` 파라미터를 한 문자열로 조합
 		},
 	});
-	console.log("Feedback result!!! : ", result);
 	return result;
 };
