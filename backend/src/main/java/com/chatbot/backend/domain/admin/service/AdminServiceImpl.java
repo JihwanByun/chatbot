@@ -18,6 +18,9 @@ import com.chatbot.backend.domain.category.util.CategoryValidator;
 import com.chatbot.backend.domain.chat.entity.ChatFeedBack;
 import com.chatbot.backend.domain.chat.repository.MongoChatFeedBackRepository;
 import com.chatbot.backend.domain.chat.repository.MongoChatRepository;
+import com.chatbot.backend.domain.user.dto.request.UserSearchCondition;
+import com.chatbot.backend.domain.user.dto.request.UserUpdateRequestDto;
+import com.chatbot.backend.domain.user.dto.response.UserBaseResponseDto;
 import com.chatbot.backend.domain.user.entity.User;
 import com.chatbot.backend.domain.user.repository.UserRepository;
 import com.chatbot.backend.global.jwt.Role;
@@ -37,11 +40,12 @@ public class AdminServiceImpl implements AdminService {
 	private final MongoChatRepository mongoChatRepository;
 	private final CategoryValidator categoryValidator;
 
+	//== ADMIN Feedback 관련 코드 ==//
 	@Override
 	public PageResponseDto findFeedbackByPage(Long userId, Pageable pageable) {
 		// admin 경우에만 feedback 조회 허용
 		User user = userRepository.findByIdOrElseThrow(userId);
-		if(user.getRole() != Role.ADMIN){
+		if (user.getRole() != Role.ADMIN) {
 			throw new NoAuthorityException();
 		}
 
@@ -50,10 +54,11 @@ public class AdminServiceImpl implements AdminService {
 		return PageResponseDto.of(feedBacks.map(FeedbackResponseDto::of));
 	}
 
+	//== ADMIN Category 관련 코드 ==//
 	@Override
 	public void createCategory(Long userId, String name) {
 		User user = userRepository.findByIdOrElseThrow(userId);
-		if(user.getRole() != Role.ADMIN){
+		if (user.getRole() != Role.ADMIN) {
 			throw new NoAuthorityException();
 		}
 
@@ -71,9 +76,10 @@ public class AdminServiceImpl implements AdminService {
 
 	/**
 	 * 카테고리 수정
-	 * @param userId
-	 * @param categoryId
-	 * @param name
+	 *
+	 * @param userId     사용자 ID
+	 * @param categoryId 삭제할 카테고리 ID
+	 * @param name       수정될 카테고리 이름
 	 * @return 수정된 카테고리 Dto
 	 */
 	@Override
@@ -92,6 +98,12 @@ public class AdminServiceImpl implements AdminService {
 		return CategoryItemDto.of(category);
 	}
 
+	/**
+	 * 카테고리 삭제
+	 *
+	 * @param userId     사용자 ID
+	 * @param categoryId 삭제할 카테고리 ID
+	 */
 	@Override
 	public void deleteCategory(Long userId, Long categoryId) {
 		// 검증 & 조회
@@ -104,5 +116,44 @@ public class AdminServiceImpl implements AdminService {
 
 		// 카테고리 삭제 처리
 		category.deleteCategory();
+	}
+
+	//== ADMIN User 관련 코드 ==//
+
+	/**
+	 * 사용자 정보 수정
+	 *
+	 * @param adminId              로그인한 사용자 ID
+	 * @param userId               수정할 사용자 ID
+	 * @param userUpdateRequestDto 수정할 사용자 정보 (LEVEL, ROLE)
+	 * @return 수정 후 수정된 사용자 정보
+	 */
+	@Override
+	public UserBaseResponseDto updateUser(Long adminId, Long userId, UserUpdateRequestDto userUpdateRequestDto) {
+		// 검증 & 조회
+		User user = userRepository.findByIdOrElseThrow(userId);
+		User admin = userRepository.findByIdOrElseThrow(adminId);
+
+		// 검증
+		categoryValidator.validateUserAuthroization(admin);
+
+		// 유저 정보 업데이트 처리
+		user.updateUser(userUpdateRequestDto);
+		return UserBaseResponseDto.of(user);
+	}
+
+	/**
+	 * 사용자 정보 목록 조회
+	 *
+	 * @param userId              로그인한 사용자 ID
+	 * @param userSearchCondition 사용자 검색 조건
+	 * @param pageable
+	 * @return 사용자 정보를 담은 페이징 객체
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public Page<UserBaseResponseDto> getUserList(Long userId, UserSearchCondition userSearchCondition,
+		Pageable pageable) {
+		return userRepository.findAllByConditions(userSearchCondition, pageable).map(UserBaseResponseDto::of);
 	}
 }

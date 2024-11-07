@@ -1,5 +1,6 @@
 package com.chatbot.backend.domain.admin.controller;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,6 +21,9 @@ import com.chatbot.backend.domain.admin.dto.response.PageResponseDto;
 import com.chatbot.backend.domain.admin.service.AdminService;
 import com.chatbot.backend.domain.category.dto.response.CategoryFindResponseDto;
 import com.chatbot.backend.domain.category.dto.response.CategoryItemDto;
+import com.chatbot.backend.domain.user.dto.request.UserSearchCondition;
+import com.chatbot.backend.domain.user.dto.request.UserUpdateRequestDto;
+import com.chatbot.backend.domain.user.dto.response.UserBaseResponseDto;
 import com.chatbot.backend.global.security.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,15 +37,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @RequestMapping("/api/admins")
 public class AdminController {
-
 	private final AdminService adminService;
 
 	@GetMapping("/feedbacks")
 	public ResponseEntity<PageResponseDto> findCategoryByPage(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		Boolean isPositive,
-		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable)
-	{
+		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
 		Long userId = userDetails.getId();
 		PageResponseDto response = adminService.findFeedbackByPage(userId, pageable);
@@ -50,7 +53,7 @@ public class AdminController {
 	@PostMapping("/categories")
 	public ResponseEntity<CategoryFindResponseDto> createCategory(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
-		@RequestBody String name){
+		@RequestBody String name) {
 		Long userId = userDetails.getId();
 		adminService.createCategory(userId, name);
 		return ResponseEntity.ok().build();
@@ -81,5 +84,33 @@ public class AdminController {
 	) {
 		adminService.deleteCategory(userDetails.getId(), categoryId);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
+
+	@Operation(
+		summary = "회원 정보 수정",
+		description = "회원 정보를 수정합니다. 회원의 레벨, 역할을 선택적으로 수정할 수 있습니다."
+	)
+	@PutMapping("/users/{userId}")
+	public ResponseEntity<UserBaseResponseDto> updateUser(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@PathVariable Long userId,
+		@RequestBody UserUpdateRequestDto userUpdateRequestDto
+	) {
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(adminService.updateUser(userDetails.getId(), userId, userUpdateRequestDto));
+	}
+
+	@Operation(
+		summary = "사용자 정보 목록 조회",
+		description = "사용자 정보 목록을 조회합니다."
+	)
+	@GetMapping("/users")
+	public ResponseEntity<Page<UserBaseResponseDto>> getUserList(
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@ModelAttribute UserSearchCondition userSearchCondition,
+		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+	) {
+		return ResponseEntity.status(HttpStatus.OK)
+			.body(adminService.getUserList(userDetails.getId(), userSearchCondition, pageable));
 	}
 }

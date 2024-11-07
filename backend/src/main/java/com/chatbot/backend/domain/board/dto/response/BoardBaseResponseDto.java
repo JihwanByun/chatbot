@@ -12,7 +12,7 @@ import lombok.Builder;
 // 게시글, 작성자, 좋아요 정보를 포함
 @Builder
 @Schema(description = "게시글 기본 정보 응답 DTO")
-public record BoardBaseResponse(
+public record BoardBaseResponseDto(
 	// Board
 	@Schema(description = "게시글 ID", example = "1")
 	Long boardId,
@@ -35,8 +35,8 @@ public record BoardBaseResponse(
 	Boolean isFavorite
 ) {
 	// 게시글, 사용자, 좋아요 정보를 조합하여 응답 DTO 생성
-	public static BoardBaseResponse of(Board board, BoardLike boardLike) {
-		return BoardBaseResponse.builder()
+	public static BoardBaseResponseDto of(Board board, BoardLike boardLike) {
+		return BoardBaseResponseDto.builder()
 			.boardId(board.getId())
 			.title(board.getTitle())
 			.contents(board.getContents())
@@ -48,7 +48,7 @@ public record BoardBaseResponse(
 			.build();
 	}
 
-	public static BoardBaseResponse of(Board board) {
-		return BoardBaseResponse.of(board, null);
+	public static BoardBaseResponseDto of(Board board) {
+		return BoardBaseResponseDto.of(board, null);
 	}
 }
