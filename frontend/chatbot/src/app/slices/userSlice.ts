@@ -3,7 +3,6 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { LoginDTO } from "@pages/login/LoginDTO";
 import { login as loginAPI } from "@apis/chat/userApi";
 import axios from "axios";
-import { setAuthToken } from "@apis/common";
 
 interface UserState {
 	role: string | null;
@@ -30,7 +29,7 @@ export const loginUser = createAsyncThunk(
 			const { token, role } = response.data;
 
 			// 인증 토큰 설정
-			setAuthToken(token);
+			localStorage.setItem("Authorization", token);
 
 			// role과 token 반환
 			return { role };

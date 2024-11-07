@@ -12,14 +12,3 @@ export const defaultAIAxios: AxiosInstance = axios.create({
 	baseURL: `${AI_URL}`,
 	// withCredentials: true, // 쿠키 전송 허용
 });
-
-// 토큰을 설정할 수 있는 함수 추가
-export const setAuthToken = (token: string | null) => {
-	if (token) {
-		console.log(token);
-		defaultAxios.defaults.headers.common["Authorization"] = `${token}`;
-	} else {
-		console.log("LOGOUT!!!!");
-		delete defaultAxios.defaults.headers.common["Authorization"];
-	}
-};

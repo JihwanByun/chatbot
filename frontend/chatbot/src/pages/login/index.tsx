@@ -19,17 +19,20 @@ const LoginForm: React.FC = () => {
 		e.preventDefault();
 		const formData: LoginDTO = { email, password };
 		dispatch(loginUser(formData)); // loginUser thunk를 dispatch하여 로그인 요청
-		console.log(role);
+	};
+
+	useEffect(() => {
 		if (!role) {
-			// TODO : 로그인 안되면?
 			return;
 		}
 		if (role == "관리자") {
+			console.log(role);
 			navigate("/adminPage");
 		} else {
+			console.log(role);
 			navigate("/chat");
 		}
-	};
+	}, [role]);
 
 	return (
 		<div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
