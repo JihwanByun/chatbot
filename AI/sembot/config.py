@@ -20,5 +20,8 @@ EMBEDDINGS_MODEL_NAME = "jhgan/ko-sroberta-nli"
 EMBEDDINGS_MODEL_KWARGS = {"device": "cuda"}
 EMBEDDINGS_ENCODE_KWARGS = {"normalize_embeddings": True}
 
-LOCAL_MODEL_PATH = r"./local_model"
 MODEL_NAME = "MLP-KTLim/llama-3-Korean-Bllossom-8B"
+LOCAL_MODEL_PATH = f"./local_model_{MODEL_NAME}"
+
+# MODEL_NAME = "NCSOFT/Llama-VARCO-8B-Instruct"
+# LOCAL_MODEL_PATH = f"./local_model_{MODEL_NAME}"
