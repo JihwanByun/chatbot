@@ -18,7 +18,6 @@ import com.chatbot.backend.global.jwt.JwtProvider;
 import com.chatbot.backend.global.jwt.Role;
 import com.chatbot.backend.global.jwt.exception.InvalidTokenException;
 import com.chatbot.backend.global.jwt.exception.NoTokenException;
-import com.chatbot.backend.global.security.CustomUserDetails;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
@@ -180,11 +179,9 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public void isDuplicate(String email) {
+	public boolean isDuplicate(String email) {
 		User user = userRepository.findByEmailOrElseThrow(email);
-		if(user != null){
-			throw new DuplicateEmailException();
-		}
+		return user != null;
 	}
 
 }
