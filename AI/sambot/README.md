@@ -25,7 +25,7 @@ python cuda_check.py
 
 ### 4. pip install
 ```bash
-pip install transformers langchain huggingface_hub langchain-community langchain-huggingface langchain_openai fastapi uvicorn pypdf accelerate python-dotenv
+pip install transformers langchain huggingface_hub langchain-community langchain-huggingface langchain_openai fastapi uvicorn pypdf accelerate python-dotenv python-multipart
 ```
 - `transformers`: 허깅페이스 모델 로드
 - `langchain`: LangChain 프레임워크
