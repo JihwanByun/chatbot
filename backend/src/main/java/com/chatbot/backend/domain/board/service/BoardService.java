@@ -11,7 +11,8 @@ import com.chatbot.backend.domain.board.dto.response.BoardBaseResponseDto;
 import com.chatbot.backend.domain.board.dto.response.BoardDetailResponseDto;
 
 public interface BoardService {
-	BoardDetailResponseDto createBoard(Long userId, BoardCreateRequestDto boardCreateRequestDto, MultipartFile file);
+	BoardDetailResponseDto createBoard(Long userId, BoardCreateRequestDto boardCreateRequestDto,
+		MultipartFile file);
 
 	BoardDetailResponseDto updateBoard(Long userId, Long boardId, BoardUpdateRequestDto boardUpdateRequestDto,
 		MultipartFile file);

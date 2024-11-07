@@ -19,6 +19,8 @@ import com.chatbot.backend.domain.board.util.BoardValidator;
 import com.chatbot.backend.domain.category.entity.Category;
 import com.chatbot.backend.domain.category.repository.CategoryRepository;
 import com.chatbot.backend.domain.file.service.FileService;
+import com.chatbot.backend.domain.regulation.dto.response.RegulationResponseDto;
+import com.chatbot.backend.domain.regulation.service.RegulationService;
 import com.chatbot.backend.domain.user.entity.User;
 import com.chatbot.backend.domain.user.repository.UserRepository;
 
@@ -38,13 +40,14 @@ public class BoardServiceImpl implements BoardService {
 	private final CategoryRepository categoryRepository;
 	private final BoardLikeRepository boardLikeRepository;
 	private final BoardValidator boardValidator;
+	private final RegulationService regulationService;
 
 	/**
 	 * 새로운 게시글 작성
-	 * @param userId 사용자 ID
-	 * @param boardCreateRequestDto 게시글 생성 요청 DTO
-	 * @param file 업로드 파일 (선택)
-	 * @return 생성된 게시글 상세 응답 DTO
+	 * @param userId
+	 * @param boardCreateRequestDto
+	 * @param file
+	 * @return
 	 */
 	@Override
 	public BoardDetailResponseDto createBoard(Long userId, BoardCreateRequestDto boardCreateRequestDto,
@@ -55,10 +58,27 @@ public class BoardServiceImpl implements BoardService {
 
 		boardValidator.validateUserWriteAuthorized(user);
 
-		// Board 생성 (비즈니스 로직)
-		Board board = boardCreateRequestDto.toEntity(user, category, fileService.saveFile(file, BOARD_UPLOAD_DIR));
+		// File 저장
+		String fileUrl = null;
+		if (boardCreateRequestDto.hasFile()) {
+			fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
 
-		return BoardDetailResponseDto.of(boardRepository.save(board));
+			// TODO
+			// 파일을 FastAPI로 전송해주는 로직 구현 예정
+		}
+
+		// Board 생성 (비즈니스 로직)
+		Board board = boardCreateRequestDto.toEntity(user, category, fileUrl);
+		boardRepository.save(board);
+
+		// Regulation 생성 (규정 정보가 있을 경우에만)
+		RegulationResponseDto regulationResponseDto = null;
+		if (boardCreateRequestDto.regulationRequest() != null) {
+			regulationResponseDto = regulationService.createRegulation(board.getId(),
+				boardCreateRequestDto.regulationRequest());
+		}
+
+		return BoardDetailResponseDto.of(board, regulationResponseDto);
 	}
 
 	/**
@@ -80,11 +100,26 @@ public class BoardServiceImpl implements BoardService {
 		boardValidator.validateBoardExists(board);
 		boardValidator.validateUserAuthorization(user, board);
 
+		// File 저장
+		String fileUrl = null;
+		if (boardUpdateRequestDto.hasFile()) {
+			fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
+
+			// TODO
+			// 파일을 FastAPI로 전송해주는 로직 구현 예정
+		}
+
 		// Board 수정 (비즈니스 로직)
-		board.updateBoard(boardUpdateRequestDto, category, fileService.saveFile(file, BOARD_UPLOAD_DIR));
+		board.updateBoard(boardUpdateRequestDto, category, fileUrl);
+
+		RegulationResponseDto regulationResponse = null;
+		if (!boardUpdateRequestDto.hasFile()) {
+			regulationResponse = regulationService.updateRegulation(boardId,
+				boardUpdateRequestDto.regulationRequest());
+		}
 
 		BoardLike boardLike = boardLikeRepository.findByBoardIdAndUserId(boardId, userId).orElse(null);
-		return BoardDetailResponseDto.of(board, boardLike);
+		return BoardDetailResponseDto.of(board, boardLike, regulationResponse);
 	}
 
 	/**
@@ -121,7 +156,9 @@ public class BoardServiceImpl implements BoardService {
 		boardValidator.validateBoardAccess(user, board);
 
 		BoardLike boardLike = boardLikeRepository.findByBoardIdAndUserId(boardId, userId).orElse(null);
-		return BoardDetailResponseDto.of(board, boardLike);
+		RegulationResponseDto regulationResponse = regulationService.getRegulation(boardId);
+
+		return BoardDetailResponseDto.of(board, boardLike, regulationResponse);
 	}
 
 	/**
