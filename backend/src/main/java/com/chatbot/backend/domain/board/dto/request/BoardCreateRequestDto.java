@@ -57,4 +57,8 @@ public record BoardCreateRequestDto(
 			.hasFile(hasFile != null ? hasFile : null)
 			.build();
 	}
+
+	public Board toEntity(User user, Category category) {
+		return toEntity(user, category, null);
+	}
 }
