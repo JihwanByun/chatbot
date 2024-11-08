@@ -55,7 +55,7 @@ public class UserController {
 
 	@GetMapping
 	public ResponseEntity<Boolean> isDuplicate(@RequestParam("email") String email){
-		return ResponseEntity.ok(userService.isDuplicate(email));
+		return ResponseEntity.ok().body(userService.isDuplicate(email));
 	}
 
 	@PostMapping("/reissue")
