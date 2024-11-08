@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.chatbot.backend.domain.board.entity.Board;
 import com.chatbot.backend.domain.board.entity.BoardLike;
+import com.chatbot.backend.domain.regulation.dto.response.RegulationResponseDto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -41,10 +42,18 @@ public record BoardDetailResponseDto(
 
 	// BoardLike
 	@Schema(description = "좋아요 여부", example = "false")
-	Boolean isFavorite
+	Boolean isFavorite,
+
+	// Regulation
+	@Schema(description = "규정 정보")
+	RegulationResponseDto regulationResponseDto,
+
+	@Schema(description = "파일 첨부 여부", example = "false")
+	Boolean hasFile
 ) {
 	// 게시글, 사용자, 좋아요 정보를 조합하여 응답 DTO 생성
-	public static BoardDetailResponseDto of(Board board, BoardLike boardLike) {
+	public static BoardDetailResponseDto of(Board board, BoardLike boardLike,
+		RegulationResponseDto regulationResponseDto) {
 		return BoardDetailResponseDto.builder()
 			.boardId(board.getId())
 			.title(board.getTitle())
@@ -57,10 +66,14 @@ public record BoardDetailResponseDto(
 			.writer(BoardWriterResponseDto.of(board.getUser()))
 
 			.isFavorite(boardLike == null ? false : true)
+
+			.hasFile(board.getHasFile())
+			.regulationResponseDto(regulationResponseDto)
 			.build();
 	}
 
-	public static BoardDetailResponseDto of(Board board) {
-		return BoardDetailResponseDto.of(board, null);
+	// Board와 규정 정보를 이용해 BoardDetailResponseDto 생성
+	public static BoardDetailResponseDto of(Board board, RegulationResponseDto regulationResponseDto) {
+		return BoardDetailResponseDto.of(board, null, regulationResponseDto);
 	}
 }

@@ -2,6 +2,7 @@ package com.chatbot.backend.domain.board.dto.request;
 
 import com.chatbot.backend.domain.board.entity.Board;
 import com.chatbot.backend.domain.category.entity.Category;
+import com.chatbot.backend.domain.regulation.dto.request.RegulationRequestDto;
 import com.chatbot.backend.domain.user.entity.User;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,8 +33,15 @@ public record BoardCreateRequestDto(
 	@NotNull(message = "레벨은 필수입니다.")
 	@Min(value = 1, message = "레벨은 1 이상이어야 합니다.")
 	@Max(value = 3, message = "레벨은 3 이하여야 합니다.")
-	Integer level
+	Integer level,
+
+	@Schema(description = "규정 정보", required = false)
+	RegulationRequestDto regulationRequest,
+
+	@Schema(description = "파일 첨부 여부", example = "false", required = false)
+	Boolean hasFile
 ) {
+	// Board 엔티티로 변환하는 메소드
 	public Board toEntity(User user, Category category, String fileUrl) {
 		return Board.builder()
 			.title(title)
@@ -45,6 +53,8 @@ public record BoardCreateRequestDto(
 			.category(category)
 
 			.fileUrl(fileUrl)
+
+			.hasFile(hasFile != null ? hasFile : null)
 			.build();
 	}
 }
