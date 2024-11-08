@@ -34,6 +34,11 @@ const LoginForm: React.FC = () => {
 		}
 	}, [role]);
 
+	const handleSignUpClick = () => {
+		navigate("/register");
+	};
+
+
 	return (
 		<div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
 			{/* Top-left logo */}
@@ -61,7 +66,7 @@ const LoginForm: React.FC = () => {
 					<div className="mb-4">
 						<label
 							htmlFor="email"
-							className="block text-sm font-medium text-gray-700"
+							className="block text-sm font-medium text-gray-700 text-left"
 						>
 							이메일
 						</label>
@@ -78,7 +83,7 @@ const LoginForm: React.FC = () => {
 					<div className="mb-4">
 						<label
 							htmlFor="password"
-							className="block text-sm font-medium text-gray-700"
+							className="block text-sm font-medium text-gray-700 text-left"
 						>
 							비밀번호
 						</label>
@@ -120,7 +125,7 @@ const LoginForm: React.FC = () => {
 						<div className="flex-1">
 							<ButtonPrimary
 								btnName="회원가입하기"
-								handleClick={() => console.log("회원가입 페이지로 이동")}
+								handleClick={handleSignUpClick}
 								styleName="bg-white text-[#004F9F] py-2 px-4 rounded w-full border"
 								isDisabled={false}
 							/>

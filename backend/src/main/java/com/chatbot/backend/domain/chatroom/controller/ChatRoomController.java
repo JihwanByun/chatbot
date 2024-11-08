@@ -39,7 +39,7 @@ public class ChatRoomController {
 		CreateChatRoomResponseDto response = chatRoomService.createChatRoom(
 			customUserDetails.getId(),
 			createChatRoomRequestDto);
-		
+
 		return ResponseEntity.ok().body(response);
 	}
 
