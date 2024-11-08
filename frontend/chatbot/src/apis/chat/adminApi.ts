@@ -11,6 +11,9 @@ export const findMemberListByPage = async (
 ) => {
 	// API 요청 및 결과 반환
 	const result = defaultAxios.get("/api/admins/users", {
+		headers: {
+			Authorization: localStorage.getItem("Authorization"),
+		},
 		params: {
 			page,
 			size,
@@ -32,6 +35,9 @@ export const findFeedbackListByPage = async (
 ) => {
 	// API 요청 및 결과 반환
 	const result = defaultAxios.get(`/api/admins/feedbacks`, {
+		headers: {
+			Authorization: localStorage.getItem("Authorization"),
+		},
 		params: {
 			isPositive,
 			page,
@@ -39,6 +45,5 @@ export const findFeedbackListByPage = async (
 			sort: `${sortBy},${sortDir}`, // `sort` 파라미터를 한 문자열로 조합
 		},
 	});
-	console.log("Feedback result!!! : ", result);
 	return result;
 };

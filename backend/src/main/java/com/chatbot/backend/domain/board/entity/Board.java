@@ -51,9 +51,11 @@ public class Board extends BaseTimeEntity {
 	@JoinColumn(name = "category_id", nullable = false)
 	private Category category;
 
+	private Boolean hasFile;
+
 	@Builder
 	public Board(String title, String contents, int level, String fileUrl, Boolean isDeleted, User user,
-		Category category) {
+		Category category, Boolean hasFile) {
 		this.title = title;
 		this.contents = contents;
 		this.level = level;
@@ -61,6 +63,7 @@ public class Board extends BaseTimeEntity {
 		this.isDeleted = isDeleted == null ? false : isDeleted;
 		this.user = user;
 		this.category = category;
+		this.hasFile = hasFile == null ? false : hasFile;
 	}
 
 	// Board File 업로드

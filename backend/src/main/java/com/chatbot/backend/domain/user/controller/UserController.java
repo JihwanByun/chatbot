@@ -31,8 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
 
 	private final UserService userService;
-	private final JwtProvider jwtProvider;
-
 
 	@PostMapping("/register")
 	public ResponseEntity<Void> signUp(@Valid @RequestBody SignupRequestDto signupRequestDto){
@@ -57,8 +55,7 @@ public class UserController {
 
 	@GetMapping
 	public ResponseEntity<Boolean> isDuplicate(@RequestParam("email") String email){
-		userService.isDuplicate(email);
-		return ResponseEntity.ok(false);
+		return ResponseEntity.ok(userService.isDuplicate(email));
 	}
 
 	@PostMapping("/reissue")

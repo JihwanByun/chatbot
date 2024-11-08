@@ -47,7 +47,7 @@ export const fetchFeedbacksByPage = createAsyncThunk(
 	}) => {
 		const response = await findFeedbackListByPage(
 			params.isPositive,
-			params.page,
+			params.page - 1,
 			params.size,
 			params.sortBy,
 			params.sortDir

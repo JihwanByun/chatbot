@@ -26,8 +26,11 @@ const MemberManagement = () => {
 				sortDir,
 			})
 		);
+	}, [dispatch, page, size, sortBy, sortDir]);
+
+	useEffect(() => {
 		console.log(members);
-	}, [dispatch, page, size , sortBy, sortDir]);
+	}, [members]);
 
 	const iconPaths = [];
 	for (let i = 1; i <= 13; i++) {
@@ -87,7 +90,7 @@ const MemberManagement = () => {
 					<Paging
 						curPage={page}
 						onPageChange={setPage}
-						totalPage={Math.ceil(getTableRowData().length / size)} // 전체 페이지 수 계산
+						totalPage={members.totalPages} // 전체 페이지 수 계산
 					/>
 				</div>
 			</div>

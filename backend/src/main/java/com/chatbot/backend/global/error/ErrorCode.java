@@ -23,7 +23,7 @@ public enum ErrorCode {
 	UNSUPPORTED_TOKEN(400, "UNSUPPORTED_TOKEN", "지원되지 않는 토큰 형식입니다."),
 	NO_REFRESH_TOKEN(404, "NO_REFRESH_TOKEN", "토큰이 없습니다."),
 
-	// 회원가입 관련 오류
+	// 회원가입 관련 오류,
 	DUPLICATE_EMAIL(409, "DUPLICATE_EMAIL", "이미 존재하는 이메일입니다."),
 
 	// 게시글 관련 오류
@@ -68,14 +68,17 @@ public enum ErrorCode {
 	CATEGORY_ALREADY_DELETED(400, "CATEGORY_ALREADY_DELETED", "이미 삭제된 카테고리입니다."),
 	CATEGORY_UNAUTHORIZED(403, "CATEGORY_UNAUTHORIZED", "카테고리 수정 / 삭제 권한이 없습니다."),
 
-	// 로그인 관련 오류
+	// 로그인 관련 오류,
 	INCORRECT_ID_OR_PASSWORD(401, "INCORRECT_ID_OR_PASSWORD", "아이디 혹은 비밀번호가 틀렸습니다."),
 
 	//채팅 관련 오류
 	CHAT_NOT_FOUND(404, "CHAT_ID_NOT_FOUND", "채팅을 찾을 수 없습니다"),
 
 	//채팅 피드백 관련 오류
-	CONTRADICTION_POSITIVE_OR_NEGATIVE(404, "CAN'T_CREATE_POSITIVE_FEEDBACK", "긍정 피드백에 부정 피드백을 작성할 수 없습니다.");
+	CONTRADICTION_POSITIVE_OR_NEGATIVE(404, "CAN'T_CREATE_POSITIVE_FEEDBACK", "긍정 피드백에 부정 피드백을 작성할 수 없습니다."),
+
+	INVALID_REGULATION(422, "INVALID_REGULATION", "유효하지 않은 규정입니다."),
+	REGULATION_NOT_FOUND(404, "REGULATION_NOT_FOUND", "규정을 찾을 수 없습니다.");
 
 	private final int httpStatus;
 	private final String code;

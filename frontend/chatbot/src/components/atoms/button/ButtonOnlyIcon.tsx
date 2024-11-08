@@ -1,9 +1,10 @@
 export type ButtonProps = {
 	icon: string;
 	styleName?: string;
-	width?: string
+	width?: string;
 	// TODO
 	onClick?: () => void;
+	disabled: boolean;
 };
 
 const ButtonWithIcon = ({ icon, styleName, width, onClick }: ButtonProps) => {

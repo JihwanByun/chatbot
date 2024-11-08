@@ -54,7 +54,7 @@ export const fetchMembersByPage = createAsyncThunk(
 	}) => {
 		// API 호출 후 데이터 반환
 		const response = await findMemberListByPage(
-			params.page,
+			params.page - 1,
 			params.size,
 			params.sortBy,
 			params.sortDir

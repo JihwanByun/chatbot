@@ -12,7 +12,7 @@ import com.chatbot.backend.domain.user.dto.response.UserBaseResponseDto;
 public interface AdminService {
 	void createCategory(Long userId, String name);
 
-	PageResponseDto findFeedbackByPage(Long userId, Pageable pageable);
+	PageResponseDto findFeedbackByPage(Long userId,Boolean isPositive, Pageable pageable);
 
 	CategoryItemDto updateCategory(Long userId, Long categoryId, String name);
 

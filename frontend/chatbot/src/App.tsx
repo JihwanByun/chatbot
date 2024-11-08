@@ -10,6 +10,7 @@ import { useState } from "react";
 import Chat from "@pages/chat";
 import BoardListPage from "@pages/board";
 import LoginForm from "@pages/login";
+import { PrivateRoute } from "@util/PrivateRoute";
 import RegisterPage from "../src/pages/signup/index";
 
 function App() {
@@ -18,6 +19,16 @@ function App() {
 		<>
 			<Routes>
 				{/* 아래와 같이 prop으로 배경색 동적처리 가능 */}
+				<Route path="/" element={<LoginForm />} />
+				<Route path="/login" element={<LoginForm />} />
+				<Route element={<PrivateRoute />}>
+					<Route path="/adminPage" element={<AdminPage />} />
+					<Route path="/chat" element={<Chat />} />
+					<Route path="/board" element={<BoardListPage />} />
+				</Route>
+				{/* <Route path="/adminPage" element={<AdminPage />} />
+				<Route path="/chat" element={<Chat />} />
+				<Route path="/board" element={<BoardListPage />} /> */}
 				<Route path="/" element={<Devpage />} />
 				<Route
 					path="/button"

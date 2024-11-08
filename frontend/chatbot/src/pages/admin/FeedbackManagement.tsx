@@ -10,7 +10,7 @@ const items = ["긍정", "부정"];
 const FeedbackManagement = () => {
 	const dispatch = useAppDispatch();
 	const { feedbacks, loading } = useAppSelector((state) => state.feedbacks);
-	const [page, setPage] = useState(0);
+	const [page, setPage] = useState(1);
 	const [size, setSize] = useState(6); // 초기값은 6으로 설정
 	const [sortBy, setSortBy] = useState("createdAt");
 	const [sortDir, setSortDir] = useState("desc");
@@ -26,24 +26,18 @@ const FeedbackManagement = () => {
 				sortDir,
 			})
 		);
-		console.log(feedbacks);
-	}, [dispatch, page, size, sortBy, sortDir]);
+	}, [dispatch, isPositive, page, size, sortBy, sortDir]);
 
 	// setState가 비동기적으로 작동하기 때문에
 	// setState가 setState를 호출한 직후에는 상태가 즉시 업데이트되지 않고,
 	// 컴포넌트가 다음 렌더링 사이클에서 업데이트됩니다.
-	useEffect(() => {
-		console.log(isPositive);
 
-		// dispatch();
-	}, [isPositive]);
-
-	const handleDropdown = (item) => {
+	const handleDropdown = (item: string) => {
 		if (item == "긍정") {
-			setPage(0);
-			// setSize(calculateCardsPerPage())
+			setPage(1);
 			setIsPositive(true);
 		} else if (item == "부정") {
+			setPage(1);
 			setIsPositive(false);
 		}
 	};
@@ -72,12 +66,18 @@ const FeedbackManagement = () => {
 
 		// 실제 데이터로 카드 생성
 		feedbacks.contents.forEach((element, index) => {
+			const hashTags = [];
+			hashTags.push(element.isPositive ? "긍정적" : "부정적");
+			if (element.negativeReason) {
+				// TODO : 여기에 요약이 들어가면 좋을것같습니다.
+				hashTags.push(element.negativeReason.substring(0, 3));
+			}
 			Hashtags.push(
 				<div className="w-[25%] m-5" key={element.chatId || index}>
 					<FeedbackCardWithHashtag
 						question={element.question.substring(0, 20)}
 						answer={element.answer.substring(0, 20)}
-						hashtags={["hello", "baby"]} // 여기에서 필요시 element에서 태그를 받아서 설정 가능
+						hashtags={hashTags}
 						className="relative flex w-full m-5 flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md"
 					/>
 				</div>
@@ -96,9 +96,6 @@ const FeedbackManagement = () => {
 		return Hashtags;
 	};
 
-	// 현재 페이지에 맞는 카드들을 필터링
-	const currentCards = getHashTags().slice(size * page, size * (page + 1));
-
 	return (
 		<div>
 			<div className="flex justify-end">
@@ -110,14 +107,14 @@ const FeedbackManagement = () => {
 				/>
 			</div>
 			<div className="flex flex-row flex-wrap justify-center">
-				{currentCards}
+				{getHashTags()}
 			</div>
 			<div className="flex justify-center">
 				<div className="absolute bottom-5 mt-4 mb-[8%]">
 					<Paging
-						curPage={page + 1}
+						curPage={page}
 						onPageChange={setPage}
-						totalPage={Math.ceil(getHashTags().length / size)} // 전체 페이지 수 계산
+						totalPage={feedbacks.totalPages} // 전체 페이지 수 계산
 					/>
 				</div>
 			</div>

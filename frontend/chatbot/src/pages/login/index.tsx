@@ -15,31 +15,24 @@ const LoginForm: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const { role, loading, error } = useAppSelector((state) => state.users); // 상태 조회
 
-	useEffect(() => {
-		if (role) {
-			if (role === "관리자") {
-				navigate("/adminPage");
-			} else {
-				navigate("/chat");
-			}
-		}
-	}, [role, navigate]);
-
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		const formData: LoginDTO = { email, password };
 		dispatch(loginUser(formData)); // loginUser thunk를 dispatch하여 로그인 요청
-		console.log(role);
+	};
+
+	useEffect(() => {
 		if (!role) {
-			// TODO : 로그인 안되면?
 			return;
 		}
 		if (role == "관리자") {
+			console.log(role);
 			navigate("/adminPage");
 		} else {
+			console.log(role);
 			navigate("/chat");
 		}
-	};
+	}, [role]);
 
 	const handleSignUpClick = () => {
 		navigate("/register");
