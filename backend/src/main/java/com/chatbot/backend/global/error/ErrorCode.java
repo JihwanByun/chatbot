@@ -78,7 +78,11 @@ public enum ErrorCode {
 	CONTRADICTION_POSITIVE_OR_NEGATIVE(404, "CAN'T_CREATE_POSITIVE_FEEDBACK", "긍정 피드백에 부정 피드백을 작성할 수 없습니다."),
 
 	INVALID_REGULATION(422, "INVALID_REGULATION", "유효하지 않은 규정입니다."),
-	REGULATION_NOT_FOUND(404, "REGULATION_NOT_FOUND", "규정을 찾을 수 없습니다.");
+	REGULATION_NOT_FOUND(404, "REGULATION_NOT_FOUND", "규정을 찾을 수 없습니다."),
+
+	// 비고 관련 오류
+	REMARK_ALREADY_DELETED(400, "REMARK_ALREADY_DELETED", "이미 삭제된 비고입니다."),
+	REMARK_NOT_FOUND(404, "REMARK_NOT_FOUND", "비고를 찾을 수 없습니다");
 
 	private final int httpStatus;
 	private final String code;
