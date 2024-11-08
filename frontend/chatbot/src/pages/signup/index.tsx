@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { SignUpDTO } from './SignUpDTO';
+import { emailDTO, SignUpDTO } from './SignUpDTO';
 import logo from '@/assets/images/head-register.png';
 import topLeftLogo from '@/assets/images/head-logo-group.png'; // Import your top-left logo
 import ButtonPrimary from '@components/atoms/button/ButtonPrimary';
 import { signUp } from '@apis/signup/signup';
+import { checkEmailDuplicate } from '@apis/signup/checkEmailDuplicate';
+import { useNavigate } from 'react-router-dom';
 
 export interface SignUpFormProps {
     onSubmit: (formData: SignUpDTO) => void;
@@ -12,10 +14,16 @@ export interface SignUpFormProps {
 const SignUpForm: React.FC = () => {
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
+    const [employeeNum, setEmployeeNum] = useState('');
     const [department, setDepartment] = useState('');
     const [password, setPassword] = useState('');
     const [passwordVerify, setPasswordVerify] = useState('');
     const [termsAccepted, setTermsAccepted] = useState(false);
+    
+    //이메일 중복 확인 여부를 저장하는 상태
+    const [isEmailChecked, setIsEmailChecked] = useState(false);
+
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -25,12 +33,13 @@ const SignUpForm: React.FC = () => {
             return;
         }
 
-        const formData: SignUpDTO = { email, name, department, password, passwordVerify };
+        const formData: SignUpDTO = { email, name, employeeNum ,department, password, passwordVerify };
 
         try{
             const response =await signUp(formData);
             console.log('회원가입 성공', response);
-            alert('회원가입에 성공했습니다!');
+            alert('회원가입에 성공했습니다!, 로그인 페이지로 이동합니다.');
+            navigate('/chat');
         } catch(error){
             console.error('회원가입 실패', error);
             alert('회원가입에 실패했습니다. 다시 시도해주세요.');
@@ -39,15 +48,24 @@ const SignUpForm: React.FC = () => {
     
     };
 
-    const handleEmailCheck = async () => {
+    const handleEmailCheck = async (e: React.FormEvent) => {
+
+        e.preventDefault();
+
+        const formData: emailDTO = {email};
+
         try {
-            const response = await fetch(`/api/users?email=${email}`); // email 변수를 올바르게 연결
-            if (response.ok) {
-                const isDuplicate = await response.json();
+            const response = await checkEmailDuplicate(formData);
+             // email 변수를 올바르게 연결
+            if (response != null) {
+                const isDuplicate = await response;
+
                 if (isDuplicate) {
                     alert('이메일이 이미 사용 중입니다.'); // 중복된 경우
+                    setIsEmailChecked(false); // 중복된 경우 체크를 취소
                 } else {
                     alert('사용 가능한 이메일입니다.'); // 중복되지 않은 경우
+                    setIsEmailChecked(true); // 중복 확인 완료
                 }
             } else {
                 alert('이메일 중복 확인 중 오류가 발생했습니다.'); // 서버 오류
@@ -85,7 +103,11 @@ const SignUpForm: React.FC = () => {
                                 type="email"
                                 placeholder="Email"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                    setIsEmailChecked(false);
+        
+                                }}
                                 className="border p-2 flex-grow" 
                                 required
                             />
@@ -104,6 +126,18 @@ const SignUpForm: React.FC = () => {
                             placeholder="Name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
+                            className="border p-2 w-full" 
+                            required
+                        />
+                    </div>
+
+                    <div className="mb-4">
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 text-left">사번</label>
+                        <input
+                            type="text"
+                            placeholder="EmployeeNumber"
+                            value={employeeNum}
+                            onChange={(e) => setEmployeeNum(e.target.value)}
                             className="border p-2 w-full" 
                             required
                         />
@@ -156,7 +190,11 @@ const SignUpForm: React.FC = () => {
                         />
                         <label htmlFor="terms" className="ml-2 text-sm text-gray-600">이용 약관의 동의합니다.</label>
                     </div>
-                    <button type="submit" className="bg-[#004F9F] text-white p-2 rounded hover:bg-blue-700">
+                    <button 
+                        type="submit" 
+                        className="bg-[#004F9F] text-white p-2 rounded hover:bg-blue-700"
+                        disabled={!isEmailChecked || !termsAccepted} 
+                        >
                         회원가입
                     </button>
                 </form>
