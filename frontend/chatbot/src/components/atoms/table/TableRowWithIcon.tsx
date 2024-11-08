@@ -24,7 +24,10 @@ const TableRowWithIconAndButton: React.FC<TableRowWithIconAndButtonProps> = ({
   styleName,
   onIconClick,
 }) => {
+  console.log('*'+ columns)
+
   return (
+
     <tr className="text-left bg-white">
       <td className="pl-5 max-w-[6rem]">
         <ButtonOnlyIcon icon={iconPath} styleName={styleName} onClick={onIconClick} />
