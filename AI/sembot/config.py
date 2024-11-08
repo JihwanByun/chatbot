@@ -10,11 +10,11 @@ VECTORSTORE_PATH = r"./vector_store_path"
 # MODEL_PATH = r"llama3.1"
 MODEL_PATH = r"gpt-4o-mini"
 
-VECTORSTORE_PATH = r"./vector_store_path_jhgan"
-EMBEDDINGS_MODEL_NAME = "jhgan/ko-sroberta-nli"
+# VECTORSTORE_PATH = r"./vector_store_path_jhgan"
+# EMBEDDINGS_MODEL_NAME = "jhgan/ko-sroberta-nli"
 
-# VECTORSTORE_PATH = r"./vector_store_path_intfloat"
-# EMBEDDINGS_MODEL_NAME = "intfloat/multilingual-e5-large"
+VECTORSTORE_PATH = r"./vector_store_path_intfloat"
+EMBEDDINGS_MODEL_NAME = "intfloat/multilingual-e5-large"
 
 # Embeddings Configuration
 EMBEDDINGS_MODEL_KWARGS = {"device": "cuda"}

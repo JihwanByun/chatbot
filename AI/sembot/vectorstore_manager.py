@@ -1,6 +1,7 @@
 import os
 
 from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores.utils import DistanceStrategy
 from utils import get_embeddings, pdf_splitter
 
 
@@ -18,7 +19,11 @@ def create_vectorstore_by_FAISS(pdf_dir_path: str, vectorstore_path: str, embedd
     """
     chunked_docs = pdf_splitter(pdf_dir_path)
 
-    vectorstore = FAISS.from_documents(documents=chunked_docs, embedding=embeddings)
+    vectorstore = FAISS.from_documents(
+        documents=chunked_docs,
+        embedding=embeddings,
+        distance_strategy=DistanceStrategy.COSINE,
+    )
 
     vectorstore.save_local(vectorstore_path)
 
