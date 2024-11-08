@@ -1,199 +1,259 @@
-import React, { useEffect, useState } from "react";
-import ChatView, { QnA } from "@components/chat/ChatView";
+import React, { useCallback, useEffect, useState } from "react";
+import ChatView, { Doc, QnA } from "@components/chat/ChatView";
 import ButtonWithIcon from "@components/atoms/button/ButtonWithIcon";
 import { BaseMessage } from "@components/chat/ChatMessage";
 import SembotLayout from "@pages/SembotLayout";
-import { searchDocsAPI, generateAPI, getChatroomListAPI, ChatroomList, ChatroomResponse } from "@apis/chat/chatApi";
+import {
+  searchDocsAPI,
+  generateAPI,
+  getChatroomListAPI,
+  ChatroomList,
+  ChatroomResponse,
+  createChatroomAPI,
+  getChatroomDetailAPI,
+  ChatroomDetail,
+  createChatAPI,
+  createChatFeedbackAPI
+} from "@apis/chat/chatApi";
 
 export type ButtonWithIconProps = React.ComponentProps<typeof ButtonWithIcon>;
 
+interface ChatState {
+  curChatroomId: number;
+  currentChatroomPage: number;
+  hasNextChatroom: boolean;
+  qnas: QnA[];
+  isLoading: boolean;
+  isFetchingChatrooms: boolean;
+  error: string | null;
+}
+
+const initialState: ChatState = {
+  curChatroomId: -1,
+  currentChatroomPage: 0,
+  hasNextChatroom: true,
+  qnas: [],
+  isLoading: false,
+  isFetchingChatrooms: false,
+  error: null,
+};
+
 const Chat: React.FC = () => {
-  const [curChatroomId, setCurChatroomId] = useState<number>(-1);
-  const [currentChatroomPage, setCurrentChatroomPage] = useState<number>(0);
-  const [hasNextChatroom, setHasNextChatroom] = useState<boolean>();
-  const [qnas, setQnAs] = useState<QnA[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  // State Management
+  const [state, setState] = useState<ChatState>(initialState);
+  const [chatroomComponents, setChatroomComponents] = useState<ButtonWithIconProps[]>([]);
 
-  const initChatroom = () => {
-    setCurChatroomId(-1);
-    setQnAs([]);
-  };
+  // UI Constants
+  const footStyle = "flex bg-transparent text-white py-2 px-4 rounded mx-1";
+  const newChatButtonStyle = "flex bg-transparent border border-white text-white py-2 px-4 rounded mx-1 hover:bg-blue-900 transition-colors duration-200 ease-in-out";
+  const chatroomButtonStyle = "flex bg-white text-semesBlue py-2 px-4 rounded mx-1";
 
-  const newChatProp: ButtonWithIconProps = {
-    btnName: "새채팅",
-    styleName: "flex bg-transparent border border-white text-white py-2 px-4 rounded mx-1 hover:bg-blue-900 transition-colors duration-200 ease-in-out",
-    icon: "/src/assets/icons/plus.svg",
-    handleClick: initChatroom,
-  };
-
-  const [chatroomComponents, setChatroomComponents] = useState<ButtonWithIconProps[]>([newChatProp]);
-  
-  const fetchChatroom = async (chatroomId : number) => {
-    
-  }
-
-  const fetchChatrooms = async () => {
-    setError(null);
-
-    const chatroomList : ChatroomList | null = await getChatroomListAPI(currentChatroomPage);
-    
-    if (!chatroomList) {
-      throw new Error('채팅방 목록을 가져오는데 실패했습니다.');
-    }
-
-    setHasNextChatroom(chatroomList.hasNext);
-    setCurrentChatroomPage(currentChatroomPage + 1);
-
-    chatroomList.contents.forEach((content : ChatroomResponse)=>{
-    
-      const chatroomBtnProp = {
-        btnName: content.title,
-        styleName: "flex bg-white text-semesBlue py-2 px-4 rounded mx-1",
-        icon: "src/assets/icons/delete.svg",
-        handleClick: ()=>fetchChatroom(content.chatRoomId)
-      };
-  
-      setChatroomComponents((prev) => [...prev, chatroomBtnProp]);
-    })
-
-    return chatroomList
-  };
-
-  useEffect(() => {
-    // 채팅방 목록 조회
-    fetchChatrooms();
-
+  // Utility Functions
+  const createBaseButton = (btnName: string, style: string, icon: string, handleClick?: () => void): ButtonWithIconProps => ({
+    btnName,
+    styleName: style,
+    icon,
+    handleClick,
   });
 
-  const footStyle = "flex bg-transparent text-white py-2 px-4 rounded mx-1";
+  // Chat Room Management
+  const newChatProp = createBaseButton(
+    "새채팅",
+    newChatButtonStyle,
+    "/src/assets/icons/plus.svg",
+    () => {
+      setState(prev => ({ ...prev, curChatroomId: -1, qnas: [] }));
+    }
+  );
 
   const footerComponents: ButtonWithIconProps[] = [
-    {
-      btnName: "규정 확인하기",
-      styleName: footStyle,
-      icon: "/src/assets/icons/book-open-text.svg",
-    },
-    {
-      btnName: "로그아웃",
-      styleName: footStyle,
-      icon: "/src/assets/icons/logout.svg",
-    },
+    createBaseButton("규정 확인하기", footStyle, "/src/assets/icons/book-open-text.svg"),
+    createBaseButton("로그아웃", footStyle, "/src/assets/icons/logout.svg"),
   ];
 
-  const createChatRoom = (message: string) => {
-    const result = {
-      data: {
-        chatroomId: 1,
-        title: "채팅방 제목",
-      },
-    };
+  // API Handlers
+  const handleApiError = useCallback((error: unknown, customMessage: string) => {
+    console.error("Error:", error);
+    setState(prev => ({
+      ...prev,
+      error: error instanceof Error ? error.message : customMessage
+    }));
+  }, []);
 
-    setCurChatroomId(result.data.chatroomId);
-
-    const chatroomBtnProp = {
-      btnName: result.data.title,
-      styleName: "flex bg-white text-semesBlue py-2 px-4 rounded mx-1",
-      icon: "src/assets/icons/delete.svg",
-    };
-
-    setChatroomComponents((prev) => [...prev, chatroomBtnProp]);
-  };
-
-  const addInitialQnA = (message: string) => {
-    const newQnA: QnA = {
-      chatId: -1,
-      question: new BaseMessage("question", message),
-      answer: new BaseMessage("answer", ""),
-      docs: [],
-    };
-    setQnAs((qnas) => [...qnas, newQnA]);
-  };
-
-  const sendMessage = async (message: string) => {
-    if (isLoading || !message) return;
-
-    setIsLoading(true);
-
-    if (curChatroomId === -1) {
-      createChatRoom(message);
-    }
-
-    // 초기 QnA 데이터 세팅
-    addInitialQnA(message);
-    
-    // 출처 요청
-    const docs = await searchDocsAPI(message);
-    setQnAs((qnas) => {
-      const updatedQnAs = [...qnas];
-      updatedQnAs[qnas.length - 1].docs = docs;
-      return updatedQnAs;
-    });
-
-    // 답변 생성
-    handleGenerateResponse(message);
-  };
-
-  const handleGenerateResponse = async (message: string) => {
+  const fetchChatroom = useCallback(async (chatroomId: number) => {
     try {
-      const res = await generateAPI(qnas, message);
-      if (!res.body) return;
+      const chatroom: ChatroomDetail | null = await getChatroomDetailAPI(chatroomId);
+      if (!chatroom) throw new Error('채팅방 정보를 가져오는데 실패했습니다.');
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        let chunk = '';
-        if (value instanceof Uint8Array) {
-          chunk = decoder.decode(value, { stream: true });
-        } else if (typeof value === 'string') {
-          chunk = value;
-        }
-
-        // 청크가 있다면 추가
-        if (chunk) {
-          setQnAs((prevQnAs) => {
-            const updatedQnAs = [...prevQnAs];
-            const lastQnA = updatedQnAs[updatedQnAs.length - 1];
-            lastQnA.answer.content += chunk;
-
-            return updatedQnAs;
-          });
-        }
-      }
+      setState(prev => ({
+        ...prev,
+        curChatroomId: chatroomId,
+        qnas: chatroom.qnas,
+        error: null
+      }));
     } catch (error) {
-      console.error("Error:", error);
-    } finally {
-    
-      // TODO : 채팅 저장하기
-      const chatId = qnas[qnas.length - 1] ? qnas[qnas.length - 1].chatId + 1 : 1;
-
-      // 채팅 id 및 답변 완료 여부 등록
-      setQnAs((qnas) => {
-        const updatedQnAs = [...qnas];
-        const lastQnA = updatedQnAs[qnas.length - 1];
-        lastQnA.isAnswered = true;
-        lastQnA.chatId = chatId;
-        return updatedQnAs;
-      });
-
-      setIsLoading(false);
+      handleApiError(error, '채팅방 정보를 가져오는데 실패했습니다.');
     }
-  };
+  }, [handleApiError]);
 
-  const handleFeedback = (qna: QnA, isPositive: boolean) => {
-    setQnAs((qnas) => {
-      const updatedQnAs = [...qnas];
-      const updatedQnA = updatedQnAs.find(curQnA => curQnA.chatId === qna.chatId);
-      if (updatedQnA) {
-        updatedQnA.isPositive = isPositive;
+  const fetchChatrooms = useCallback(async () => {
+    if (state.isFetchingChatrooms || !state.hasNextChatroom || state.error) return;
+
+    try {
+      setState(prev => ({ ...prev, isFetchingChatrooms: true, error: null }));
+
+      const chatroomList: ChatroomList | null = await getChatroomListAPI(state.currentChatroomPage);
+      if (!chatroomList) throw new Error('채팅방 목록을 가져오는데 실패했습니다.');
+
+      const newComponents = chatroomList.contents.map((content: ChatroomResponse) =>
+        createBaseButton(
+          content.title,
+          chatroomButtonStyle,
+          "src/assets/icons/delete.svg",
+          () => fetchChatroom(content.chatRoomId)
+        )
+      );
+
+      setState(prev => ({
+        ...prev,
+        hasNextChatroom: chatroomList.hasNext,
+        currentChatroomPage: prev.currentChatroomPage + 1,
+      }));
+
+      setChatroomComponents(prev => [...prev, ...newComponents]);
+    } catch (error) {
+      handleApiError(error, '채팅방 목록을 가져오는데 실패했습니다.');
+    } finally {
+      setState(prev => ({ ...prev, isFetchingChatrooms: false }));
+    }
+  }, [state.isFetchingChatrooms, state.hasNextChatroom, state.error, state.currentChatroomPage, handleApiError, fetchChatroom]);
+
+  // Message Handling
+  const createQnA = (message: string, docs: Doc[]): QnA => ({
+    question: new BaseMessage("question", message),
+    answer: new BaseMessage("answer", ""),
+    docs,
+    isAnswered: false,
+  });
+
+  const handleStreamResponse = useCallback(async (reader : ReadableStreamDefaultReader<Uint8Array>, decoder: TextDecoder): Promise<string> => {
+    let fullAnswer = '';
+    
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = value instanceof Uint8Array ? decoder.decode(value, { stream: true }) : value as string;
+      if (chunk) {
+        fullAnswer += chunk;
+        setState(prev => ({
+          ...prev,
+          qnas: prev.qnas.map((qna, idx) => 
+            idx === prev.qnas.length - 1 
+              ? { ...qna, answer: new BaseMessage("answer", fullAnswer)}
+              : qna
+          )
+        }));
       }
-      return updatedQnAs;
-    });
-  };
+    }
+
+    return fullAnswer;
+  }, []);
+
+  const handleGenerateResponse = useCallback(async (message: string, activeChatroomId: number, currentQnA: QnA) => {
+    try {
+      const res = await generateAPI(state.qnas, message);
+      if (!res.body) throw new Error("응답 생성에 실패했습니다.");
+
+      const fullAnswer = await handleStreamResponse(
+        res.body.getReader(),
+        new TextDecoder("utf-8")
+      );
+
+      const updatedQnA = {
+        ...currentQnA,
+        answer: new BaseMessage("answer", fullAnswer)
+      };
+
+      const chat = await createChatAPI(activeChatroomId, updatedQnA);
+      if (!chat) throw new Error("채팅 저장에 실패했습니다.");
+
+      setState(prev => ({
+        ...prev,
+        qnas: prev.qnas.map((qna, idx) => 
+          idx === prev.qnas.length - 1 
+            ? { ...qna, chatId: chat.chatId, isAnswered: true }
+            : qna
+        )
+      }));
+    } catch (error) {
+      handleApiError(error, "응답 생성에 실패했습니다.");
+    }
+  }, [state.qnas, handleStreamResponse, handleApiError]);
+
+  const sendMessage = useCallback(async (message: string) => {
+    if (state.isLoading || !message) return;
+
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      let activeChatroomId = state.curChatroomId;
+      if (activeChatroomId === -1) {
+        const result = await createChatroomAPI(message);
+        if (!result) throw new Error("채팅방 생성에 실패했습니다.");
+        
+        activeChatroomId = result.chatRoomId;
+        setState(prev => ({ ...prev, curChatroomId: activeChatroomId }));
+        
+        const chatroomButton = createBaseButton(
+          result.title,
+          chatroomButtonStyle,
+          "src/assets/icons/delete.svg",
+          () => fetchChatroom(result.chatRoomId)
+        );
+        
+        setChatroomComponents(prev => [newChatProp, chatroomButton, ...prev.slice(1)]);
+      }
+
+      const docs = await searchDocsAPI(message);
+      const newQnA = createQnA(message, docs);
+      
+      setState(prev => ({
+        ...prev,
+        qnas: [...prev.qnas, newQnA]
+      }));
+
+      await handleGenerateResponse(message, activeChatroomId, newQnA);
+    } catch (error) {
+      handleApiError(error, "메시지 전송에 실패했습니다.");
+    } finally {
+      setState(prev => ({ ...prev, isLoading: false }));
+    }
+  }, [state.isLoading, state.curChatroomId, handleGenerateResponse, handleApiError, fetchChatroom]);
+
+  const handleFeedback = useCallback((qna: QnA, isPositive: boolean, negativeReason? : string) => {
+    if(!qna.chatId) return;
+
+    createChatFeedbackAPI(qna.chatId, isPositive, negativeReason);
+
+    setState(prev => ({
+      ...prev,
+      qnas: prev.qnas.map(q => 
+        q.chatId === qna.chatId ? { ...q, isPositive } : q
+      )
+    }));
+  }, []);
+
+  // Initial Load
+  useEffect(() => {
+    if (state.currentChatroomPage === 0) {
+      fetchChatrooms();
+    }
+  }, [state.currentChatroomPage, fetchChatrooms]);
+
+  useEffect(() => {
+    setChatroomComponents([newChatProp]);
+  }, []);
 
   return (
     <SembotLayout
@@ -201,12 +261,15 @@ const Chat: React.FC = () => {
       isRule={false}
       sidebarComponents={chatroomComponents}
       footerComponents={footerComponents}
+      hasMore={state.hasNextChatroom}
+      onLoadMore={fetchChatrooms}
+      isLoading={state.isFetchingChatrooms}
     >
       <div className="w-full h-full text-left">
         <ChatView
-          qnas={qnas}
+          qnas={state.qnas}
           onSendMessage={sendMessage}
-          isLoading={isLoading}
+          isLoading={state.isLoading}
           onFeedback={handleFeedback}
         />
       </div>

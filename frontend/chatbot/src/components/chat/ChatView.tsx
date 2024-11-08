@@ -18,7 +18,7 @@ export interface Doc {
 
 export interface QnA {
   /** 채팅 id */
-  chatId : number
+  chatId? : string
   /** 질문 */
   question : Message
   /** 답변 */
@@ -48,27 +48,39 @@ const ChatView: React.FC<ChatViewProps> = ({ qnas, onSendMessage, onFeedback, is
     "국내외 출장 관련", "인사 규정", "회사 복지 규정",
   ];
 
+  const lastQnARef = useRef<QnA | null>(null);
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (chatContainerRef.current) {
+    // 마지막 QnA가 변경되었고, isAnswered나 content가 변경된 경우에만 스크롤
+    const lastQnA = qnas[qnas.length - 1];
+    const shouldScroll = lastQnA && (
+      !lastQnARef.current || 
+      lastQnA.answer.content !== lastQnARef.current.answer.content ||
+      lastQnA.isAnswered !== lastQnARef.current.isAnswered
+    );
+
+    if (shouldScroll && chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-  }, [qnas]);
 
+    // 현재 마지막 QnA 상태 저장
+    lastQnARef.current = lastQnA;
+  }, [qnas]);
+  
   const onClickCategory = (category: string) => {
     console.log(category);
   };
 
   const renderFeedbackButton = (qna : QnA) => {
     if(qna.isPositive === true){
-      return <ButtonOnlyIcon icon="src/assets/icons/like-fill.svg" styleName="hover:scale-110 transition-transform duration-200 ease-in-out" width="18"/>
+      return <ButtonOnlyIcon icon="src/assets/icons/like-fill.svg" styleName="hover:scale-110 transition-transform duration-200 ease-in-out" width="18" disabled={false}/>
     }else if(qna.isPositive === false){
-      return <ButtonOnlyIcon icon="src/assets/icons/dislike-fill.svg" styleName="hover:scale-110 transition-transform duration-200 ease-in-out" width="18"/>
+      return <ButtonOnlyIcon icon="src/assets/icons/dislike-fill.svg" styleName="hover:scale-110 transition-transform duration-200 ease-in-out" width="18" disabled={false}/>
     }else{
       return <>
-        <ButtonOnlyIcon icon="src/assets/icons/like.svg" styleName="hover:scale-110 transition-transform duration-200 ease-in-out" width="18" onClick={()=>onFeedback(qna,true)}/>
-        <ButtonOnlyIcon icon="src/assets/icons/dislike.svg" styleName="hover:scale-110 transition-transform duration-200 ease-in-out" width="18" onClick={()=>onFeedback(qna,false)}/>
+        <ButtonOnlyIcon icon="src/assets/icons/like.svg" styleName="hover:scale-110 transition-transform duration-200 ease-in-out" width="18" onClick={()=>onFeedback(qna,true)} disabled={false}/>
+        <ButtonOnlyIcon icon="src/assets/icons/dislike.svg" styleName="hover:scale-110 transition-transform duration-200 ease-in-out" width="18" onClick={()=>onFeedback(qna,false)} disabled={false}/>
       </>
     }
   }
