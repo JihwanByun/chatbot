@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.chatbot.backend.domain.admin.dto.response.FeedbackResponseDto;
-import com.chatbot.backend.domain.admin.dto.response.PageResponseDto;
 import com.chatbot.backend.domain.admin.exception.NoAuthorityException;
 import com.chatbot.backend.domain.category.dto.response.CategoryItemDto;
 import com.chatbot.backend.domain.category.entity.Category;
@@ -24,6 +23,7 @@ import com.chatbot.backend.domain.user.dto.response.UserBaseResponseDto;
 import com.chatbot.backend.domain.user.entity.User;
 import com.chatbot.backend.domain.user.repository.UserRepository;
 import com.chatbot.backend.global.jwt.Role;
+import com.chatbot.backend.global.dto.PageResponseDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +50,8 @@ public class AdminServiceImpl implements AdminService {
 		}
 
 		Page<ChatFeedBack> feedBacks = (isPositive == null) ? mongoChatFeedBackRepository.findAll(pageable)
-			: (isPositive) ? mongoChatFeedBackRepository.findAllByPositiveFeedback(pageable) : mongoChatFeedBackRepository.findAllByNegativeFeedback(pageable);
+			: (isPositive) ? mongoChatFeedBackRepository.findAllByPositiveFeedback(pageable) :
+			mongoChatFeedBackRepository.findAllByNegativeFeedback(pageable);
 
 		return PageResponseDto.of(feedBacks.map(FeedbackResponseDto::of));
 	}
