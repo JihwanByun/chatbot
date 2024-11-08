@@ -18,8 +18,11 @@ from concurrent.futures import ThreadPoolExecutor
 
 from sambot.utils.timer import timeit, async_timeit
 
-from summarizer_prompts import MAP_PROMPT_TEXT, COMBINE_PROMPT_TEXT
+from sambot.summarize.summarizer_prompts import MAP_PROMPT_TEXT, COMBINE_PROMPT_TEXT
 
+os.environ["LANGCHAIN_TRACING_V2"] = "false"
+os.environ["LANGCHAIN_ENDPOINT"] = ""
+os.environ["LANGCHAIN_API_KEY"] = ""
 
 class PDFSummarizer:
     def __init__(self, llm, chunk_size: int = 2048, chunk_overlap: int = 256):
@@ -144,7 +147,6 @@ class PDFSummarizer:
         except Exception as e:
             raise ValueError(f"PDF 콘텐츠 추출 중 오류 발생: {str(e)}")
 
-    @staticmethod
     async def _extract_text_from_upload_file(
             self,
             file: UploadFile,
