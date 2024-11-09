@@ -2,6 +2,9 @@ package com.chatbot.backend.domain.chatroom.dto;
 
 import java.time.LocalDateTime;
 
+import lombok.Data;
+
+@Data
 public class ChatRoomDto {
 
 	private Long chatRoomId;

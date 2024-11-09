@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.chatbot.backend.domain.user.dto.request.LoginRequestDto;
 import com.chatbot.backend.domain.user.dto.request.SignupRequestDto;
@@ -29,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
 	private final JwtProvider jwtProvider;
@@ -48,7 +49,7 @@ public class UserServiceImpl implements UserService{
 		Optional<User> signupUser = userRepository.findUserByEmail(signupRequestDto.getEmail());
 
 		// 이미 있는 user면 던지기
-		if(signupUser.isPresent()){
+		if (signupUser.isPresent()) {
 			throw new DuplicateEmailException();
 		}
 
@@ -58,6 +59,7 @@ public class UserServiceImpl implements UserService{
 		userRepository.save(newUser);
 	}
 
+	@Transactional
 	@Override
 	public Role login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
 
@@ -65,7 +67,7 @@ public class UserServiceImpl implements UserService{
 		User loginUser = userRepository.findByEmailOrElseThrow(loginRequestDto.getEmail());
 
 		// 패스워드 repo의 encoded 패스워드와 일치하지않으면 던지기
-		if(!passwordEncoder.matches(loginRequestDto.getPassword(),loginUser.getPassword())){
+		if (!passwordEncoder.matches(loginRequestDto.getPassword(), loginUser.getPassword())) {
 			throw new NotLoginException();
 		}
 
@@ -75,12 +77,12 @@ public class UserServiceImpl implements UserService{
 		String refreshToken = jwtProvider.createRefreshToken(loginUser.getId(), loginRequestDto.getEmail());
 
 		// accessToken 헤더에 저장
-		response.setHeader("Authorization","Bearer "+accessToken);
+		response.setHeader("Authorization", "Bearer " + accessToken);
 
 		// refreshToken 쿠키와 redis에 저장
-		Cookie cookie = new Cookie("refreshToken",refreshToken);
+		Cookie cookie = new Cookie("refreshToken", refreshToken);
 		cookie.setPath("/");
-		cookie.setMaxAge((int)refreshTokenExpiration/1000);
+		cookie.setMaxAge((int)refreshTokenExpiration / 1000);
 		cookie.setHttpOnly(true);
 		response.addCookie(cookie);
 		String redisKey = loginUser.getEmail();
@@ -95,7 +97,7 @@ public class UserServiceImpl implements UserService{
 		String rToken = null;
 
 		// refreshToken 쿠키에서 가져오기 -> TODO : 없으면?
-		if(cookies != null) {
+		if (cookies != null) {
 			for (Cookie c : cookies) {
 				if (c.getName().equals("refreshToken")) {
 
@@ -110,20 +112,17 @@ public class UserServiceImpl implements UserService{
 		}
 
 		// refreshToken이 있을때만
-		if(rToken != null){
+		if (rToken != null) {
 
 			// refreshToken redis에서 지우고
 			String userEmail = jwtProvider.parseClaims(rToken, true).getSubject();
 			redisTemplate.delete(userEmail);
 
 			// accessToken 헤더에서 지우기
-			response.setHeader("Authorization",null);
+			response.setHeader("Authorization", null);
 		}
 
 	}
-
-
-
 
 	@Override
 	public void reissue(HttpServletRequest request, HttpServletResponse response) {
@@ -131,7 +130,7 @@ public class UserServiceImpl implements UserService{
 		// refreshToken 가져와서
 		Cookie[] cookies = request.getCookies();
 		String rToken = null;
-		for(Cookie cookie : cookies) {
+		for (Cookie cookie : cookies) {
 
 			if (cookie.getName().equals("refreshToken")) {
 				rToken = cookie.getValue();
@@ -140,15 +139,14 @@ public class UserServiceImpl implements UserService{
 		}
 
 		// refreshToken이 없다면 던지기
-		if(rToken == null)
+		if (rToken == null)
 			throw new NoTokenException();
-
 
 		String userEmail = jwtProvider.parseClaims(rToken, true).getSubject();
 
 		String storedToken = (String)redisTemplate.opsForValue().get(userEmail);
 
-		if(storedToken == null || !storedToken.equals(rToken)){
+		if (storedToken == null || !storedToken.equals(rToken)) {
 			// redis의 값과 일치하지 않으면 던지기
 			throw new InvalidTokenException();
 		}
@@ -168,20 +166,20 @@ public class UserServiceImpl implements UserService{
 		String newRefreshToken = jwtProvider.createRefreshToken(userId, email);
 
 		// accessTokenn 헤더에 저장
-		response.setHeader("Authorization","Bearer "+newAccessToken);
+		response.setHeader("Authorization", "Bearer " + newAccessToken);
 
 		// refreshToken 쿠키와 redis에 저장
-		Cookie cookie = new Cookie("refreshToken",newRefreshToken);
+		Cookie cookie = new Cookie("refreshToken", newRefreshToken);
 		cookie.setPath("/");
-		cookie.setMaxAge((int)refreshTokenExpiration/1000);
+		cookie.setMaxAge((int)refreshTokenExpiration / 1000);
 		cookie.setHttpOnly(true);
-		redisTemplate.opsForValue().set(user.getEmail(),newRefreshToken);
+		redisTemplate.opsForValue().set(user.getEmail(), newRefreshToken);
 	}
 
 	@Override
 	public boolean isDuplicate(String email) {
-		User user = userRepository.findByEmailOrElseThrow(email);
-		return user != null;
+		Optional<User> user = userRepository.findUserByEmail(email);
+		return user.isPresent();
 	}
 
 }
