@@ -76,10 +76,10 @@ public class Board extends BaseTimeEntity {
 	// Board 정보 수정
 	public void updateBoard(BoardUpdateRequestDto boardUpdateRequestDto, Category category, String fileUrl) {
 		this.title = boardUpdateRequestDto.title();
-		this.contents = boardUpdateRequestDto.contents() == null ? null : boardUpdateRequestDto.contents();
+		this.contents = boardUpdateRequestDto.contents() == null ? this.contents : boardUpdateRequestDto.contents();
 		this.level = boardUpdateRequestDto.level();
 		this.category = category;
-		this.fileUrl = fileUrl;
+		this.fileUrl = fileUrl == null ? this.fileUrl : fileUrl;
 	}
 
 	// Board 삭제로 표시
