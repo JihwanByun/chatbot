@@ -29,12 +29,13 @@ public class RegulationServiceImpl implements RegulationService {
 	 * @return
 	 */
 	@Override
-	public RegulationResponseDto createRegulation(Long boardId, RegulationRequestDto regulationRequestDto) {
+	public RegulationResponseDto createRegulation(Long boardId, Integer level,
+		RegulationRequestDto regulationRequestDto) {
 		// Board 존재 여부 확인
 		boardRepository.existsByIdOrElseThrow(boardId);
 
 		// 규정 생성 및 저장
-		Regulation regulation = regulationRequestDto.toDocument(boardId);
+		Regulation regulation = regulationRequestDto.toDocument(boardId, level);
 		regulationRepository.save(regulation);
 		return RegulationResponseDto.of(regulation);
 	}
