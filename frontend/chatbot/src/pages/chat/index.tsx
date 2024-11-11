@@ -3,6 +3,8 @@ import ChatView, { Doc, QnA } from "@components/chat/ChatView";
 import ButtonWithIcon from "@components/atoms/button/ButtonWithIcon";
 import { BaseMessage } from "@components/chat/ChatMessage";
 import SembotLayout from "@pages/SembotLayout";
+import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 import {
   searchDocsAPI,
   generateAPI,
@@ -13,10 +15,16 @@ import {
   getChatroomDetailAPI,
   ChatroomDetail,
   createChatAPI,
-  createChatFeedbackAPI
+  createChatFeedbackAPI,
+  deleteChatroomAPI
 } from "@apis/chat/chatApi";
+import { logout } from "@apis/chat/userApi";
 
 export type ButtonWithIconProps = React.ComponentProps<typeof ButtonWithIcon>;
+
+export type ChatroomButtonProps = ButtonWithIconProps & {
+  chatroomId: number;  // 또는 number (chatroomId의 타입에 따라)
+}
 
 interface ChatState {
   curChatroomId: number;
@@ -41,23 +49,30 @@ const initialState: ChatState = {
 const Chat: React.FC = () => {
   // State Management
   const [state, setState] = useState<ChatState>(initialState);
-  const [chatroomComponents, setChatroomComponents] = useState<ButtonWithIconProps[]>([]);
+  const [chatroomComponents, setChatroomComponents] = useState<ChatroomButtonProps[]>([]);
+
+  const navigate = useNavigate();
 
   // UI Constants
-  const footStyle = "flex bg-transparent text-white py-2 px-4 rounded mx-1";
-  const newChatButtonStyle = "flex bg-transparent border border-white text-white py-2 px-4 rounded mx-1 hover:bg-blue-900 transition-colors duration-200 ease-in-out";
-  const chatroomButtonStyle = "flex bg-white text-semesBlue py-2 px-4 rounded mx-1";
+  const footStyle = "flex bg-transparent text-white py-2 px-4 rounded mx-1 transform hover:translate-x-1 transition-all duration-200 cursor-pointer";
+  const newChatButtonStyle = "flex bg-transparent border border-white text-white py-2 px-4 rounded mx-1 hover:bg-blue-900 transition-colors duration-100 ease-in-out";
+  const chatroomButtonStyle = "flex bg-white text-semesBlue py-2 px-4 rounded mx-1 hover:bg-gray-200 transition-colors duration-100 ease-in-out relative";
+  const deleteIconStyle = "hover:scale-125 transform-gpu origin-center transition-transform duration-200 absolute right-1 top-2.5";
 
   // Utility Functions
-  const createBaseButton = (btnName: string, style: string, icon: string, handleClick?: () => void): ButtonWithIconProps => ({
+  const createChatroomButton = (chatroomId: number, btnName: string, style: string, icon: string, handleClick?: () => void, iconStyleName?: string, handleIconClick?: () => void): ChatroomButtonProps => ({
     btnName,
     styleName: style,
     icon,
     handleClick,
+    iconStyleName,
+    handleIconClick,
+    chatroomId
   });
 
   // Chat Room Management
-  const newChatProp = createBaseButton(
+  const newChatProp = createChatroomButton(
+    -1,
     "새채팅",
     newChatButtonStyle,
     "/src/assets/icons/plus.svg",
@@ -67,8 +82,11 @@ const Chat: React.FC = () => {
   );
 
   const footerComponents: ButtonWithIconProps[] = [
-    createBaseButton("규정 확인하기", footStyle, "/src/assets/icons/book-open-text.svg"),
-    createBaseButton("로그아웃", footStyle, "/src/assets/icons/logout.svg"),
+    createChatroomButton(-1,"규정 확인하기", footStyle, "/src/assets/icons/book-open-text.svg", ()=>navigate("/board")),
+    createChatroomButton(-1,"로그아웃", footStyle, "/src/assets/icons/logout.svg", ()=>{
+      logout();
+      navigate("/");
+    }),
   ];
 
   // API Handlers
@@ -79,6 +97,47 @@ const Chat: React.FC = () => {
       error: error instanceof Error ? error.message : customMessage
     }));
   }, []);
+
+  const deleteChatroom = async (chatroomId: number)=>{    
+    await deleteChatroomAPI(chatroomId);
+    setChatroomComponents(prev=>prev.filter(component=>component.chatroomId !== chatroomId))
+    setState(prev => ({ ...prev, curChatroomId: -1, qnas: [] }));
+  }
+
+  const createChatroomBtnProps = (content: ChatroomResponse) => {
+    return createChatroomButton(
+      content.chatRoomId,
+      content.title,
+      chatroomButtonStyle,
+      "src/assets/icons/delete.svg",
+      () => fetchChatroom(content.chatRoomId),
+      deleteIconStyle,
+      () => {
+        Swal.fire({
+          title: '삭제하시겠습니까?',
+          text: "이 작업은 되돌릴 수 없습니다!",
+          icon: 'warning',
+          showCancelButton: true,
+          // confirmButtonColor: '#d33',
+          // cancelButtonColor: '#3085d6',
+          confirmButtonText: '삭제',
+          cancelButtonText: '취소',
+          customClass: {
+            confirmButton: 'bg-red-500 text-white px-4 py-2 rounded-lg focus:ring-0 focus:outline-none active:bg-red-500 hover:bg-red-600',
+            cancelButton: 'bg-white border-2 border-gray-300 text-gray-700 px-4 py-2 rounded-lg ml-2 hover:bg-gray-200'
+          },
+          buttonsStyling: false, // 기본 스타일링 비활성화
+        }).then((result) => {
+          if (result.isConfirmed) {
+            deleteChatroom(content.chatRoomId)   
+            Swal.fire(
+              '삭제되었습니다.',
+            )
+          }
+        });   
+      }
+    )
+  }
 
   const fetchChatroom = useCallback(async (chatroomId: number) => {
     try {
@@ -105,14 +164,7 @@ const Chat: React.FC = () => {
       const chatroomList: ChatroomList | null = await getChatroomListAPI(state.currentChatroomPage);
       if (!chatroomList) throw new Error('채팅방 목록을 가져오는데 실패했습니다.');
 
-      const newComponents = chatroomList.contents.map((content: ChatroomResponse) =>
-        createBaseButton(
-          content.title,
-          chatroomButtonStyle,
-          "src/assets/icons/delete.svg",
-          () => fetchChatroom(content.chatRoomId)
-        )
-      );
+      const newComponents = chatroomList.contents.map(createChatroomBtnProps);
 
       setState(prev => ({
         ...prev,
@@ -182,7 +234,7 @@ const Chat: React.FC = () => {
         ...prev,
         qnas: prev.qnas.map((qna, idx) => 
           idx === prev.qnas.length - 1 
-            ? { ...qna, chatId: chat.chatId, isAnswered: true }
+            ? { ...qna, docs:updatedQnA.docs, chatId: chat.chatId, isAnswered: true }
             : qna
         )
       }));
@@ -205,23 +257,20 @@ const Chat: React.FC = () => {
         activeChatroomId = result.chatRoomId;
         setState(prev => ({ ...prev, curChatroomId: activeChatroomId }));
         
-        const chatroomButton = createBaseButton(
-          result.title,
-          chatroomButtonStyle,
-          "src/assets/icons/delete.svg",
-          () => fetchChatroom(result.chatRoomId)
-        );
+        const chatroomButton = createChatroomBtnProps(result);
         
         setChatroomComponents(prev => [newChatProp, chatroomButton, ...prev.slice(1)]);
       }
-
-      const docs = await searchDocsAPI(message);
-      const newQnA = createQnA(message, docs);
+      const newQnA = createQnA(message, []);
       
       setState(prev => ({
         ...prev,
         qnas: [...prev.qnas, newQnA]
       }));
+
+      const docs = await searchDocsAPI(message);
+
+      newQnA.docs = docs;
 
       await handleGenerateResponse(message, activeChatroomId, newQnA);
     } catch (error) {
