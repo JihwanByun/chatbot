@@ -7,6 +7,8 @@ export interface ButtonProps {
 	handleClick?: () => void;
 	isActive?: boolean;
 	isFooter?: boolean;
+	iconStyleName? : string;
+	handleIconClick? : () => void;
 }
 
 const ButtonWithIcon: React.FC<ButtonProps> = ({
@@ -16,6 +18,8 @@ const ButtonWithIcon: React.FC<ButtonProps> = ({
 	handleClick,
 	isActive,
 	isFooter,
+	iconStyleName,
+	handleIconClick = () => {}
 }) => {
 	const activeStyle = isActive
 		? "bg-white text-semesBlue"
@@ -32,9 +36,7 @@ const ButtonWithIcon: React.FC<ButtonProps> = ({
 			onClick={handleClick}
 		>
 			<div className="flex">
-				<div className="w-1"></div>
-				<img width="15rem" src={icon}></img>
-				<div className="w-2"></div>
+				<img width="15rem" src={icon} onClick={(e)=>{e.stopPropagation(); handleIconClick();}} className={`mr-2 ${iconStyleName}`}></img>
 				<div>{btnName}</div>
 			</div>
 		</div>
