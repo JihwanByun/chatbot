@@ -32,7 +32,7 @@ const sampleDocs = [
 
 const sampleQnAs : QnA[] = [
   {
-    chatId : 1,
+    chatId : "1234",
     question : new BaseMessage("question", "포탈 시스템 문의에 대해 질문이 있습니다."),
     answer : new BaseMessage("answer", "포탈 시스템 관련 정보를 제공해 드립니다."),
     docs : sampleDocs
@@ -59,7 +59,6 @@ export const Default = () => {
     setIsLoading(true); // 로딩 시작
 
     const defaultQnA : QnA = {
-      chatId : -1,
       question : new BaseMessage("question",message), 
       answer : new BaseMessage("answer",""),
       docs : []

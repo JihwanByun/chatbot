@@ -74,13 +74,13 @@ const ChatView: React.FC<ChatViewProps> = ({ qnas, onSendMessage, onFeedback, is
 
   const renderFeedbackButton = (qna : QnA) => {
     if(qna.isPositive === true){
-      return <ButtonOnlyIcon icon="src/assets/icons/like-fill.svg" styleName="hover:scale-110 transition-transform duration-200 ease-in-out" width="18" disabled={false}/>
+      return <ButtonOnlyIcon icon="src/assets/icons/like-fill.svg" styleName="hover:scale-110 transition-transform duration-200 ease-in-out" width={18} disabled={false}/>
     }else if(qna.isPositive === false){
-      return <ButtonOnlyIcon icon="src/assets/icons/dislike-fill.svg" styleName="hover:scale-110 transition-transform duration-200 ease-in-out" width="18" disabled={false}/>
+      return <ButtonOnlyIcon icon="src/assets/icons/dislike-fill.svg" styleName="hover:scale-110 transition-transform duration-200 ease-in-out" width={18} disabled={false}/>
     }else{
       return <>
-        <ButtonOnlyIcon icon="src/assets/icons/like.svg" styleName="hover:scale-110 transition-transform duration-200 ease-in-out" width="18" onClick={()=>onFeedback(qna,true)} disabled={false}/>
-        <ButtonOnlyIcon icon="src/assets/icons/dislike.svg" styleName="hover:scale-110 transition-transform duration-200 ease-in-out" width="18" onClick={()=>onFeedback(qna,false)} disabled={false}/>
+        <ButtonOnlyIcon icon="src/assets/icons/like.svg" styleName="hover:scale-110 transition-transform duration-200 ease-in-out" width={18} onClick={()=>onFeedback(qna,true)} disabled={false}/>
+        <ButtonOnlyIcon icon="src/assets/icons/dislike.svg" styleName="hover:scale-110 transition-transform duration-200 ease-in-out" width={18} onClick={()=>onFeedback(qna,false)} disabled={false}/>
       </>
     }
   }
