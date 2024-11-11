@@ -45,4 +45,4 @@ file:
 
 ai:
   base:
-    url: ${AI_BASE_URL}
+    url: ${AI_BASE_URL:http://localhost:8000}
