@@ -21,6 +21,7 @@ import {
 import { logout } from "@apis/chat/userApi";
 import { ChatCategory } from "@components/chat/ChatCategories";
 import { getCategoryListAPI } from "@apis/category/categoryApi";
+import { getFeedbackReasonList } from "@apis/feedback/feedbackApi";
 
 export type ButtonWithIconProps = React.ComponentProps<typeof ButtonWithIcon>;
 
@@ -53,6 +54,16 @@ const Chat: React.FC = () => {
   const [state, setState] = useState<ChatState>(initialState);
   const [categories, setCategories] = useState<ChatCategory[]>([]);
   const [chatroomComponents, setChatroomComponents] = useState<ChatroomButtonProps[]>([]);
+  const [feedbackReasons, setFeedbackReasons] = useState<string[]>([]);
+  // // 피드백 내용들을 배열로 관리
+  // const feedbackReasons = [
+  //   "코드가 틀렸습니다",
+  //   "데모코드를 사용해선 안 됐습니다",
+  //   "스타일이 마음에 들지 않습니다",
+  //   "올바른 사례가 아닌 말을 했습니다",
+  //   "지시한 내용을 다 따르지 않았습니다",
+  //   "기타"
+  // ];
 
   const navigate = useNavigate();
 
@@ -283,11 +294,11 @@ const Chat: React.FC = () => {
     }
   }, [state.isLoading, state.curChatroomId, handleGenerateResponse, handleApiError, fetchChatroom]);
 
-  const handleFeedback = useCallback((qna: QnA, isPositive: boolean, negativeReason? : string) => {
+  const handleFeedback = useCallback(async (qna: QnA, isPositive: boolean, negativeReason?: string) => {
     if(!qna.chatId) return;
 
+    // 긍정 피드백
     createChatFeedbackAPI(qna.chatId, isPositive, negativeReason);
-
     setState(prev => ({
       ...prev,
       qnas: prev.qnas.map(q => 
@@ -302,6 +313,11 @@ const Chat: React.FC = () => {
     setCategories(categories);
   }
 
+  const fetchFeedbackReasons = async () => {
+    const feedbackReasons = await getFeedbackReasonList();
+    setFeedbackReasons([...feedbackReasons,"기타"]);
+  }
+
   // Initial Load
   useEffect(() => {
     if (state.currentChatroomPage === 0) {
@@ -311,6 +327,7 @@ const Chat: React.FC = () => {
 
   useEffect(() => {
     fetchCategories();
+    fetchFeedbackReasons();
     setChatroomComponents([newChatProp]);
   }, []);
 
@@ -331,6 +348,7 @@ const Chat: React.FC = () => {
           isLoading={state.isLoading}
           onFeedback={handleFeedback}
           categories={categories}
+          feedbackReasons={feedbackReasons}
         />
       </div>
     </SembotLayout>
