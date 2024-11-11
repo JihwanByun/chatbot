@@ -1,4 +1,6 @@
+import json
 import os
+from pathlib import Path
 
 from config import (
     EMBEDDINGS_ENCODE_KWARGS,
@@ -8,6 +10,7 @@ from config import (
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PDFPlumberLoader
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain.schema import Document
 
 
 def get_embeddings():
@@ -26,27 +29,29 @@ def get_embeddings():
 
 
 # PDF 파일명들을 로드하는 함수
-def load_pdf_files(pdf_path: str):
+def load_files(file_path: str, file_type: str):
     """
     주어진 디렉토리에서 모든 PDF 파일들을 로드합니다.
 
     Args:
-        pdf_path (str): pdf 디렉토리 경로
+        file_path (str): file 디렉토리 경로
+        file_type (str): file type
 
     Returns:
         pdf 파일 경로 리스트
 
     """
-    pdf_files = []
-    for root, dirs, files in os.walk(pdf_path):
+
+    data_files = []
+    for root, dirs, files in os.walk(file_path):
         for file in files:
-            if file.endswith(".pdf"):
-                pdf_files.append(os.path.join(root, file))
+            if file.endswith(f".{file_type}"):
+                data_files.append(os.path.join(root, file))
 
-    return pdf_files
+    return data_files
 
 
-def pdf_splitter(pdf_dir_path: str):
+def file_splitter(file_dir_path: str, file_type: str):
     """
     PDF를 splitter로 작은 청크로 분리합니다.
 
@@ -56,19 +61,79 @@ def pdf_splitter(pdf_dir_path: str):
     Returns:
         청크로 분리된 pdf 파일 객체 리스트
     """
-    pdf_files = load_pdf_files(pdf_dir_path)
+    files = load_files(file_dir_path, file_type)
+
     all_documents = []
 
-    for pdf_file in pdf_files:
-        loader = PDFPlumberLoader(pdf_file)
-        documents = loader.load()  # PDF 문서를 로드합니다
+    # 텍스트를 작은 청크로 분할
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,  # 각 청크의 최대 문자 수
+        chunk_overlap=32,  # 청크 간 중복되는 문자 수
+    )
 
-        # 텍스트를 작은 청크로 분할
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,  # 각 청크의 최대 문자 수
-            chunk_overlap=32,  # 청크 간 중복되는 문자 수
-        )
+    documents = []
+    for file in files:
+        if file_type == "pdf":
+            loader = PDFPlumberLoader(file)
+            documents = loader.load()  # PDF 문서를 로드합니다
+
+        elif file_type == "json":
+            new_data = make_data_for_vectorDB(file)
+
+            documents += new_data
+
         chunked_documents = text_splitter.split_documents(documents)
         all_documents.extend(chunked_documents)
+
+    return all_documents
+
+
+def make_data_for_vectorDB(json_file):
+
+    json_data = json.loads(Path(json_file).read_text(encoding="utf-8"))
+
+    file_name = json_file.split("/")[-1].split(".")[0]
+
+    pages = json_data["page"]
+
+    article_seq = 0
+    page_title = ""
+    all_documents = []
+
+    for index, page in enumerate(pages, 1):
+        page_title = f"제{index}장({page['content']})"
+
+        for article in page["article"]:
+            article_seq += 1
+            content = ""
+
+            data_source = (
+                f"{file_name} {page_title} 제{article_seq}조({article['title']})"
+            )
+
+            # article의 content가 있으면 추가
+            if article.get("content"):
+                content += article["content"] + " "
+
+            # 항이 있으면 추가
+            if article.get("paragraph"):
+                for para_index, paragraph in enumerate(article["paragraph"], 1):
+                    content += f"제{para_index}항 {paragraph['content']} "
+
+                    # 호가 있으면 추가
+                    if paragraph.get("sub-paragraph"):
+                        for subPara_index, sub_paragraph in enumerate(
+                            paragraph["sub-paragraph"], 1
+                        ):
+                            content += (
+                                f"제{subPara_index}호 {sub_paragraph['content']} "
+                            )
+
+            document = Document(
+                metadata={"source": data_source, "level": json_data["level"]},
+                page_content=content,
+            )
+
+            all_documents.append(document)
 
     return all_documents

@@ -14,10 +14,13 @@ class SembotDocs:
 
     def __init__(
         self,
+        file_dir_path,
+        file_type,
         vectorstore_path=VECTORSTORE_PATH,
-        pdf_dir_path=PDF_DIR_PATH,
     ):
-        self.vector_store = get_vectorestore_by_FAISS(vectorstore_path, pdf_dir_path)
+        self.vector_store = get_vectorestore_by_FAISS(
+            vectorstore_path, file_dir_path, file_type
+        )
         self.retriever = self.vector_store.as_retriever()
 
     def _init_prompt(self):
@@ -167,6 +170,7 @@ class SembotDocs:
 
 
 if __name__ == "__main__":
+    from pprint import pprint
     input_data = {
         "memory": [
             {
@@ -186,11 +190,15 @@ if __name__ == "__main__":
                 "answer": "안녕하세요! 연차는 다음과 같은 절차를 따르면 신청할 수 있습니다.",
             },
         ],
-        "question": "제가 아까 무슨 질문 했죠? 기억나시나요??",
+        "question": "퇴직금은 언제 받을 수 있나요?",
     }
 
-    pre_sembot = SembotDocs()
+    file_dir_path = r"../kisa_json/"
+    file_type = "json"
+    vectorstore_path = "./vector_store_path_by_json"
 
-    prompt = pre_sembot.make_prompt(input_data)
+    pre_sembot = SembotDocs(file_dir_path, file_type, vectorstore_path)
 
-    docs = pre_sembot.docs_invoke(input_data)
+    docs = pre_sembot.docs_invoke(input_data["question"])
+
+    pprint(docs)
