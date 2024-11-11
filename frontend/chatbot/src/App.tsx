@@ -14,6 +14,8 @@ import { PrivateRoute } from "@util/PrivateRoute";
 import BoardEdit from "@pages/board/BoardEdit";
 import TreeView from "@pages/board/TreeView";
 import BoardContentTree from "@pages/board/[id]tree";
+import RegisterPage from "@pages/signup"
+
 
 function App() {
 	const [curPage, setCurPage] = useState(4);
