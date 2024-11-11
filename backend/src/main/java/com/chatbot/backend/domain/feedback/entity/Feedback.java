@@ -1,4 +1,4 @@
-package com.chatbot.backend.domain.category.entity;
+package com.chatbot.backend.domain.feedback.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,17 +10,15 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
-@Table(name = "Categories")
+@Table(name = "Feedbacks")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString
-public class Category {
+public class Feedback {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "category_id")
+	@Column(name = "feedback_id")
 	private Long id;
 
 	@Column(nullable = false)
@@ -29,18 +27,13 @@ public class Category {
 	private Boolean isDeleted;
 
 	@Builder
-	public Category(String name, Boolean isDeleted) {
+	public Feedback(String name, Boolean isDeleted) {
 		this.name = name;
 		this.isDeleted = isDeleted == null ? false : isDeleted;
 	}
 
-	// Category 수정
-	public void updateCategory(String name) {
-		this.name = name;
-	}
-
-	// Category 삭제
-	public void deleteCategory() {
+	// Feedback 삭제
+	public void deleteFeedback() {
 		this.isDeleted = true;
 	}
 }

@@ -29,10 +29,10 @@ public class Board extends BaseTimeEntity {
 	@Column(name = "board_id")
 	private Long id;
 
-	@Column(nullable = false, length = 200)
+	@Column(nullable = true, length = 200)
 	private String title;
 
-	@Column(nullable = false, columnDefinition = "TEXT")
+	@Column(nullable = true, columnDefinition = "TEXT")
 	private String contents;
 
 	@Column(nullable = false)
@@ -75,10 +75,10 @@ public class Board extends BaseTimeEntity {
 
 	// Board 정보 수정
 	public void updateBoard(BoardUpdateRequestDto boardUpdateRequestDto, Category category, String fileUrl) {
-		this.title = boardUpdateRequestDto.title();
+		this.title = boardUpdateRequestDto.title() == null ? this.title : boardUpdateRequestDto.title();
 		this.contents = boardUpdateRequestDto.contents() == null ? this.contents : boardUpdateRequestDto.contents();
-		this.level = boardUpdateRequestDto.level();
-		this.category = category;
+		this.level = boardUpdateRequestDto.level() == null ? this.level : boardUpdateRequestDto.level();
+		this.category = category == null ? this.category : category;
 		this.fileUrl = fileUrl == null ? this.fileUrl : fileUrl;
 	}
 

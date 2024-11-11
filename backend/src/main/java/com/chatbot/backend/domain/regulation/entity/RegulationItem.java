@@ -9,13 +9,13 @@ import lombok.Getter;
 // 규정 항목 클래스
 @Getter
 public class RegulationItem {
-	private Integer number;
+	private String title;
 	private String content;
 	private List<RegulationItem> itemList;
 
 	@Builder
-	public RegulationItem(Integer number, String content, List<RegulationItem> itemList) {
-		this.number = number;
+	public RegulationItem(String title, String content, List<RegulationItem> itemList) {
+		this.title = title;
 		this.content = content;
 		this.itemList = itemList != null ? itemList : new ArrayList<>();
 	}
