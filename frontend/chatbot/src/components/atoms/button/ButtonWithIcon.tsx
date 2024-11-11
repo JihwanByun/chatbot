@@ -1,3 +1,6 @@
+import { defaultAxios } from "@apis/common";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
+import { logoutUser } from "@app/slices/userSlice";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -18,21 +21,21 @@ const ButtonWithIcon: React.FC<ButtonProps> = ({
 	isActive,
 	isFooter,
 }) => {
+	const dispatch = useAppDispatch();
+
 	const activeStyle = isActive
 		? "bg-white text-semesBlue"
 		: "bg-gray-400 text-semesBlue";
 
 	const navigate = useNavigate();
-	const handleClickDefault = () => {
+	const handleClickDefault = async () => {
 		switch (btnName) {
 			case "규정 확인하기":
 				navigate("/board");
 				break;
 			case "로그아웃":
-				localStorage.removeItem("Authorization");
-				localStorage.removeItem("Role");
+				await dispatch(logoutUser());
 				navigate("/");
-				// TODO : 로그아웃 api 호출해야함
 				break;
 			case "채팅":
 				navigate("/chat");
