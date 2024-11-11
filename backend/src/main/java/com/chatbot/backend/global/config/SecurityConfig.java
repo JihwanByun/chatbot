@@ -13,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsUtils;
 
+import com.chatbot.backend.global.jwt.ExceptionHandlerFilter;
 import com.chatbot.backend.global.jwt.JwtFilter;
 import com.chatbot.backend.global.jwt.JwtProvider;
 import com.chatbot.backend.global.jwt.Role;
@@ -102,7 +103,8 @@ public class SecurityConfig {
 					.authenticated()
 			)
 			// JWT 필터 추가
-			.addFilterBefore(new JwtFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
+			.addFilterBefore(new JwtFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(new ExceptionHandlerFilter(), JwtFilter.class);
 
 		return http.build();
 	}
