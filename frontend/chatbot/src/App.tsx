@@ -14,6 +14,7 @@ import { PrivateRoute } from "@util/PrivateRoute";
 import BoardEdit from "@pages/board/BoardEdit";
 import TreeView from "@pages/board/TreeView";
 import BoardContentTree from "@pages/board/[id]tree";
+import SignUp from "@pages/signup/index";
 
 function App() {
 	const [curPage, setCurPage] = useState(4);
@@ -23,8 +24,8 @@ function App() {
 				{/* 아래와 같이 prop으로 배경색 동적처리 가능 */}
 				<Route path="/" element={<LoginForm />} />
 				<Route path="/login" element={<LoginForm />} />
-				<Route path="/boardcontent" element={<BoardContentTree />} />
 				<Route element={<PrivateRoute />}>
+					<Route path="/boardcontent" element={<BoardContentTree />} />
 					<Route path="/adminPage" element={<AdminPage />} />
 					<Route path="/chat" element={<Chat />} />
 					<Route path="/board" element={<BoardListPage />} />
@@ -59,13 +60,12 @@ function App() {
 						<Paging curPage={curPage} totalPage={8} onPageChange={setCurPage} />
 					}
 				/>
-				
+
 				<Route path="/adminPage" element={<AdminPage />} />
 				<Route path="/chat" element={<Chat />} />
 				<Route path="/board" element={<BoardListPage />} />
 				<Route path="/login" element={<LoginForm />} />
-				<Route path="/register" element={<RegisterPage />}/>
-
+				<Route path="/register" element={<SignUp />} />
 			</Routes>
 		</>
 	);

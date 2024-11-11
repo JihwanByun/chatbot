@@ -1,6 +1,7 @@
 // axios를 사용해 API 요청을 수행하는 함수들
 
 import { defaultAxios } from "@apis/common";
+import { UpdateUserDTO } from "@pages/admin/UpdateUserDto";
 
 // 페이지별로 멤버 리스트를 가져오는 API 호출 함수
 export const findMemberListByPage = async (
@@ -45,5 +46,22 @@ export const findFeedbackListByPage = async (
 			sort: `${sortBy},${sortDir}`, // `sort` 파라미터를 한 문자열로 조합
 		},
 	});
+	return result;
+};
+
+export const updateUser = async (updateUser: UpdateUserDTO) => {
+	console.log(updateUser);
+	const result = defaultAxios.put(
+		`/api/admins/users/${updateUser.userId}`,
+		{
+			level: updateUser.level,
+			role: updateUser.role,
+		},
+		{
+			headers: {
+				Authorization: localStorage.getItem("Authorization"),
+			},
+		}
+	);
 	return result;
 };

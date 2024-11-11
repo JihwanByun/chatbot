@@ -23,7 +23,7 @@ type Contents = {
 
 // Member 전체 리스트의 구조를 정의하는 타입
 type Member = {
-	contents: Contents[];
+	content: Contents[];
 	page: number;
 	size: number;
 	totalPages: number;
@@ -33,7 +33,7 @@ type Member = {
 // 초기 상태 정의
 const initialState: MemberState = {
 	members: {
-		contents: [],
+		content: [],
 		page: 0,
 		size: 0,
 		totalPages: 0,

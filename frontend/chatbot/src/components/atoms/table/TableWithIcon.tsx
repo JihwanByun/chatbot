@@ -3,20 +3,20 @@ import TableHeader from "./TableHeader";
 import TableRowWithIcon from "./TableRowWithIcon";
 
 interface TableRowData {
-  id: number; // 각 행의 고유 ID
-  /** 테이블 data 배열 */
-  columns: string[];
+    id: number; // 각 행의 고유 ID
+    /** 테이블 data 배열 */
+    columns: (string | JSX.Element)[];
 }
 
 interface TableRowWithIconProps {
-  /** 테이블 title row */
-  columns: string[];
-  /** 테이블 data row 배열 */
-  rows: TableRowData[];
-  /** 테이블 셀 width */
-  width?: string;
-  iconPaths: { [key: number]: string }; // 행별 아이콘 경로
-  onIconClick: (id: number) => void; // 아이콘 클릭 시 이벤트
+    /** 테이블 title row */
+    columns: (string | JSX.Element)[];
+    /** 테이블 data row 배열 */
+    rows: TableRowData[];
+    /** 테이블 셀 width */
+    width?: string;
+    iconPaths: { [key: number]: string }; // 행별 아이콘 경로
+    onIconClick: (id: number) => void; // 아이콘 클릭 시 이벤트
 }
 
 const TableWithIconAndButton: React.FC<TableRowWithIconProps> = ({

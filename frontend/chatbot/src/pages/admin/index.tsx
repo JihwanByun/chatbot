@@ -12,11 +12,6 @@ const SembotPage: React.FC = () => {
 		setActiveButton(btnName);
 	};
 
-	const handleClickFooter = (btnName: string) => {
-		// Footer 버튼 클릭 시 동작 정의
-		console.log(`${btnName} 버튼 클릭`);
-	};
-
 	const SidebarButtons = [
 		{
 			styleName: "flex py-2 px-4 rounded mx-1",
@@ -51,16 +46,14 @@ const SembotPage: React.FC = () => {
 	const FooterButtons = [
 		{
 			styleName: "flex py-2 px-4 rounded mx-1",
-			btnName: "규정 확인",
-			icon: "/src/assets/icons/book-open-text.svg",
-			handleClick: () => handleClickFooter("규정 확인"),
+			btnName: "규정 확인하기",
+			icon: "/src/assets/icons/book-open-text-footer.svg",
 			isFooter: true,
 		},
 		{
 			styleName: "flex py-2 px-4 rounded mx-1",
 			btnName: "로그아웃",
 			icon: "/src/assets/icons/logout.svg",
-			handleClick: () => handleClickFooter("로그아웃"),
 			isFooter: true,
 		},
 	];
