@@ -1,4 +1,4 @@
-import { defaultAIAxios, defaultAxios } from "@apis/common";
+import defaultAxios, { defaultAIAxios } from "@apis/common";
 import { BaseMessage } from "@components/chat/ChatMessage";
 import { Doc, DocMetadata, QnA } from "@components/chat/ChatView";
 import { AI_URL } from "@configs/config";
@@ -101,9 +101,6 @@ const convertToChatroomList = (chatroomListResponse : ChatroomListResponse) : Ch
 export const getChatroomListAPI = async (page : number = 0): Promise<ChatroomList | null> => {
   return defaultAxios
     .get<ChatroomListResponse>(`/api/chatrooms`,{
-      headers: {
-        Authorization: localStorage.getItem("Authorization"),
-      },
       params: {
         page
       },
@@ -120,11 +117,7 @@ export const getChatroomListAPI = async (page : number = 0): Promise<ChatroomLis
 
 export const createChatroomAPI = async (message : string): Promise<ChatroomResponse | null> => {
   return defaultAxios
-    .post<ChatroomResponse>('/api/chatrooms', { content : message }, {
-      headers: {
-        Authorization: localStorage.getItem("Authorization"),
-      },
-    })
+    .post<ChatroomResponse>('/api/chatrooms', { content : message })
     .then((res) => {
       return res.data;
     })
@@ -215,11 +208,7 @@ const convertToChatroomDetail = (res : ChatroomDetailResponse) : ChatroomDetail 
 
 export const getChatroomDetailAPI = async (chatroomId : number): Promise<ChatroomDetail | null> => {
   return defaultAxios
-    .get<ChatroomDetailResponse>(`/api/chatrooms/${chatroomId}`,{
-      headers: {
-        Authorization: localStorage.getItem("Authorization"),
-      }
-    })    
+    .get<ChatroomDetailResponse>(`/api/chatrooms/${chatroomId}`)    
     .then((res) => {
       return convertToChatroomDetail(res.data);
     })
@@ -268,11 +257,6 @@ export const createChatAPI = async (chatroomId : number, qna : QnA, ): Promise<C
         chatRoomId: chatroomId,
         memory: convertToMemoryBE(qna),
         isPositive: qna.isPositive
-      },
-      {
-        headers: {
-          Authorization: localStorage.getItem("Authorization"),
-        },
       }
     )
     .then((res) => {
@@ -295,11 +279,6 @@ export const createChatFeedbackAPI = async (chatId : string, isPositive : boolea
       {
         isPositive,
         negativeReason
-      },
-      {
-        headers: {
-          Authorization: localStorage.getItem("Authorization"),
-        },
       }
     )
     .then((res) => {
@@ -310,6 +289,18 @@ export const createChatFeedbackAPI = async (chatId : string, isPositive : boolea
       return null;
     });
 };
+
+export const deleteChatroomAPI = async(chatroomId : number) => {
+  return defaultAxios
+  .delete(`/api/chatrooms/${chatroomId}`)
+  .then((res) => {
+    return res.data;
+  })
+  .catch((error) => {
+    console.error("Error in deleteChatroomAPI:", error);
+    return error;
+  });
+}
 
 // {
 //   "chatRoomId": 1,
