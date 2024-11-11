@@ -5,7 +5,7 @@ import { favoritePath, favoritedPath } from "@pages/board/BoardListContent";
 //===== Backend API =====//
 // Type 지정
 // Board 목록 조회 시 처음 값
-type BoardListResponse = {
+export type BoardListResponse = {
   contents: BoardResponse[];
   page: number;
   size: number;
@@ -13,7 +13,7 @@ type BoardListResponse = {
   totalElements: number;
 };
 
-type BoardResponse = {
+export type BoardResponse = {
   boardId: number;
   title: string;
   contents: string;
@@ -22,13 +22,13 @@ type BoardResponse = {
   isFavorite: boolean;
 };
 
-type BoardSearchCondition = {
+export type BoardSearchCondition = {
   level?: number;
   name?: string;
   title?: string;
 };
 
-type Pageable = {
+export type Pageable = {
   page: number;
   size: number;
   sort: string[];
@@ -77,6 +77,7 @@ export const getBoardListAPI = async (
       params: {
         ...condition,
         ...pageInfo,
+        sort: pageInfo?.sort.join(","),
       },
     })
     .then((res) => {
