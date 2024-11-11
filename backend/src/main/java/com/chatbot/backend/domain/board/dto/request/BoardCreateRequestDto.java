@@ -21,8 +21,7 @@ public record BoardCreateRequestDto(
 	@Size(max = 200, message = "제목은 200자를 초과할 수 없습니다.")
 	String title,
 
-	@Schema(description = "게시글 내용", example = "게시글 내용입니다", required = true)
-	@NotBlank(message = "내용은 필수입니다.")
+	@Schema(description = "게시글 내용", example = "게시글 내용입니다", required = false, nullable = true)
 	String contents,
 
 	@Schema(description = "게시글 카테고리", example = "카테고리 1", required = true)
