@@ -14,7 +14,7 @@ import lombok.ToString;
 
 // 규정 Document 클래스
 // MongoDB에 저장될 규정 정보 관리
-@Document
+@Document(collection = "Regulations")
 @Getter
 @ToString
 public class Regulation extends BaseTimeDocument {

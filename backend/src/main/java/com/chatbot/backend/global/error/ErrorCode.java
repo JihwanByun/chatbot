@@ -83,7 +83,11 @@ public enum ErrorCode {
 	// 파일 저장
 	FILE_STORAGE_FAIL(500, "FILE_STORAGE_FAIL", "파일 저장에 실패했습니다."),
 	FILE_SUMMARY_FAIL(500, "FILE_SUMMARY_FAIL", "파일 요약에 실패했습니다."),
-	FILE_INVALID(400, "FILE_INVALID", "파일이 유효하지 않습니다.");
+	FILE_INVALID(400, "FILE_INVALID", "파일이 유효하지 않습니다."),
+
+	// 비고 관련 오류
+	REMARK_ALREADY_DELETED(400, "REMARK_ALREADY_DELETED", "이미 삭제된 비고입니다."),
+	REMARK_NOT_FOUND(404, "REMARK_NOT_FOUND", "비고를 찾을 수 없습니다");
 
 	private final int httpStatus;
 	private final String code;
