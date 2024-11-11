@@ -25,9 +25,9 @@ const CategoryManagement = () => {
   }, []);
 
   // 카테고리 추가 처리
-  const handleAddCategory = async () => {
+  const handleAddCategory = async (newCategory : String) => {
     try {
-      const response = await addCategory({ name: newCategory });
+      const response = await addCategory( newCategory );
       // 새 카테고리 추가 후 상태 업데이트
       setContents((prevContents) => [
         ...prevContents,
@@ -55,12 +55,11 @@ const CategoryManagement = () => {
     <div className="flex flex-col items-center space-y-4">
       {contents && contents.map((content) => (
         <div className="w-[40%]" key={content.categoryId}>
-          <CardWithButton content={content.name} />
-          <div className="flex space-x-2 mt-2">
-            <ButtonOnlyIcon
-              styleName="py-1 px-2 rounded-lg text-white"
-              onClick={() => handleRemoveCategory(content.categoryId)} // 삭제 버튼 클릭 시 삭제 처리
-            />
+          <CardWithButton
+          content={content.name}
+          handleClick={() => handleRemoveCategory(content.categoryId)} // 클릭 시 categoryId 전달
+        /><div className="flex space-x-2 mt-2">
+           
           </div>
         </div>
       ))}

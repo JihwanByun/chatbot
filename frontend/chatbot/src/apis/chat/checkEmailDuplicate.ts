@@ -1,4 +1,4 @@
-import { defaultAxios } from "@apis/common";
+import defaultAxios from "@apis/common";
 import { emailDTO } from "@pages/signup/SignUpDTO";
 
 

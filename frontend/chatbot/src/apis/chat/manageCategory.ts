@@ -1,10 +1,15 @@
-import { defaultAxios } from "@apis/common"
+import  defaultAxios  from "@apis/common"
 
 
 export const addCategory = async (newCategory: String) => {
     try{
-
-        const response = defaultAxios.post("/api/admins/categories", newCategory)
+        
+        const response = defaultAxios.post("/api/admins/categories", 
+            {headers: {
+                Authorization: localStorage.getItem("Authorization"),
+            },newCategory
+            }
+        )
 
         return response;
     } catch (error) {
