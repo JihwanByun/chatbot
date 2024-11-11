@@ -59,6 +59,7 @@ export const fetchMembersByPage = createAsyncThunk(
 			params.sortBy,
 			params.sortDir
 		);
+		console.log(response.data)
 		return response.data;
 	}
 );
@@ -79,7 +80,10 @@ const memberSlice = createSlice({
 				fetchMembersByPage.fulfilled,
 				(state, action: PayloadAction<Member>) => {
 					// 요청 성공 시 상태를 업데이트
+					console.log(action.payload)
+
 					state.members = action.payload;
+					// state.members.totalPages = action.payload.totalPages;
 					state.loading = false;
 				}
 			)

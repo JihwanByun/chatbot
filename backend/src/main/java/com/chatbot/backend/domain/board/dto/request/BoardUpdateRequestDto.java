@@ -18,7 +18,7 @@ public record BoardUpdateRequestDto(
 	@Size(max = 200, message = "제목은 200자를 초과할 수 없습니다.")
 	String title,
 
-	@Schema(description = "게시글 내용", example = "수정할 게시글 내용입니다", required = true)
+	@Schema(description = "게시글 내용", example = "수정할 게시글 내용입니다", required = false, nullable = true)
 	@NotBlank(message = "내용은 필수입니다.")
 	String contents,
 

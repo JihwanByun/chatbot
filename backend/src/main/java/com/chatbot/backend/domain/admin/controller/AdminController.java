@@ -1,6 +1,5 @@
 package com.chatbot.backend.domain.admin.controller;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -17,13 +16,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.chatbot.backend.domain.admin.dto.response.PageResponseDto;
 import com.chatbot.backend.domain.admin.service.AdminService;
-import com.chatbot.backend.domain.category.dto.response.CategoryFindResponseDto;
 import com.chatbot.backend.domain.category.dto.response.CategoryItemDto;
 import com.chatbot.backend.domain.user.dto.request.UserSearchCondition;
 import com.chatbot.backend.domain.user.dto.request.UserUpdateRequestDto;
 import com.chatbot.backend.domain.user.dto.response.UserBaseResponseDto;
+import com.chatbot.backend.global.dto.PageResponseDto;
 import com.chatbot.backend.global.security.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,17 +45,18 @@ public class AdminController {
 
 		Long userId = userDetails.getId();
 
-		PageResponseDto response = adminService.findFeedbackByPage(userId,isPositive, pageable);
+		PageResponseDto response = adminService.findFeedbackByPage(userId, isPositive, pageable);
 		return ResponseEntity.ok().body(response);
 	}
 
 	@PostMapping("/categories")
-	public ResponseEntity<CategoryFindResponseDto> createCategory(
+	public ResponseEntity<CategoryItemDto> createCategory(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestBody String name) {
 		Long userId = userDetails.getId();
-		adminService.createCategory(userId, name);
-		return ResponseEntity.ok().build();
+		CategoryItemDto category = adminService.createCategory(userId, name);
+
+		return ResponseEntity.ok(category);
 	}
 
 	@Operation(
@@ -106,12 +105,12 @@ public class AdminController {
 		description = "사용자 정보 목록을 조회합니다."
 	)
 	@GetMapping("/users")
-	public ResponseEntity<Page<UserBaseResponseDto>> getUserList(
+	public ResponseEntity<PageResponseDto<UserBaseResponseDto>> getUserList(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@ModelAttribute UserSearchCondition userSearchCondition,
 		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
 	) {
 		return ResponseEntity.status(HttpStatus.OK)
-			.body(adminService.getUserList(userDetails.getId(), userSearchCondition, pageable));
+			.body(PageResponseDto.of(adminService.getUserList(userDetails.getId(), userSearchCondition, pageable)));
 	}
 }

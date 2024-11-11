@@ -3,8 +3,8 @@ import { emailDTO, SignUpDTO } from './SignUpDTO';
 import logo from '@/assets/images/head-register.png';
 import topLeftLogo from '@/assets/images/head-logo-group.png'; // Import your top-left logo
 import ButtonPrimary from '@components/atoms/button/ButtonPrimary';
-import { signUp } from '@apis/signup/signup';
-import { checkEmailDuplicate } from '@apis/signup/checkEmailDuplicate';
+import { signUp } from '@apis/chat/signup';
+import { checkEmailDuplicate } from '@apis/chat/checkEmailDuplicate';
 import { useNavigate } from 'react-router-dom';
 
 export interface SignUpFormProps {

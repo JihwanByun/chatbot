@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.chatbot.backend.domain.admin.dto.response.FeedbackResponseDto;
-import com.chatbot.backend.domain.admin.dto.response.PageResponseDto;
 import com.chatbot.backend.domain.admin.exception.NoAuthorityException;
 import com.chatbot.backend.domain.category.dto.response.CategoryItemDto;
 import com.chatbot.backend.domain.category.entity.Category;
@@ -23,6 +22,7 @@ import com.chatbot.backend.domain.user.dto.request.UserUpdateRequestDto;
 import com.chatbot.backend.domain.user.dto.response.UserBaseResponseDto;
 import com.chatbot.backend.domain.user.entity.User;
 import com.chatbot.backend.domain.user.repository.UserRepository;
+import com.chatbot.backend.global.dto.PageResponseDto;
 import com.chatbot.backend.global.jwt.Role;
 
 import lombok.RequiredArgsConstructor;
@@ -50,14 +50,15 @@ public class AdminServiceImpl implements AdminService {
 		}
 
 		Page<ChatFeedBack> feedBacks = (isPositive == null) ? mongoChatFeedBackRepository.findAll(pageable)
-			: (isPositive) ? mongoChatFeedBackRepository.findAllByPositiveFeedback(pageable) : mongoChatFeedBackRepository.findAllByNegativeFeedback(pageable);
+			: (isPositive) ? mongoChatFeedBackRepository.findAllByPositiveFeedback(pageable) :
+			mongoChatFeedBackRepository.findAllByNegativeFeedback(pageable);
 
 		return PageResponseDto.of(feedBacks.map(FeedbackResponseDto::of));
 	}
 
 	//== ADMIN Category 관련 코드 ==//
 	@Override
-	public void createCategory(Long userId, String name) {
+	public CategoryItemDto createCategory(Long userId, String name) {
 		User user = userRepository.findByIdOrElseThrow(userId);
 		if (user.getRole() != Role.ADMIN) {
 			throw new NoAuthorityException();
@@ -73,6 +74,9 @@ public class AdminServiceImpl implements AdminService {
 			.isDeleted(false)  // isDeleted 기본값 설정
 			.build();
 		categoryRepository.save(adminCategory);
+
+		return new CategoryItemDto(adminCategory.getId(), adminCategory.getName());
+
 	}
 
 	/**

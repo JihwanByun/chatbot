@@ -98,7 +98,7 @@ public class FileUtil {
 	 * @return
 	 */
 	public static String createFileHeader(String fileUrl) {
-		return "attachment; filename=\"" + extractFileName(fileUrl) + DELIMITER;
+		return "attachment; filename=\"" + extractFileName(fileUrl) + "\"";
 	}
 
 	/**

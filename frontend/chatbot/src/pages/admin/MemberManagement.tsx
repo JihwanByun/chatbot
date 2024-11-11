@@ -33,16 +33,23 @@ const MemberManagement = () => {
 	const [newRole, setNewRole] = useState("");
 
 	// 일단 출력까지만 해봅시다.
-	useEffect(() => {
-		dispatch(
-			fetchMembersByPage({
-				page,
-				size,
-				sortBy,
-				sortDir,
-			})
-		);
-	}, [dispatch, page, size, sortBy, sortDir]);
+	// useEffect(() => {
+
+	// 	if(loading){
+	// 		console.log("데이터 로딩 중..")
+	// 	} else{
+	// 		console.log("데이터 로딩 완료",members);
+	// 	}
+
+	// 	dispatch(
+	// 		fetchMembersByPage({
+	// 			page,
+	// 			size,
+	// 			sortBy,
+	// 			sortDir,
+	// 		})
+	// 	);
+	// }, [dispatch, page, size, sortBy, sortDir]);
 
 	useEffect(() => {
 		if (members && members.content) {
@@ -132,6 +139,10 @@ const MemberManagement = () => {
 	}, []);
 
 	const handleClick = () => {};
+		// 로딩이 완료된 후에만 테이블 렌더링
+	if (loading) {
+		return <div>로딩 중...</div>;
+	}
 
 	return (
 		<div>

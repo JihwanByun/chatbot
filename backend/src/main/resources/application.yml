@@ -42,3 +42,7 @@ cors:
 file:
   upload:
     path: ${FILE_UPLOAD_PATH:C:/Users/SSAFY/Image}
+
+ai:
+  base:
+    url: ${AI_BASE_URL:http://localhost:8000}

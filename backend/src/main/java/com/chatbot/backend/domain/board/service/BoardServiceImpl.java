@@ -19,6 +19,7 @@ import com.chatbot.backend.domain.board.util.BoardValidator;
 import com.chatbot.backend.domain.category.entity.Category;
 import com.chatbot.backend.domain.category.repository.CategoryRepository;
 import com.chatbot.backend.domain.file.service.FileService;
+import com.chatbot.backend.domain.file.service.FileSummaryService;
 import com.chatbot.backend.domain.regulation.dto.response.RegulationResponseDto;
 import com.chatbot.backend.domain.regulation.service.RegulationService;
 import com.chatbot.backend.domain.user.entity.User;
@@ -41,15 +42,19 @@ public class BoardServiceImpl implements BoardService {
 	private final BoardLikeRepository boardLikeRepository;
 	private final BoardValidator boardValidator;
 	private final RegulationService regulationService;
+	private final FileSummaryService fileSummaryService;
 
 	/**
 	 * 새로운 게시글 작성
+	 *
 	 * @param userId
 	 * @param boardCreateRequestDto
 	 * @param file
 	 * @return
 	 */
+
 	@Override
+	@Transactional
 	public BoardDetailResponseDto createBoard(Long userId, BoardCreateRequestDto boardCreateRequestDto,
 		MultipartFile file) {
 		// 검증 & 조회
@@ -58,18 +63,16 @@ public class BoardServiceImpl implements BoardService {
 
 		boardValidator.validateUserWriteAuthorized(user);
 
-		// File 저장
-		String fileUrl = null;
-		if (boardCreateRequestDto.hasFile()) {
-			fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
-
-			// TODO
-			// 파일을 FastAPI로 전송해주는 로직 구현 예정
-		}
-
 		// Board 생성 (비즈니스 로직)
-		Board board = boardCreateRequestDto.toEntity(user, category, fileUrl);
-		boardRepository.save(board);
+		Board board = boardCreateRequestDto.toEntity(user, category);
+		board = boardRepository.save(board);
+
+		// 파일이 있는 경우 비동기로 요약 처리 시작
+		if (boardCreateRequestDto.hasFile()) {
+			fileSummaryService.processFileSummaryAsync(file, board.getId());
+			String fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
+			board.uploadFile(fileUrl);
+		}
 
 		// Regulation 생성 (규정 정보가 있을 경우에만)
 		RegulationResponseDto regulationResponseDto = null;
@@ -83,10 +86,11 @@ public class BoardServiceImpl implements BoardService {
 
 	/**
 	 * 기존 게시글 수정
-	 * @param userId 사용자 ID
-	 * @param boardId 게시글 ID
+	 *
+	 * @param userId                사용자 ID
+	 * @param boardId               게시글 ID
 	 * @param boardUpdateRequestDto 게시글 수정 요청 DTO
-	 * @param file 수정 파일 (선택)
+	 * @param file                  수정 파일 (선택)
 	 * @return 수정된 게시글 상세 응답 DTO
 	 */
 	@Override
@@ -99,22 +103,18 @@ public class BoardServiceImpl implements BoardService {
 
 		boardValidator.validateBoardExists(board);
 
-		// File 저장
-		String fileUrl = null;
-		if (boardUpdateRequestDto.hasFile()) {
-			fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
-
-			// TODO
-			// 파일을 FastAPI로 전송해주는 로직 구현 예정
-		}
-
 		// Board 수정 (비즈니스 로직)
-		board.updateBoard(boardUpdateRequestDto, category, fileUrl);
+		board.updateBoard(boardUpdateRequestDto, category, null);
 
 		RegulationResponseDto regulationResponse = null;
-		if (!boardUpdateRequestDto.hasFile()) {
-			regulationResponse = regulationService.updateRegulation(boardId,
-				boardUpdateRequestDto.regulationRequest());
+
+		// File 저장
+		if (boardUpdateRequestDto.hasFile()) {
+			fileSummaryService.processFileSummaryAsync(file, board.getId());
+			String fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
+			board.uploadFile(fileUrl);
+		} else {
+			regulationResponse = regulationService.updateRegulation(boardId, boardUpdateRequestDto.regulationRequest());
 		}
 
 		BoardLike boardLike = boardLikeRepository.findByBoardIdAndUserId(boardId, userId).orElse(null);
@@ -123,7 +123,8 @@ public class BoardServiceImpl implements BoardService {
 
 	/**
 	 * 게시글 삭제
-	 * @param userId 사용자 ID
+	 *
+	 * @param userId  사용자 ID
 	 * @param boardId 게시글 ID
 	 */
 	@Override
@@ -139,7 +140,8 @@ public class BoardServiceImpl implements BoardService {
 
 	/**
 	 * 게시글 상세 조회
-	 * @param userId 사용자 ID
+	 *
+	 * @param userId  사용자 ID
 	 * @param boardId 게시글 ID
 	 * @return 게시글 상세 응답 DTO
 	 */
@@ -161,9 +163,10 @@ public class BoardServiceImpl implements BoardService {
 
 	/**
 	 * 게시글 목록 조회
-	 * @param userId 사용자 ID
+	 *
+	 * @param userId               사용자 ID
 	 * @param boardSearchCondition 검색 조건
-	 * @param pageable 페이징 정보
+	 * @param pageable             페이징 정보
 	 * @return 게시글 리스트 응답 페이지
 	 */
 	@Override

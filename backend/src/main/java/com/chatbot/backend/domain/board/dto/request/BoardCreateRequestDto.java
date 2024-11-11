@@ -21,8 +21,7 @@ public record BoardCreateRequestDto(
 	@Size(max = 200, message = "제목은 200자를 초과할 수 없습니다.")
 	String title,
 
-	@Schema(description = "게시글 내용", example = "게시글 내용입니다", required = true)
-	@NotBlank(message = "내용은 필수입니다.")
+	@Schema(description = "게시글 내용", example = "게시글 내용입니다", required = false, nullable = true)
 	String contents,
 
 	@Schema(description = "게시글 카테고리", example = "카테고리 1", required = true)
@@ -35,7 +34,7 @@ public record BoardCreateRequestDto(
 	@Max(value = 3, message = "레벨은 3 이하여야 합니다.")
 	Integer level,
 
-	@Schema(description = "규정 정보", required = false)
+	@Schema(description = "규정 정보", required = false, nullable = true)
 	RegulationRequestDto regulationRequest,
 
 	@Schema(description = "파일 첨부 여부", example = "false", required = false)
@@ -56,5 +55,9 @@ public record BoardCreateRequestDto(
 
 			.hasFile(hasFile != null ? hasFile : null)
 			.build();
+	}
+
+	public Board toEntity(User user, Category category) {
+		return toEntity(user, category, null);
 	}
 }
