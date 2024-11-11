@@ -29,10 +29,10 @@ public class Board extends BaseTimeEntity {
 	@Column(name = "board_id")
 	private Long id;
 
-	@Column(nullable = false, length = 200)
+	@Column(nullable = true, length = 200)
 	private String title;
 
-	@Column(nullable = false, columnDefinition = "TEXT")
+	@Column(nullable = true, columnDefinition = "TEXT")
 	private String contents;
 
 	@Column(nullable = false)
