@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import SEMBOT_LOGO from "@/assets/images/logo.png";
+import SEMBOT_LOGO from "@assets/images/logo.png";
 import ButtonWithIcon from "@components/atoms/button/ButtonWithIcon";
 
 type ButtonWithIconProps = React.ComponentProps<typeof ButtonWithIcon>;
@@ -62,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             </div>
 
             {/* Scrollable Component List */}
-            <div 
+            <div
               className="w-full flex flex-col space-y-2 overflow-y-auto max-h-[calc(100vh-250px)]
                         [&::-webkit-scrollbar]:w-0"
             >
@@ -74,7 +74,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   )}
                 </React.Fragment>
               ))}
-              
+
               {/* Loading indicator and sentinel */}
               <div ref={lastItemRef}>
                 {isLoading && (
