@@ -116,7 +116,7 @@ const ChatView: React.FC<ChatViewProps> = ({
         cancelButton:
           "bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50",
       },
-      width: "36rem", // 너비를 픽셀 단위로 설정
+      width: "40rem", // 너비를 픽셀 단위로 설정
       didOpen: () => {
         // 버튼 클릭 이벤트 핸들러
         const buttons = document.querySelectorAll(".reason-btn");
