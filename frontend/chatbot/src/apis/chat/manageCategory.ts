@@ -1,16 +1,22 @@
 import  defaultAxios  from "@apis/common"
+import { categoryDTO } from "@pages/admin/categoryDTO";
 
 
-export const addCategory = async (newCategory: String) => {
-    try{
-        
-        const response = defaultAxios.post("/api/admins/categories", 
-            {headers: {
-                Authorization: localStorage.getItem("Authorization"),
-            },newCategory
+export const addCategory = async (name: string) => {
+    try {
+        // 문자열을 그대로 보내는 방법
+        const response = await defaultAxios.post(
+            "/api/admins/categories",
+            name, // 순수 문자열
+            {
+                
+              headers: {
+            //     'Content-Type': 'text/plain' // 단순 텍스트 형식으로 지정
+                'Content-Type': 'text/plain;charset=UTF-8'
+              }
             }
-        )
-
+          );
+          
         return response;
     } catch (error) {
         console.error('카테고리 추가 요청 오류', error);
@@ -18,8 +24,9 @@ export const addCategory = async (newCategory: String) => {
     }
 }
 
+
 export const removeCategory = async (categoryId: number) => {
-    const response = defaultAxios.delete(`api/admins/${categoryId}`)
+    const response = await defaultAxios.delete(`api/admins/${categoryId}`)
 
     return response;
 }

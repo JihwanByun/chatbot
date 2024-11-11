@@ -22,8 +22,8 @@ import com.chatbot.backend.domain.user.dto.request.UserUpdateRequestDto;
 import com.chatbot.backend.domain.user.dto.response.UserBaseResponseDto;
 import com.chatbot.backend.domain.user.entity.User;
 import com.chatbot.backend.domain.user.repository.UserRepository;
-import com.chatbot.backend.global.jwt.Role;
 import com.chatbot.backend.global.dto.PageResponseDto;
+import com.chatbot.backend.global.jwt.Role;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +58,7 @@ public class AdminServiceImpl implements AdminService {
 
 	//== ADMIN Category 관련 코드 ==//
 	@Override
-	public void createCategory(Long userId, String name) {
+	public CategoryItemDto createCategory(Long userId, String name) {
 		User user = userRepository.findByIdOrElseThrow(userId);
 		if (user.getRole() != Role.ADMIN) {
 			throw new NoAuthorityException();
@@ -74,6 +74,9 @@ public class AdminServiceImpl implements AdminService {
 			.isDeleted(false)  // isDeleted 기본값 설정
 			.build();
 		categoryRepository.save(adminCategory);
+
+		return new CategoryItemDto(adminCategory.getId(), adminCategory.getName());
+
 	}
 
 	/**
