@@ -17,13 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.chatbot.backend.domain.admin.service.AdminService;
-import com.chatbot.backend.domain.category.dto.response.CategoryFindResponseDto;
 import com.chatbot.backend.domain.category.dto.response.CategoryItemDto;
 import com.chatbot.backend.domain.user.dto.request.UserSearchCondition;
 import com.chatbot.backend.domain.user.dto.request.UserUpdateRequestDto;
 import com.chatbot.backend.domain.user.dto.response.UserBaseResponseDto;
-import com.chatbot.backend.global.security.CustomUserDetails;
 import com.chatbot.backend.global.dto.PageResponseDto;
+import com.chatbot.backend.global.security.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -51,12 +50,13 @@ public class AdminController {
 	}
 
 	@PostMapping("/categories")
-	public ResponseEntity<CategoryFindResponseDto> createCategory(
+	public ResponseEntity<CategoryItemDto> createCategory(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestBody String name) {
 		Long userId = userDetails.getId();
-		adminService.createCategory(userId, name);
-		return ResponseEntity.ok().build();
+		CategoryItemDto category = adminService.createCategory(userId, name);
+
+		return ResponseEntity.ok(category);
 	}
 
 	@Operation(

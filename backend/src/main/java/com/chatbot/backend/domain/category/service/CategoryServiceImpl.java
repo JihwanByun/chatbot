@@ -23,7 +23,8 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Override
 	public CategoryFindResponseDto getCategoryList() {
-		List<Category> categories = categoryRepository.findAll();
+		List<Category> categories = categoryRepository.findAllByIsDeletedFalse();
+
 		List<CategoryItemDto> categoryItemList =
 			categories.stream()
 				.map(category -> new CategoryItemDto(category.getId(), category.getName().trim()))

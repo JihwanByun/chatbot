@@ -94,7 +94,5 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
 		chatRoom.setDeleted(true);
 
-		chatRoomRepository.save(chatRoom);
-
 	}
 }

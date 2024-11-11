@@ -1,7 +1,5 @@
 package com.chatbot.backend.domain.category.entity;
 
-import org.hibernate.annotations.ColumnDefault;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,7 +26,6 @@ public class Category {
 	@Column(nullable = false)
 	private String name;
 
-	@ColumnDefault("false")
 	private Boolean isDeleted;
 
 	@Builder
