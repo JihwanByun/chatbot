@@ -23,7 +23,7 @@ type Contents = {
 
 // Member 전체 리스트의 구조를 정의하는 타입
 type Member = {
-	contents: Contents[];
+	content: Contents[];
 	page: number;
 	size: number;
 	totalPages: number;
@@ -33,7 +33,7 @@ type Member = {
 // 초기 상태 정의
 const initialState: MemberState = {
 	members: {
-		contents: [],
+		content: [],
 		page: 0,
 		size: 0,
 		totalPages: 0,
@@ -59,6 +59,7 @@ export const fetchMembersByPage = createAsyncThunk(
 			params.sortBy,
 			params.sortDir
 		);
+		console.log(response.data)
 		return response.data;
 	}
 );
@@ -79,7 +80,10 @@ const memberSlice = createSlice({
 				fetchMembersByPage.fulfilled,
 				(state, action: PayloadAction<Member>) => {
 					// 요청 성공 시 상태를 업데이트
+					console.log(action.payload)
+
 					state.members = action.payload;
+					// state.members.totalPages = action.payload.totalPages;
 					state.loading = false;
 				}
 			)

@@ -1,6 +1,5 @@
 package com.chatbot.backend.domain.board.controller;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -27,6 +26,7 @@ import com.chatbot.backend.domain.board.dto.response.BoardBaseResponseDto;
 import com.chatbot.backend.domain.board.dto.response.BoardDetailResponseDto;
 import com.chatbot.backend.domain.board.service.BoardLikeService;
 import com.chatbot.backend.domain.board.service.BoardService;
+import com.chatbot.backend.global.dto.PageResponseDto;
 import com.chatbot.backend.global.security.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -51,7 +51,7 @@ public class BoardController {
 	@PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
 	public ResponseEntity<BoardDetailResponseDto> createBoard(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
-		@Valid @RequestPart(value = "request") BoardCreateRequestDto boardCreateRequestDto,
+		@Valid @RequestPart(value = "request", required = false) BoardCreateRequestDto boardCreateRequestDto,
 		@RequestPart(value = "file", required = false) MultipartFile file) {
 		return ResponseEntity.status(HttpStatus.CREATED)
 			.body(boardService.createBoard(userDetails.getId(), boardCreateRequestDto, file));
@@ -129,13 +129,13 @@ public class BoardController {
 		description = "게시글 목록을 조회합니다."
 	)
 	@GetMapping
-	public ResponseEntity<Page<BoardBaseResponseDto>> getBoardList(
+	public ResponseEntity<PageResponseDto<BoardBaseResponseDto>> getBoardList(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@ModelAttribute BoardSearchCondition boardSearchCondition,
 		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
 	) {
 		return ResponseEntity.status(HttpStatus.OK)
-			.body(boardService.getBoardList(userDetails.getId(), boardSearchCondition, pageable));
+			.body(PageResponseDto.of(boardService.getBoardList(userDetails.getId(), boardSearchCondition, pageable)));
 	}
 
 	@Operation(

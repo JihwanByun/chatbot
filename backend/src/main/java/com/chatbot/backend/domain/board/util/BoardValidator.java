@@ -9,6 +9,8 @@ import com.chatbot.backend.domain.board.exception.BoardCreationNotAuthorizedExce
 import com.chatbot.backend.domain.board.exception.BoardLikeAlreadyExistsException;
 import com.chatbot.backend.domain.board.exception.BoardUnauthorizedException;
 import com.chatbot.backend.domain.board.repository.BoardLikeRepository;
+import com.chatbot.backend.domain.remark.entity.Remark;
+import com.chatbot.backend.domain.remark.exception.RemarkAlreadyDeletedException;
 import com.chatbot.backend.domain.user.entity.User;
 import com.chatbot.backend.global.jwt.Role;
 
@@ -51,6 +53,13 @@ public class BoardValidator {
 	public void validateBoardLikeExist(Long boardId, Long userId) {
 		if (boardLikeRepository.findByBoardIdAndUserId(boardId, userId).isPresent()) {
 			throw new BoardLikeAlreadyExistsException();
+		}
+	}
+
+	// 비고가 존재하는 지 확인
+	public void validateRemarkExists(Remark remark) {
+		if (remark.getIsDeleted()) {
+			throw new RemarkAlreadyDeletedException();
 		}
 	}
 }
