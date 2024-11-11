@@ -116,3 +116,15 @@ code.hljs {
   background-size: 0.5rem; /* 화살표 크기 조정 */
   height: 0.75rem; /* 버튼 높이 */
 }
+
+.swal2-cancel {
+  border: 1px solid #D1D5DB !important;
+}
+
+.swal2-confirm {
+  outline: none !important;
+}
+
+.swal2-confirm:focus {
+  box-shadow: none !important;
+}
