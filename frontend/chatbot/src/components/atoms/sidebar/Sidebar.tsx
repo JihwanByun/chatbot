@@ -64,10 +64,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             {/* Scrollable Component List */}
             <div 
               className="w-full flex flex-col space-y-2 overflow-y-auto max-h-[calc(100vh-250px)]
-                        [&::-webkit-scrollbar]:w-1
-                        [&::-webkit-scrollbar-track]:bg-transparent
-                        [&::-webkit-scrollbar-thumb]:bg-blue-300
-                        [&::-webkit-scrollbar-thumb]:rounded-full"
+                        [&::-webkit-scrollbar]:w-0"
             >
               {components.map((buttonProps, index) => (
                 <React.Fragment key={index}>
