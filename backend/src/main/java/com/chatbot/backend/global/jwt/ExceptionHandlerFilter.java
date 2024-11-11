@@ -2,6 +2,7 @@ package com.chatbot.backend.global.jwt;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -20,6 +21,8 @@ import jakarta.servlet.http.HttpServletResponse;
 public class ExceptionHandlerFilter extends OncePerRequestFilter {
     
     private final ObjectMapper objectMapper = new ObjectMapper();
+    @Value("${cors.origin.development}")
+    private String developmentOrigin;
     
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -28,6 +31,13 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } catch (ServiceException e) {
+            // CORS 헤더 추가
+            response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Access-Control-Allow-Methods", "*");
+            response.setHeader("Access-Control-Allow-Headers", "*");
+            response.setHeader("Access-Control-Max-Age", "3600");
+
             setErrorResponse(response, e);
         }
     }
