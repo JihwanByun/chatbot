@@ -106,15 +106,14 @@ public class BoardServiceImpl implements BoardService {
 		// Board 수정 (비즈니스 로직)
 		board.updateBoard(boardUpdateRequestDto, category, null);
 
+		RegulationResponseDto regulationResponse = null;
+
 		// File 저장
 		if (boardUpdateRequestDto.hasFile()) {
 			fileSummaryService.processFileSummaryAsync(file, board.getId());
 			String fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
 			board.uploadFile(fileUrl);
-		}
-
-		RegulationResponseDto regulationResponse = null;
-		if (!boardUpdateRequestDto.hasFile()) {
+		} else {
 			regulationResponse = regulationService.updateRegulation(boardId, boardUpdateRequestDto.regulationRequest());
 		}
 
