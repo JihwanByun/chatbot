@@ -87,6 +87,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 	}
 
 	@Override
+	@Transactional
 	public void deleteChatRoom(Long chatRoomId) {
 
 		ChatRoom chatRoom = chatRoomRepository.findChatRoomById(chatRoomId);

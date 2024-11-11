@@ -49,7 +49,7 @@ public class ChatRoom {
 	}
 
 	public void setDeleted(boolean deleted) {
-		this.isDeleted = isDeleted;
+		this.isDeleted = deleted;
 	}
 
 }

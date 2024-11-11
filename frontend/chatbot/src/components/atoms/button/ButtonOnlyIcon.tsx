@@ -1,17 +1,21 @@
-interface ButtonProps {
+export type ButtonProps = {
 	icon: string;
-	styleName: string;
-	onClick: () => void;
-	width?: number;  // width를 선택적인 속성으로 추가
-  }
-  
-  const ButtonWithIcon = ({ icon, styleName, width = 24, onClick }: ButtonProps) => {  // 기본값을 24로 설정
+	styleName?: string;
+	width?: number;
+	// TODO
+	onClick?: () => void;
+	disabled: boolean;
+};
+
+
+const ButtonOnlyIcon = ({ icon, styleName, width = 24, onClick }: ButtonProps) => {  
 	return (
 	  <div data-ripple-light="true" className={styleName} onClick={onClick}>
-		<img src={icon} width={width}></img>
+		<img src={icon} width={width} />  {/* width를 설정하여 아이콘 크기를 변경 */}
 	  </div>
 	);
   };
+
+ 
   
-  export default ButtonWithIcon;
-  
+export default ButtonOnlyIcon;

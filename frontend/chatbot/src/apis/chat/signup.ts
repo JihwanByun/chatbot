@@ -1,4 +1,4 @@
-import { defaultAxios } from "@apis/common"
+import defaultAxios from "@apis/common"
 import { SignUpDTO } from "@pages/signup/SignUpDTO"
 
 export const signUp = async (formData: SignUpDTO) => {
