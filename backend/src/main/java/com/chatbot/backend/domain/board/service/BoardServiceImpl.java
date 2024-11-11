@@ -1,7 +1,5 @@
 package com.chatbot.backend.domain.board.service;
 
-import java.io.IOException;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -71,15 +69,7 @@ public class BoardServiceImpl implements BoardService {
 
 		// 파일이 있는 경우 비동기로 요약 처리 시작
 		if (boardCreateRequestDto.hasFile()) {
-			try {
-				fileSummaryService.processFileSummaryAsync(file, board.getId());
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		// File 저장
-		if (boardCreateRequestDto.hasFile()) {
+			fileSummaryService.processFileSummaryAsync(file, board.getId());
 			String fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
 			board.uploadFile(fileUrl);
 		}
@@ -113,17 +103,15 @@ public class BoardServiceImpl implements BoardService {
 
 		boardValidator.validateBoardExists(board);
 
-		// File 저장
-		String fileUrl = null;
-		if (boardUpdateRequestDto.hasFile()) {
-			fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
-
-			// TODO
-			// 파일을 FastAPI로 전송해주는 로직 구현 예정
-		}
-
 		// Board 수정 (비즈니스 로직)
-		board.updateBoard(boardUpdateRequestDto, category, fileUrl);
+		board.updateBoard(boardUpdateRequestDto, category, null);
+
+		// File 저장
+		if (boardUpdateRequestDto.hasFile()) {
+			fileSummaryService.processFileSummaryAsync(file, board.getId());
+			String fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
+			board.uploadFile(fileUrl);
+		}
 
 		RegulationResponseDto regulationResponse = null;
 		if (!boardUpdateRequestDto.hasFile()) {

@@ -1,7 +1,5 @@
 package com.chatbot.backend.domain.file.service;
 
-import java.io.IOException;
-
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
@@ -26,8 +24,8 @@ public class FileSummaryService {
 	private final WebClient webClient;
 	private final BoardRepository boardRepository;
 
-	public void processFileSummaryAsync(MultipartFile file, Long boardId) throws IOException {
-		getSummary(file.getBytes())
+	public void processFileSummaryAsync(MultipartFile file, Long boardId) {
+		getSummary(file)
 			.subscribeOn(Schedulers.boundedElastic())
 			.subscribe(
 				summary -> updateBoardSummary(boardId, summary),
@@ -35,8 +33,9 @@ public class FileSummaryService {
 			);
 	}
 
-	private Mono<String> getSummary(byte[] fileContent) {
+	private Mono<String> getSummary(MultipartFile file) {
 		try {
+			byte[] fileContent = file.getBytes();
 			MultipartBodyBuilder builder = new MultipartBodyBuilder();
 			builder.part(
 					"file",
