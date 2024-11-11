@@ -12,8 +12,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.chatbot.backend.domain.board.entity.Board;
 import com.chatbot.backend.domain.board.repository.BoardRepository;
+import com.chatbot.backend.domain.file.exception.FileSummaryFailException;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -62,24 +62,23 @@ public class FileSummaryService {
 				.retrieve()
 				.bodyToMono(String.class);
 		} catch (Exception e) {
-			return Mono.error(new RuntimeException("파일 처리 중 오류가 발생했습니다.", e));
+			throw new FileSummaryFailException(e);
 		}
 
 	}
 
 	private void updateBoardSummary(Long boardId, String summary) {
 		try {
-			Board board = boardRepository.findById(boardId)
-				.orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
+			Board board = boardRepository.findByIdOrElseThrow(boardId);
 			board.updateContents(summary);
 			boardRepository.save(board);
 			log.info("게시글 ID: {} 요약 업데이트 완료", boardId);
 		} catch (Exception e) {
-			log.error("게시글 요약 업데이트 중 오류 발생. 게시글 ID: {}", boardId, e);
+			throw new FileSummaryFailException(e);
 		}
 	}
 
 	private void handleSummaryError(Long boardId, Throwable error) {
-		log.error("게시글 ID: {} 요약 처리 중 오류 발생", boardId, error);
+		throw new FileSummaryFailException();
 	}
 }
