@@ -23,6 +23,7 @@
     "baseUrl": "src", // src 폴더를 기준으로 설정
     "paths": {
       "@*": ["./*"],
+      "@assets/*": ["assets/*"],
       "@configs/*": ["configs/*"],
       "@apis/*": ["apis/*"],
       "@components/*": ["components/*"],

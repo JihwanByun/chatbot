@@ -159,14 +159,10 @@ public class JwtProvider {
 	 * @throws ExpiredTokenException Token이 만료된 경우 예외 발생
 	 */
 	public Claims parseClaims(String token, boolean isRefreshToken) {
-		try {
-			return Jwts.parser()
-				.setSigningKey(isRefreshToken ? refreshSecret : accessSecret)
-				.parseClaimsJws(token)
-				.getBody();
-		} catch (ExpiredJwtException e) {
-			throw new ExpiredTokenException();
-		}
+		return Jwts.parser()
+			.setSigningKey(isRefreshToken ? refreshSecret : accessSecret)
+			.parseClaimsJws(token)
+			.getBody();
 	}
 
 	private enum TokenType {
