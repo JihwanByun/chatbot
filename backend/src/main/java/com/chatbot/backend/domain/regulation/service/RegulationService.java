@@ -4,7 +4,7 @@ import com.chatbot.backend.domain.regulation.dto.request.RegulationRequestDto;
 import com.chatbot.backend.domain.regulation.dto.response.RegulationResponseDto;
 
 public interface RegulationService {
-	RegulationResponseDto createRegulation(Long boardId, RegulationRequestDto regulationRequestDto);
+	RegulationResponseDto createRegulation(Long boardId, Integer level, RegulationRequestDto regulationRequestDto);
 
 	RegulationResponseDto updateRegulation(Long boardId, RegulationRequestDto regulationRequestDto);
 

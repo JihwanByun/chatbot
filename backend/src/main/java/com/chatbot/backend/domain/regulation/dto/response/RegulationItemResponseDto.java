@@ -10,8 +10,8 @@ import lombok.Builder;
 @Builder
 @Schema(description = "규정 항목 응답을 위한 DTO")
 public record RegulationItemResponseDto(
-	@Schema(description = "규정 항목 번호")
-	Integer number,
+	@Schema(description = "규정 제목")
+	String title,
 
 	@Schema(description = "규정 내용")
 	String content,
@@ -26,7 +26,7 @@ public record RegulationItemResponseDto(
 		}
 
 		return RegulationItemResponseDto.builder()
-			.number(item.getNumber())
+			.title(item.getTitle())
 			.content(item.getContent())
 			.itemList(item.getItemList() != null ?
 				item.getItemList().stream()

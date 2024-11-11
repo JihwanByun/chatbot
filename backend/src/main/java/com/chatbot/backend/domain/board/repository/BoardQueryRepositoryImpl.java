@@ -39,7 +39,6 @@ public class BoardQueryRepositoryImpl extends Querydsl4RepositorySupport<Board, 
 			select(board)
 				.from(board)
 				.leftJoin(board.user, user)
-				.leftJoin(boardLike).on(boardLike.board.eq(board).and(boardLike.user.id.eq(userId)))
 				.where(
 					isAccessibleByLevel(boardSearchCondition.level()),
 					hasName(boardSearchCondition.name()),

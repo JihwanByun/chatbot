@@ -14,20 +14,21 @@ import lombok.ToString;
 
 // 규정 Document 클래스
 // MongoDB에 저장될 규정 정보 관리
-@Document(collection = "Regulations")
+@Document(collection = "regulations")
 @Getter
 @ToString
 public class Regulation extends BaseTimeDocument {
 	@Id
 	private String id;
-
+	private Integer level;
 	private Long boardId;
 	private List<RegulationItem> itemList;
 
 	@Builder
-	public Regulation(Long boardId, List<RegulationItem> itemList) {
+	public Regulation(Long boardId, Integer level, List<RegulationItem> itemList) {
 		validateItemList(itemList);
 		this.boardId = boardId;
+		this.level = level;
 		this.itemList = itemList;
 	}
 
