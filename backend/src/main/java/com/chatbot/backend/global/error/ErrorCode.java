@@ -49,7 +49,7 @@ public enum ErrorCode {
 	BOARD_FILE_URL_INVALID(400, "BOARD_FILE_URL_INVALID", "잘못된 파일 URL입니다."),
 	BOARD_NULL(400, "BOARD_NULL", "게시판의 값이 NULL 입니다."),
 
-	// 게시글 수정 삭제 관련 오류
+	// 게시글 수정 삭제 관련 오류,
 	BOARD_UNAUTHORIZED(403, "BOARD_UNAUTHORIZED", "게시글 수정 / 삭제 권한이 없습니다."),
 
 	// 게시글 좋아요 관련 오류
@@ -79,6 +79,11 @@ public enum ErrorCode {
 
 	INVALID_REGULATION(422, "INVALID_REGULATION", "유효하지 않은 규정입니다."),
 	REGULATION_NOT_FOUND(404, "REGULATION_NOT_FOUND", "규정을 찾을 수 없습니다."),
+
+	// 파일 저장
+	FILE_STORAGE_FAIL(500, "FILE_STORAGE_FAIL", "파일 저장에 실패했습니다."),
+	FILE_SUMMARY_FAIL(500, "FILE_SUMMARY_FAIL", "파일 요약에 실패했습니다."),
+	FILE_INVALID(400, "FILE_INVALID", "파일이 유효하지 않습니다."),
 
 	// 비고 관련 오류
 	REMARK_ALREADY_DELETED(400, "REMARK_ALREADY_DELETED", "이미 삭제된 비고입니다."),

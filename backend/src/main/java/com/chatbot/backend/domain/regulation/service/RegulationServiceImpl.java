@@ -23,6 +23,7 @@ public class RegulationServiceImpl implements RegulationService {
 
 	/**
 	 * 새로운 규정 생성
+	 *
 	 * @param boardId
 	 * @param regulationRequestDto
 	 * @return
@@ -40,6 +41,7 @@ public class RegulationServiceImpl implements RegulationService {
 
 	/**
 	 * 규정 수정
+	 *
 	 * @param boardId
 	 * @param regulationRequestDto
 	 * @return
@@ -62,16 +64,18 @@ public class RegulationServiceImpl implements RegulationService {
 
 	/**
 	 * 규정 조회
+	 *
 	 * @param boardId
 	 * @return
 	 */
 	@Override
 	public RegulationResponseDto getRegulation(Long boardId) {
-		return RegulationResponseDto.of(regulationRepository.findByBoardIdOrElseThrow(boardId));
+		return RegulationResponseDto.of(regulationRepository.findByBoardId(boardId).orElse(null));
 	}
 
 	/**
 	 * 규정 삭제
+	 *
 	 * @param boardId
 	 */
 	@Override
