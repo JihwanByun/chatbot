@@ -35,7 +35,7 @@ public record BoardCreateRequestDto(
 	@Max(value = 3, message = "레벨은 3 이하여야 합니다.")
 	Integer level,
 
-	@Schema(description = "규정 정보", required = false)
+	@Schema(description = "규정 정보", required = false, nullable = true)
 	RegulationRequestDto regulationRequest,
 
 	@Schema(description = "파일 첨부 여부", example = "false", required = false)
