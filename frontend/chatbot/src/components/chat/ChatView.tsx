@@ -75,10 +75,13 @@ const ChatView: React.FC<ChatViewProps> = ({ qnas, onSendMessage, onFeedback, is
     return `
       <div class="flex flex-wrap gap-1.5 justify-center py-4">
         ${reasons.map(reason => `
-          <button class="reason-btn bg-white border border-gray-300 hover:border-blue-500 text-gray-700 px-4 py-2 rounded-md text-sm ${reason === '기타' ? 'other-reason' : ''}">
+          <button class="reason-btn bg-white border border-gray-300 hover:border-blue-500 text-gray-700 px-4 py-2 rounded-md text-sm">
             ${reason}
           </button>
         `).join('')}
+        <button class="reason-btn bg-white border border-gray-300 hover:border-blue-500 text-gray-700 px-4 py-2 rounded-md text-sm other-reason">
+          기타
+        </button>
       </div>
     `;
   };

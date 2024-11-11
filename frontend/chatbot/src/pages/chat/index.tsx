@@ -315,7 +315,7 @@ const Chat: React.FC = () => {
 
   const fetchFeedbackReasons = async () => {
     const feedbackReasons = await getFeedbackReasonList();
-    setFeedbackReasons([...feedbackReasons,"기타"]);
+    setFeedbackReasons(feedbackReasons);
   }
 
   // Initial Load
