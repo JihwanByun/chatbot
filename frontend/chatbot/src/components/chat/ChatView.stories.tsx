@@ -43,6 +43,13 @@ export const Default = () => {
   const [qnas, setQnAs] = useState<QnA[]>(sampleQnAs);
   const [isLoading, setIsLoading] = useState<boolean>(false); // 로딩 상태 추가
 
+  const categories = [
+    {
+      name: "포탈 시스템 문의",
+      prompt: "포탈 시스템은 어떻게 들어가나요?"
+    }
+  ]
+
   const handleFeedback = (qna : QnA, isPositive: boolean) => {
     const updatedQnAs = [...qnas];
     const updatedQnA = updatedQnAs.find(
@@ -97,5 +104,5 @@ export const Default = () => {
     });
   };
 
-  return <ChatView qnas={qnas} onSendMessage={handleSendMessage} isLoading={isLoading} onFeedback={handleFeedback} />;
+  return <ChatView qnas={qnas} onSendMessage={handleSendMessage} isLoading={isLoading} onFeedback={handleFeedback} categories={categories} />;
 };

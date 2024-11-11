@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import InputWithIcon from "@components/atoms/input/InputWithIcon";
 import { Message } from "@components/chat/ChatMessage";
 import ChatMessage from "@components/chat/ChatMessage";
-import ChatCategories from "./ChatCategories";
+import ChatCategories, { ChatCategory } from "./ChatCategories";
 import ChatDocs from "./ChatDocs";
 import ButtonOnlyIcon from "@components/atoms/button/ButtonOnlyIcon";
 
@@ -40,14 +40,13 @@ export interface ChatViewProps {
   onFeedback: (qna : QnA, isPositive : boolean) => void;
   /** 로딩 상태 */
   isLoading: boolean;
+  /** 카테고리 목록 */
+  categories: ChatCategory[]
 }
 
-const ChatView: React.FC<ChatViewProps> = ({ qnas, onSendMessage, onFeedback, isLoading }) => {
-  const categories = [
-    "포탈 시스템 문의", "경비 처리", "보안 관련 프로세스",
-    "국내외 출장 관련", "인사 규정", "회사 복지 규정",
-  ];
-
+const ChatView: React.FC<ChatViewProps> = ({ qnas, onSendMessage, onFeedback, isLoading, categories }) => {
+  const [initInputValue, setInitInputValue] = useState<string>("");
+  
   const lastQnARef = useRef<QnA | null>(null);
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -68,8 +67,8 @@ const ChatView: React.FC<ChatViewProps> = ({ qnas, onSendMessage, onFeedback, is
     lastQnARef.current = lastQnA;
   }, [qnas]);
   
-  const onClickCategory = (category: string) => {
-    console.log(category);
+  const onClickCategory = (category: ChatCategory) => {
+    setInitInputValue(category.prompt);
   };
 
   const renderFeedbackButton = (qna : QnA) => {
@@ -96,6 +95,7 @@ const ChatView: React.FC<ChatViewProps> = ({ qnas, onSendMessage, onFeedback, is
             isLoading={isLoading}
             iconPath={"/src/assets/icons/send.svg"}
             onIconClick={onSendMessage}
+            initInputValue={initInputValue}
           />
           <div className="mt-6">
             <ChatCategories categories={categories} onCategoryClick={onClickCategory} />

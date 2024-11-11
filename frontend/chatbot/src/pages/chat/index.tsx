@@ -19,6 +19,8 @@ import {
   deleteChatroomAPI
 } from "@apis/chat/chatApi";
 import { logout } from "@apis/chat/userApi";
+import { ChatCategory } from "@components/chat/ChatCategories";
+import { getCategoryListAPI } from "@apis/category/categoryApi";
 
 export type ButtonWithIconProps = React.ComponentProps<typeof ButtonWithIcon>;
 
@@ -49,6 +51,7 @@ const initialState: ChatState = {
 const Chat: React.FC = () => {
   // State Management
   const [state, setState] = useState<ChatState>(initialState);
+  const [categories, setCategories] = useState<ChatCategory[]>([]);
   const [chatroomComponents, setChatroomComponents] = useState<ChatroomButtonProps[]>([]);
 
   const navigate = useNavigate();
@@ -115,7 +118,7 @@ const Chat: React.FC = () => {
       () => {
         Swal.fire({
           title: '삭제하시겠습니까?',
-          text: "이 작업은 되돌릴 수 없습니다!",
+          text: "삭제 후 복구는 불가능합니다.",
           icon: 'warning',
           showCancelButton: true,
           // confirmButtonColor: '#d33',
@@ -293,14 +296,21 @@ const Chat: React.FC = () => {
     }));
   }, []);
 
+  const fetchCategories = async () => {
+    const categories = await getCategoryListAPI();
+
+    setCategories(categories);
+  }
+
   // Initial Load
   useEffect(() => {
     if (state.currentChatroomPage === 0) {
-      fetchChatrooms();
+      fetchChatrooms();      
     }
   }, [state.currentChatroomPage, fetchChatrooms]);
 
   useEffect(() => {
+    fetchCategories();
     setChatroomComponents([newChatProp]);
   }, []);
 
@@ -320,6 +330,7 @@ const Chat: React.FC = () => {
           onSendMessage={sendMessage}
           isLoading={state.isLoading}
           onFeedback={handleFeedback}
+          categories={categories}
         />
       </div>
     </SembotLayout>
