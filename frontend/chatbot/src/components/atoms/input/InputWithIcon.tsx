@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ButtonWithIcon from "../button/ButtonOnlyIcon";
 
 interface InputWithIconProps {
@@ -13,6 +13,7 @@ interface InputWithIconProps {
   onIconClick: (message: string) => void;
   isLoading? : boolean;
   className?: string;
+  initInputValue?: string;
 }
 
 const InputWithIcon: React.FC<InputWithIconProps> = ({
@@ -25,9 +26,14 @@ const InputWithIcon: React.FC<InputWithIconProps> = ({
   onIconClick,
   isLoading = false,
   className,
+  initInputValue = ""
 }) => {
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState<string>(initInputValue);
   const loadingIconPath ="/src/assets/icons/loading.svg";
+
+  useEffect(() => {
+    setInputValue(initInputValue);
+  }, [initInputValue]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
@@ -58,7 +64,7 @@ const InputWithIcon: React.FC<InputWithIconProps> = ({
         className={`rounded-md h-12 w-full px-5 pr-10 text-base border focus:outline-none focus:ring-0 ${className}`}
       />
       <div className="absolute right-0 top-1/2 transform -translate-y-1/2 pr-3">
-        <ButtonWithIcon icon={isLoading ? loadingIconPath : iconPath} onClick={onClick} />
+        <ButtonWithIcon icon={isLoading ? loadingIconPath : iconPath} onClick={onClick} width={18} />
       </div>
     </div>
   );

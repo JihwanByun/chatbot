@@ -7,3 +7,9 @@ export const login = async (loginDTO: LoginDTO) => {
 	localStorage.setItem("Authorization", result.data.token);
 	return result;
 };
+
+export const logout = async () => {
+	const result = await defaultAxios.post("/api/users/logout")
+	localStorage.removeItem("Authorization");
+	return result;
+};

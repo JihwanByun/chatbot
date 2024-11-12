@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react';
 
+export interface ChatCategory {
+  name: string;
+  prompt: string;
+}
+
 interface ChatCategoriesProps {
-  categories: string[];
-  onCategoryClick: (category : string)=>void
+  categories: ChatCategory[];
+  onCategoryClick: (category : ChatCategory)=>void
 }
 
 const ChatCategories: React.FC<ChatCategoriesProps> = ({ 
@@ -44,10 +49,10 @@ const ChatCategories: React.FC<ChatCategoriesProps> = ({
         {displayedCategories.map((category, index) => (
           <button
             key={index}
-            className="h-full rounded-lg border border-semesBlue text-semesBlue bg-white focus:border-semesBlue text-xs"
+            className="h-full rounded-lg border border-semesBlue text-semesBlue bg-white focus:border-semesBlue text-xs overflow-auto"
             onClick={() => onCategoryClick(category)}
           >
-            {category}
+            {category.name}
           </button>
         ))}
       </div>
@@ -56,7 +61,7 @@ const ChatCategories: React.FC<ChatCategoriesProps> = ({
         <img 
           src="/src/assets/icons/dots-horizontal.svg" 
           onClick={() => setShowAll(prev => !prev)} 
-          className="ml-4 cursor-pointer" 
+          className="ml-3 cursor-pointer" 
           alt="Show more categories"
         />
       )}

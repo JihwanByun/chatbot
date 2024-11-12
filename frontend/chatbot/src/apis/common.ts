@@ -20,9 +20,25 @@ defaultAxios.interceptors.request.use(function (config) {
 	return Promise.reject(error);
   });
 
-export default defaultAxios;
 
 export const defaultAIAxios: AxiosInstance = axios.create({
 	baseURL: `${AI_URL}`,
 	// withCredentials: true, // 쿠키 전송 허용
 });
+// 응답 인터셉터 추가
+defaultAxios.interceptors.response.use(
+	(response) => {
+		return response;
+	},
+	(error) => {
+		console.log(error)
+		// 토큰 만료 에러 체크 (보통 401 에러)
+		if (error.response && error.response.status === 401) {
+			// localStorage에서 토큰 삭제
+			localStorage.removeItem("Authorization");
+		}
+		return Promise.reject(error);
+	}
+);	
+
+export default defaultAxios;
