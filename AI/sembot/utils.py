@@ -94,7 +94,7 @@ def make_data_for_vectorDB(json_file):
 
     file_name = json_file.split("/")[-1].split(".")[0]
 
-    pages = json_data["page"]
+    pages = json_data["itemList"]
 
     article_seq = 0
     page_title = ""
@@ -103,7 +103,7 @@ def make_data_for_vectorDB(json_file):
     for index, page in enumerate(pages, 1):
         page_title = f"제{index}장({page['content']})"
 
-        for article in page["article"]:
+        for article in page["itemList"]:
             article_seq += 1
             content = ""
 
@@ -116,14 +116,14 @@ def make_data_for_vectorDB(json_file):
                 content += article["content"] + " "
 
             # 항이 있으면 추가
-            if article.get("paragraph"):
-                for para_index, paragraph in enumerate(article["paragraph"], 1):
+            if article.get("itemList"):
+                for para_index, paragraph in enumerate(article["itemList"], 1):
                     content += f"제{para_index}항 {paragraph['content']} "
 
                     # 호가 있으면 추가
-                    if paragraph.get("sub-paragraph"):
+                    if paragraph.get("itemList"):
                         for subPara_index, sub_paragraph in enumerate(
-                            paragraph["sub-paragraph"], 1
+                            paragraph["itemList"], 1
                         ):
                             content += (
                                 f"제{subPara_index}호 {sub_paragraph['content']} "
