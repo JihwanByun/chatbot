@@ -8,7 +8,8 @@ import ButtonOnlyIcon from "@components/atoms/button/ButtonOnlyIcon";
 import Swal from "sweetalert2";
 
 export interface DocMetadata {
-  source: string;
+  filename?: string;
+  source?: string;
   page: number;
 }
 

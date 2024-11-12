@@ -8,14 +8,28 @@ type SearchDocResponse = {
   docs : DocResponse[]
 }
 
+type DocMetadataAI = {
+  file_name?: string;
+  source?: string;
+  page: number;
+}
+
 type DocResponse = {
-  metadata : DocMetadata;
+  metadata : DocMetadataAI;
   page_content : string;
+}
+
+const convertDocMetadataAIToDocMetadata = (metaData : DocMetadataAI) : DocMetadata => {
+  return {
+    filename: metaData.file_name,
+    source: metaData.source,
+    page: metaData.page
+  }
 }
 
 const convertToDoc = (res : DocResponse) : Doc => {
   return {
-    metadata : res.metadata,
+    metadata : convertDocMetadataAIToDocMetadata(res.metadata),
     content : res.page_content
   }
 }
@@ -129,7 +143,7 @@ export const createChatroomAPI = async (message : string): Promise<ChatroomRespo
 
 
 export type DocMetadataBE = {
-  fileName: string,
+  fileName?: string,
   totalPages: number | null,
   page: number,
   category: string | null,
@@ -167,7 +181,7 @@ export type ChatroomDetail = {
 
 const convertToDocMetadata = (metaData : DocMetadataBE) : DocMetadata => {
   return {
-    source : metaData.fileName,
+    filename : metaData.fileName,
     page : metaData.page
   }
 }
@@ -220,7 +234,7 @@ export const getChatroomDetailAPI = async (chatroomId : number): Promise<Chatroo
 
 const convertToDocMetadataBE = (metadata : DocMetadata) : DocMetadataBE => {
   return {
-    fileName : metadata.source,
+    fileName : metadata.filename,
     page : metadata.page,
     totalPages: null,
     category: null,

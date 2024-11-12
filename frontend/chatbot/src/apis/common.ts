@@ -31,9 +31,8 @@ defaultAxios.interceptors.response.use(
 		return response;
 	},
 	(error) => {
-		console.log(error)
-		// 토큰 만료 에러 체크 (보통 401 에러)
-		if (error.response && error.response.status === 401) {
+		// 토큰 에러 체크 (보통 401 에러)
+		if (error.response && error.response.status === 401 || error.response.status === 422) {
 			// localStorage에서 토큰 삭제
 			localStorage.removeItem("Authorization");
 		}
