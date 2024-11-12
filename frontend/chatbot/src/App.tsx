@@ -10,7 +10,7 @@ import TreeView from "@pages/board/TreeView";
 import BoardContentTree from "@pages/board/[id]tree";
 import RegisterPage from "@pages/signup";
 import RegulationPage from "@pages/board/[id]tree";
-import TreeCreate from "@pages/board/TreeCreate";
+import TreeCreate from "@pages/board/BoardCreatePage";
 
 function App() {
 	return (

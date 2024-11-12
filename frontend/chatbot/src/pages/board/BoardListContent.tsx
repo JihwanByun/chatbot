@@ -143,7 +143,7 @@ const BoardListContent: React.FC = () => {
 	}, []);
 
 	const handleClickWrite = () => {
-		navigator("/board/:id", { state: { createMode: true } });
+		navigator("/treecreate");
 	};
 
 	/**

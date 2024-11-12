@@ -10,6 +10,7 @@ import {
 	startEditNode,
 	saveNodeEdit,
 	cancelEdit,
+	saveTreeChange,
 } from "@app/slices/treeSlice";
 import {
 	getBoardDetailAPI,
@@ -110,6 +111,7 @@ const BoardDetailPage: React.FC = () => {
 
 	// TreeView 관련 함수들
 	const toggleRevisionMode = () => dispatch(setRevisionMode(!isRevisionMode));
+	const saveTree = () => dispatch(saveTreeChange({ boardId: id }));
 	const discardEdit = () => dispatch(cancelEdit());
 
 	const handleSaveEdit = (nodeId: string) => {
@@ -165,7 +167,7 @@ const BoardDetailPage: React.FC = () => {
 								icon="../src/assets/icons/save.svg"
 								styleName="p-2 hover:bg-gray-100 rounded"
 								width="20rem"
-								onClick={toggleRevisionMode}
+								onClick={saveTree}
 							/>
 							<ButtonOnlyIcon
 								key="discard"

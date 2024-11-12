@@ -69,6 +69,7 @@ public class BoardController {
 		@PathVariable Long boardId,
 		@Valid @RequestPart(value = "request") BoardUpdateRequestDto boardUpdateRequestDto,
 		@RequestPart(value = "file", required = false) MultipartFile file) {
+		log.info(String.valueOf(boardUpdateRequestDto));
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(boardService.updateBoard(userDetails.getId(), boardId, boardUpdateRequestDto, file));
 	}

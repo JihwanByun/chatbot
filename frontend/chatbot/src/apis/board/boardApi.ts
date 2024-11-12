@@ -50,6 +50,31 @@ export type BoardSearchCondition = {
 	title?: string;
 };
 
+interface TreeState {
+	treeData: TreeNode[];
+	isRevisionMode: boolean;
+	editNodeId: string | null;
+	editNodeData: {
+		title: string;
+		content: string;
+	} | null;
+}
+
+const initialState: TreeState = {
+	isRevisionMode: false,
+	editNodeId: null,
+	editNodeData: null,
+	treeData: [],
+};
+
+export interface TreeNode {
+	id: string;
+	title?: string | null;
+	content?: string | null;
+	children?: TreeNode[];
+	depth: number;
+}
+
 /**
  * 페이지네이션 정보 타입
  * - page: 요청할 페이지 번호 (0부터 시작)
@@ -145,4 +170,162 @@ export const getBoardListAPI = async (
 			console.error("Error in boardListAPI:", error);
 			return null;
 		});
+};
+
+export type BoardUpdateRequestDto = {
+	title?: string;
+	contents?: string;
+	category: string;
+	level: number;
+	regulationRequest?: RegulationRequestDto;
+	hasFile?: boolean;
+};
+
+export type BoardCreateRequestDto = {
+	title?: string;
+	contents?: string;
+	category: string;
+	level: number;
+	regulationRequest?: RegulationRequestDto;
+	hasFile?: boolean;
+};
+
+export type RegulationRequestDto = {
+	itemList: RegulationItemRequestDto[];
+};
+
+export type RegulationItemRequestDto = {
+	title: string | null;
+	content: string | null;
+	itemList?: RegulationItemRequestDto[];
+};
+
+export interface TreeNode {
+	id: string;
+	title?: string | null;
+	content?: string | null;
+	children?: TreeNode[];
+	depth: number;
+}
+
+function convertTreeNodeToRegulationItem(
+	treeNode: TreeNode
+): RegulationItemRequestDto {
+	return {
+		title: treeNode.title || null,
+		content: treeNode.content || null,
+		itemList: treeNode.children
+			? treeNode.children.map(convertTreeNodeToRegulationItem)
+			: undefined,
+	};
+}
+
+function convertTreeDataToRegulationRequest(
+	treeData: TreeNode[]
+): RegulationRequestDto {
+	return {
+		itemList: treeData.map(convertTreeNodeToRegulationItem),
+	};
+}
+
+export const updateBoard = async (
+	boardId: string | undefined,
+	treeData: TreeNode[],
+	file?: File | null
+) => {
+	// FormData 객체 생성
+	const formData = new FormData();
+
+	// treeData를 RegulationRequestDto 구조로 변환
+	const regulationRequestDto = convertTreeDataToRegulationRequest(treeData);
+
+	// BoardUpdateRequestDto 구조 생성
+	const boardUpdateRequestDto: BoardUpdateRequestDto = {
+		title: "제목제목제목",
+		contents: "내용내용내용",
+		category: "휴가 지침",
+		level: 3,
+		regulationRequest: regulationRequestDto,
+		hasFile: !!file,
+	};
+
+	// request 부분을 JSON 문자열로 변환하여 FormData에 추가
+	formData.append(
+		"request",
+		new Blob([JSON.stringify(boardUpdateRequestDto)], {
+			type: "application/json",
+		})
+	);
+
+	// 파일이 있는 경우 추가
+	if (file) {
+		formData.append("file", file);
+	}
+
+	// API 요청 전송
+	return defaultAxios.put(`/api/boards/${boardId}`, formData, {
+		headers: {
+			"Content-Type": "multipart/form-data",
+		},
+	});
+};
+
+// boardApi.ts
+export const createBoard = async (treeData: TreeNode[], file?: File | null) => {
+	// FormData 객체 생성
+	console.log("Creating board with treeData:", treeData);
+
+	const formData = new FormData();
+
+	// treeData를 RegulationRequestDto 구조로 변환
+	const regulationRequestDto = convertTreeDataToRegulationRequest(treeData);
+
+	// BoardUpdateRequestDto 구조 생성
+	const boardCreateRequestDto: BoardCreateRequestDto = {
+		title: "제목제목제목",
+		contents: "내용내용내용",
+		category: "휴가 지침",
+		level: 3,
+		regulationRequest: regulationRequestDto,
+		hasFile: !!file,
+	};
+
+	console.log("Request DTO:", boardCreateRequestDto);
+
+	// request 부분을 JSON 문자열로 변환하여 FormData에 추가
+	formData.append(
+		"request",
+		new Blob([JSON.stringify(boardCreateRequestDto)], {
+			type: "application/json",
+		})
+	);
+
+	// 파일이 있는 경우 추가
+	if (file) {
+		formData.append("file", file);
+	}
+
+	// FormData 내용 로깅
+	for (let pair of formData.entries()) {
+		console.log(pair[0], pair[1]);
+	}
+
+	// API 요청 전송 - 경로 수정
+	try {
+		const response = await defaultAxios.post("/api/boards", formData, {
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+			// axios 디버깅을 위한 설정 추가
+			validateStatus: function (status) {
+				return status < 500; // 500 미만의 상태 코드는 에러로 처리하지 않음
+			},
+		});
+
+		console.log("API Response:", response);
+		return response;
+	} catch (error) {
+		console.error("API Error:", error);
+		throw error;
+	}
 };
