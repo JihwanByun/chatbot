@@ -46,13 +46,14 @@ const MemberManagement = () => {
 				sortDir,
 			})
 		);
-	}, [dispatch, page, size, sortBy, sortDir, members]);
+	}, [dispatch, page, size, sortBy, sortDir]);
 
 	useEffect(() => {
-		if (members && members.content) {
+		console.log(members);
+		if (members && members.contents) {
 			const getTableRowData2 = () => {
 				const TableRowDataList: TableRowData[] = [];
-				members.content.forEach((element, index) => {
+				members.contents.forEach((element, index) => {
 					TableRowDataList.push({
 						id: index + 1,
 						columns: [
@@ -74,7 +75,7 @@ const MemberManagement = () => {
 
 			const currentItems = () => {
 				// members.contents가 비어있을 때 빈 배열을 반환하도록 추가
-				return members.content.length > 0
+				return members.contents.length > 0
 					? getTableRowData2().slice(size * (page - 1), size * page)
 					: [];
 			};
@@ -82,11 +83,6 @@ const MemberManagement = () => {
 			setTableData(currentItems());
 		}
 	}, [members, page, size]);
-
-	const iconPaths = [];
-	for (let i = 1; i <= 13; i++) {
-		iconPaths.push("/src/assets/icons/user-profile-ex.svg");
-	}
 
 	// 뷰포트 높이에 따라 itemsPerPage를 계산하는 함수
 	const calculateItemsPerPage = () => {
@@ -96,6 +92,7 @@ const MemberManagement = () => {
 		else if (viewportHeight < 1200) return 9;
 		else return 12;
 	};
+
 	const openModal = (member) => {
 		setSelectedMemberId(member.userId);
 		setNewLevel(String(member.level));
@@ -148,7 +145,7 @@ const MemberManagement = () => {
 				<TableWithIconAndButton
 					columns={header}
 					rows={tableData}
-					iconPaths={iconPaths}
+					iconPaths={"/src/assets/icons/user_2.svg"}
 					onIconClick={handleClick}
 					width="50px"
 				/>

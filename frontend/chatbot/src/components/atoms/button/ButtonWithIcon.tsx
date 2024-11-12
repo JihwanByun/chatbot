@@ -5,25 +5,25 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 export interface ButtonProps {
-  btnName: string;
-  styleName: string;
-  icon: string;
-  handleClick?: () => void;
-  isActive?: boolean;
-  isFooter?: boolean;
-  iconStyleName?: string;
-  handleIconClick?: () => void;
+	btnName: string;
+	styleName: string;
+	icon: string;
+	handleClick?: () => void;
+	isActive?: boolean;
+	isFooter?: boolean;
+	iconStyleName?: string;
+	handleIconClick?: () => void;
 }
 
 const ButtonWithIcon: React.FC<ButtonProps> = ({
-  btnName,
-  styleName,
-  icon,
-  handleClick,
-  isActive,
-  isFooter,
-  iconStyleName,
-  handleIconClick = () => {},
+	btnName,
+	styleName,
+	icon,
+	handleClick,
+	isActive,
+	isFooter,
+	iconStyleName,
+	handleIconClick = () => {},
 }) => {
 	const dispatch = useAppDispatch();
 
