@@ -19,28 +19,7 @@ interface TreeState {
 }
 
 const initialState: TreeState = {
-	treeData: [
-		{
-			id: "1",
-			content: `휴가 지침`,
-			title: "휴가",
-			children: [
-				{
-					id: "2",
-					title: "휴가의 범위",
-					content: "휴가는 열심히 일한자만 갈 수 있습니다.",
-					depth: 2,
-				},
-				{
-					id: "3",
-					title: "휴가의 종류",
-					content: "휴가 따위 없다 일이나 해라",
-					depth: 2,
-				},
-			],
-			depth: 1,
-		},
-	],
+	treeData: [],
 	isRevisionMode: false,
 	editNodeId: null,
 	editNodeData: null,

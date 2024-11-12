@@ -53,6 +53,7 @@ public class BoardController {
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@Valid @RequestPart(value = "request", required = false) BoardCreateRequestDto boardCreateRequestDto,
 		@RequestPart(value = "file", required = false) MultipartFile file) {
+		log.info(String.valueOf(boardCreateRequestDto));
 		return ResponseEntity.status(HttpStatus.CREATED)
 			.body(boardService.createBoard(userDetails.getId(), boardCreateRequestDto, file));
 	}

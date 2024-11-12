@@ -9,6 +9,7 @@ import {
 	saveNodeEdit,
 	cancelEdit,
 } from "@app/slices/treeSlice";
+import { useLocation } from "react-router-dom";
 
 interface RegulationPageProps {
 	title: string;
@@ -32,6 +33,8 @@ const RegulationPage: React.FC<RegulationPageProps> = ({
 	const dispatch = useAppDispatch();
 	const [isFavorited, setIsFavorited] = useState(false);
 	const [role, setRole] = useState<string | null>("");
+	const location = useLocation();
+	const isEditMode = location.state?.createMode ?? false;
 
 	const isRevisionMode = useAppSelector((state) => state.tree.isRevisionMode);
 	const editNodeData = useAppSelector((state) => state.tree.editNodeData);
@@ -134,19 +137,23 @@ const RegulationPage: React.FC<RegulationPageProps> = ({
 			</div>
 
 			<div className="mt-4">
-				<TreeView
-					isRevisionMode={isRevisionMode}
-					handleStartEdit={(node) =>
-						dispatch(
-							startEditNode({
-								id: node.id,
-								title: node.title || "", // title이 없을 때 빈 문자열로 설정
-								content: node.content || "", // content가 없을 때 빈 문자열로 설정
-							})
-						)
-					}
-					handleSaveEdit={handleSaveEdit}
-				/>
+				{isEditMode ? <TreeView
+					isRevisionMode={true}
+				/>:
+					<TreeView
+						isRevisionMode={isRevisionMode}
+						handleStartEdit={(node) =>
+							dispatch(
+								startEditNode({
+									id: node.id,
+									title: node.title || "", // title이 없을 때 빈 문자열로 설정
+									content: node.content || "", // content가 없을 때 빈 문자열로 설정
+								})
+							)
+						}
+						handleSaveEdit={handleSaveEdit}
+					/>
+				}
 			</div>
 		</div>
 	);

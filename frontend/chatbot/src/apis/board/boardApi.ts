@@ -13,11 +13,11 @@ import { favoritePath, favoritedPath } from "@pages/board/BoardListContent";
  * - totalElements: 전체 게시글 수
  */
 export type BoardListResponse = {
-  contents: BoardResponse[];
-  page: number;
-  size: number;
-  totalPages: number;
-  totalElements: number;
+	contents: BoardResponse[];
+	page: number;
+	size: number;
+	totalPages: number;
+	totalElements: number;
 };
 
 /**
@@ -30,12 +30,12 @@ export type BoardListResponse = {
  * - isFavorite: 즐겨찾기 여부
  */
 export type BoardResponse = {
-  boardId: number;
-  title: string;
-  contents: string;
-  createdAt: string;
-  name: string;
-  isFavorite: boolean;
+	boardId: number;
+	title: string;
+	contents: string;
+	createdAt: string;
+	name: string;
+	isFavorite: boolean;
 };
 
 /**
@@ -45,9 +45,9 @@ export type BoardResponse = {
  * - title?: 제목으로 검색 (선택)
  */
 export type BoardSearchCondition = {
-  level?: number;
-  name?: string;
-  title?: string;
+	level?: number;
+	name?: string;
+	title?: string;
 };
 
 /**
@@ -57,9 +57,9 @@ export type BoardSearchCondition = {
  * - sort: 정렬 기준 배열 (예: ["createdAt,desc"])
  */
 export type Pageable = {
-  page: number;
-  size: number;
-  sort: string[];
+	page: number;
+	size: number;
+	sort: string[];
 };
 
 /**
@@ -70,12 +70,12 @@ export type Pageable = {
  * - page, size, totalPages, totalElements: 페이지네이션 정보
  */
 export type TableResponse = {
-  contents: TableRowData[];
-  iconPaths: { [key: number]: string };
-  page: number;
-  size: number;
-  totalPages: number;
-  totalElements: number;
+	contents: TableRowData[];
+	iconPaths: { [key: number]: string };
+	page: number;
+	size: number;
+	totalPages: number;
+	totalElements: number;
 };
 
 /**
@@ -84,19 +84,19 @@ export type TableResponse = {
  * @returns TableResponse 타입으로 변환된 데이터
  */
 const convertToTable = (res: BoardListResponse): TableResponse => {
-  return {
-    ...res,
-    // 게시글 목록을 테이블 행 데이터로 변환
-    contents: convertToTableRowList(res.contents),
-    // 즐겨찾기 상태에 따른 아이콘 경로 매핑
-    iconPaths: res.contents.reduce(
-      (acc, content) => ({
-        ...acc,
-        [content.boardId]: content.isFavorite ? favoritedPath : favoritePath,
-      }),
-      {}
-    ),
-  };
+	return {
+		...res,
+		// 게시글 목록을 테이블 행 데이터로 변환
+		contents: convertToTableRowList(res.contents),
+		// 즐겨찾기 상태에 따른 아이콘 경로 매핑
+		iconPaths: res.contents.reduce(
+			(acc, content) => ({
+				...acc,
+				[content.boardId]: content.isFavorite ? favoritedPath : favoritePath,
+			}),
+			{}
+		),
+	};
 };
 
 /**
@@ -105,10 +105,10 @@ const convertToTable = (res: BoardListResponse): TableResponse => {
  * @returns TableRowData 타입의 테이블 행 데이터
  */
 const convertToTableRow = (res: BoardResponse): TableRowData => {
-  return {
-    id: res.boardId,
-    columns: [res.name, res.title, res.createdAt], // 작성자, 제목, 작성일 순서로 표시
-  };
+	return {
+		id: res.boardId,
+		columns: [res.name, res.title, res.createdAt], // 작성자, 제목, 작성일 순서로 표시
+	};
 };
 
 /**
@@ -117,7 +117,7 @@ const convertToTableRow = (res: BoardResponse): TableRowData => {
  * @returns TableRowData[] 타입의 테이블 행 데이터 배열
  */
 const convertToTableRowList = (response: BoardResponse[]): TableRowData[] => {
-  return response.map(convertToTableRow);
+	return response.map(convertToTableRow);
 };
 
 /**
@@ -127,22 +127,22 @@ const convertToTableRowList = (response: BoardResponse[]): TableRowData[] => {
  * @returns Promise<TableResponse | null> - 변환된 테이블 데이터 또는 에러 시 null
  */
 export const getBoardListAPI = async (
-  condition?: BoardSearchCondition,
-  pageInfo?: Pageable
+	condition?: BoardSearchCondition,
+	pageInfo?: Pageable
 ): Promise<TableResponse | null> => {
-  return defaultAxios
-    .get<BoardListResponse>("/api/boards", {
-      params: {
-        ...condition,
-        ...pageInfo,
-        sort: pageInfo?.sort.join(","), // 정렬 조건을 쉼표로 구분된 문자열로 변환
-      },
-    })
-    .then((res) => {
-      return convertToTable(res.data);
-    })
-    .catch((error) => {
-      console.error("Error in boardListAPI:", error);
-      return null;
-    });
+	return defaultAxios
+		.get<BoardListResponse>("/api/boards", {
+			params: {
+				...condition,
+				...pageInfo,
+				sort: pageInfo?.sort.join(","), // 정렬 조건을 쉼표로 구분된 문자열로 변환
+			},
+		})
+		.then((res) => {
+			return convertToTable(res.data);
+		})
+		.catch((error) => {
+			console.error("Error in boardListAPI:", error);
+			return null;
+		});
 };

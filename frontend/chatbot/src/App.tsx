@@ -9,6 +9,8 @@ import { PrivateRoute } from "@util/PrivateRoute";
 import TreeView from "@pages/board/TreeView";
 import BoardContentTree from "@pages/board/[id]tree";
 import RegisterPage from "@pages/signup";
+import RegulationPage from "@pages/board/[id]tree";
+import TreeCreate from "@pages/board/TreeCreate";
 
 function App() {
 	return (
@@ -23,8 +25,12 @@ function App() {
 					<Route path="/adminPage" element={<AdminPage />} />
 					<Route path="/chat" element={<Chat />} />
 					<Route path="/board" element={<BoardListPage />} />
-					<Route path="/board/:id" element={<RegulationPage title="규정 정보" />} />
-					<Route path="/tree" element={<TreeView />} />
+					<Route
+						path="/board/:id"
+						element={<RegulationPage title="규정 정보" />}
+					/>
+					<Route path="/tree/:id" element={<TreeView />} />
+					<Route path="/treecreate" element={<TreeCreate />} />
 				</Route>
 				{/* <Route path="/adminPage" element={<AdminPage />} />
 				<Route path="/chat" element={<Chat />} />
