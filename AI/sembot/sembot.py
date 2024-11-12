@@ -39,7 +39,6 @@ class Sembot:
         model = AutoModelForCausalLM.from_pretrained(model_name)
         tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-        # 모델을 로컬 경로에 저장 (예: ./models/gpt2)
         model.save_pretrained(save_path)
         tokenizer.save_pretrained(save_path)
 
