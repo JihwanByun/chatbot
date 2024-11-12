@@ -1,5 +1,7 @@
 import defaultAxios from "@apis/common";
 
+//===== Backend API =====//
+
 /**
  * 게시글 즐겨찾기 생성 API
  * @param boardId - 즐겨찾기할 게시글의 ID
