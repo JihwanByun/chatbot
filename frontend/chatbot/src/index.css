@@ -128,3 +128,14 @@ code.hljs {
 .swal2-confirm:focus {
   box-shadow: none !important;
 }
+
+@font-face {
+	font-family: 'Pretendard-Regular';
+	src: url('/src/fonts/Pretendard-Regular.woff') format('woff');
+	font-weight: 400;
+	font-style: normal;
+}
+
+body {
+  font-family: "Pretendard-Regular";
+}
