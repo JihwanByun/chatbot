@@ -151,9 +151,7 @@ class SembotDocs:
 
     def make_prompt(self, request):
 
-        prompt = self._init_prompt()
-
-        prompt = self._format_memory(request, prompt)
+        prompt = self._format_memory(request, self._init_prompt())
 
         formated_memory_docs = self._format_related_docs(request)
 
@@ -180,9 +178,12 @@ class SembotDocs:
 
         filtered_docs = []
 
-        for doc in docs:
+        for index, doc in enumerate(docs):
             if int(doc.metadata["level"]) > int(level):
-                continue
+                if index == 0:
+                    return False
+                else:
+                    continue
 
             filtered_docs.append(doc)
 
