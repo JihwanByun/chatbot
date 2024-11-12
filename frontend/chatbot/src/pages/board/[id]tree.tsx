@@ -21,6 +21,7 @@ import {
   deleteFavoriteAPI,
 } from "@apis/board/boardFavoriteApi";
 import ReactMarkdown from "react-markdown";
+import { setTreeData } from "@app/slices/treeSlice";
 
 interface BoardParams {
   id: string;
@@ -61,13 +62,16 @@ const BoardDetailPage: React.FC = () => {
       setError(null);
       const response = await getBoardDetailAPI(Number(id));
       setBoardDetail(response);
+
+      // 규정 데이터를 Redux store에 설정
+      dispatch(setTreeData(response.regulationResponseDto));
     } catch (error) {
       console.error("Failed to fetch board detail:", error);
       setError("게시글을 불러오는데 실패했습니다.");
     } finally {
       setIsLoading(false);
     }
-  }, [id]);
+  }, [id, dispatch]);
 
   // 파일 다운로드 처리
   const handleDownloadFile = async () => {
