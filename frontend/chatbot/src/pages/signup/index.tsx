@@ -6,6 +6,7 @@ import ButtonPrimary from '@components/atoms/button/ButtonPrimary';
 import { signUp } from '@apis/chat/signup';
 import { checkEmailDuplicate } from '@apis/chat/checkEmailDuplicate';
 import { useNavigate } from 'react-router-dom';
+import Alert, { AlertProps } from '@components/atoms/alert/Alert';
 
 export interface SignUpFormProps {
     onSubmit: (formData: SignUpDTO) => void;
@@ -22,6 +23,7 @@ const SignUpForm: React.FC = () => {
     
     //이메일 중복 확인 여부를 저장하는 상태
     const [isEmailChecked, setIsEmailChecked] = useState(false);
+    const [alertProps, setAlertProps] = useState<AlertProps>({ showAlert: false, icon: 'success', title: '', text: '' });
 
     const navigate = useNavigate();
 
@@ -29,7 +31,12 @@ const SignUpForm: React.FC = () => {
         e.preventDefault();
         
         if (!termsAccepted) {
-            alert('이용 약관에 동의해 주세요.');
+            setAlertProps({
+                showAlert: true,
+                icon: 'warning',
+                title: '약관 동의 필요',
+                text: '이용 약관에 동의해 주세요.'
+            });
             return;
         }
 
@@ -38,11 +45,22 @@ const SignUpForm: React.FC = () => {
         try{
             const response =await signUp(formData);
             console.log('회원가입 성공', response);
-            alert('회원가입에 성공했습니다!, 로그인 페이지로 이동합니다.');
-            navigate('/chat');
+            setAlertProps({
+                showAlert: true,
+                icon: 'success',
+                title: '회원가입 성공!',
+                text: '로그인 페이지로 이동합니다.',
+                onClose: () => navigate('/chat')
+            });
+            
         } catch(error){
             console.error('회원가입 실패', error);
-            alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+            setAlertProps({
+                showAlert: true,
+                icon: 'error',
+                title: '회원가입 실패',
+                text: '회원가입에 실패했습니다. 다시 시도해주세요.'
+            });
         }
         
     
@@ -55,24 +73,49 @@ const SignUpForm: React.FC = () => {
         const formData: emailDTO = {email};
 
         try {
+            setAlertProps(prevProps => ({
+                ...prevProps,
+                showAlert: false
+            }));
+            
             const response = await checkEmailDuplicate(formData);
              // email 변수를 올바르게 연결
             if (response != null) {
                 const isDuplicate = await response;
 
                 if (isDuplicate) {
-                    alert('이메일이 이미 사용 중입니다.'); // 중복된 경우
+                    setAlertProps({
+                        showAlert: true,
+                        icon: 'error',
+                        title: '중복된 이메일',
+                        text: '이메일이 이미 사용 중입니다.'
+                    }); // 중복된 경우
                     setIsEmailChecked(false); // 중복된 경우 체크를 취소
                 } else {
-                    alert('사용 가능한 이메일입니다.'); // 중복되지 않은 경우
+                    setAlertProps({
+                        showAlert: true,
+                        icon: 'success',
+                        title: '사용 가능',
+                        text: '사용 가능한 이메일입니다.'
+                    }); // 중복되지 않은 경우
                     setIsEmailChecked(true); // 중복 확인 완료
                 }
             } else {
-                alert('이메일 중복 확인 중 오류가 발생했습니다.'); // 서버 오류
+                setAlertProps({
+                    showAlert: true,
+                    icon: 'error',
+                    title: '오류 발생',
+                    text: '이메일 중복 확인 중 오류가 발생했습니다. 다시 시도해 주세요.'
+                }); // 서버 오류
             }
         } catch (error) {
             console.error('이메일 중복 확인 중 오류 발생:', error);
-            alert('이메일 중복 확인 중 오류가 발생했습니다. 다시 시도해 주세요.');
+            setAlertProps({
+                showAlert: true,
+                icon: 'error',
+                title: '오류 발생',
+                text: '이메일 중복 확인 중 오류가 발생했습니다. 다시 시도해 주세요.'
+            });
         }
     };
     
@@ -80,6 +123,7 @@ const SignUpForm: React.FC = () => {
     return (
 
         <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <Alert {...alertProps} />
         {/* Top-left logo */}
         <img
             src={topLeftLogo}
@@ -113,8 +157,12 @@ const SignUpForm: React.FC = () => {
                             />
                             <ButtonPrimary
                                 btnName="중복 확인"
-                                styleName="ml-2 bg-[#004F9F] text-white text-xs p-2 rounded hover:bg-blue-700" // Reduced font size
+                                styleName={`ml-2 bg-[#004F9F] text-white text-xs p-2 rounded
+                                    ${isEmailChecked
+                                        ? 'bg-gray-400 cursor-not-allowed'
+                                        : 'bg-[#004F9F] hover:bg-blue-700 text-white'}`}
                                 handleClick={handleEmailCheck}
+                                disabled={isEmailChecked} 
                             />
                         </div>
                     </div>
@@ -190,11 +238,15 @@ const SignUpForm: React.FC = () => {
                         />
                         <label htmlFor="terms" className="ml-2 text-sm text-gray-600">이용 약관의 동의합니다.</label>
                     </div>
-                    <button 
-                        type="submit" 
-                        className="bg-[#004F9F] text-white p-2 rounded hover:bg-blue-700"
-                        disabled={!isEmailChecked || !termsAccepted} 
-                        >
+                    <button
+                        type="submit"
+                        className={`p-2 rounded ${
+                            !isEmailChecked || !termsAccepted
+                                ? 'bg-gray-400 cursor-not-allowed'
+                                : 'bg-[#004F9F] hover:bg-blue-700 text-white'
+                        }`}
+                        disabled={!isEmailChecked || !termsAccepted}
+                    >
                         회원가입
                     </button>
                 </form>
