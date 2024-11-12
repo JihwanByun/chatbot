@@ -5,10 +5,7 @@ import { login as loginAPI } from "@apis/chat/userApi";
 import axios from "axios";
 import { UpdateUserDTO } from "@pages/admin/UpdateUserDto";
 import { updateUser as updateUserAPI } from "@apis/chat/adminApi";
-import { useDispatch } from "react-redux";
-import { fetchMembersByPage } from "./memberSlice";
-import { useAppDispatch } from "@app/hooks";
-import { defaultAxios } from "@apis/common";
+import defaultAxios from "@apis/common";
 
 interface UserState {
 	role: string | null;

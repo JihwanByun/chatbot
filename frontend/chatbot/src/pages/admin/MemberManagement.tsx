@@ -8,7 +8,6 @@ import { loginUser, updateUser } from "@app/slices/userSlice";
 import ButtonPrimary from "@components/atoms/button/ButtonPrimary";
 import Modal from "@pages/admin/Modal";
 import Dropdown from "@components/atoms/dropdown/Dropdown";
-import { UpdateUserDTO } from "./UpdateUserDto";
 
 const header = ["", "사번", "이름", "부서", "쓰기권한", "회원레벨", "정보변경"];
 const columns = ["ssafy_1", "김광현", "개발부", "O", "3"];
@@ -32,24 +31,22 @@ const MemberManagement = () => {
 	const [newLevel, setNewLevel] = useState("");
 	const [newRole, setNewRole] = useState("");
 
-	// 일단 출력까지만 해봅시다.
-	// useEffect(() => {
+	useEffect(() => {
+		if (loading) {
+			console.log("데이터 로딩 중..");
+		} else {
+			console.log("데이터 로딩 완료", members);
+		}
 
-	// 	if(loading){
-	// 		console.log("데이터 로딩 중..")
-	// 	} else{
-	// 		console.log("데이터 로딩 완료",members);
-	// 	}
-
-	// 	dispatch(
-	// 		fetchMembersByPage({
-	// 			page,
-	// 			size,
-	// 			sortBy,
-	// 			sortDir,
-	// 		})
-	// 	);
-	// }, [dispatch, page, size, sortBy, sortDir]);
+		dispatch(
+			fetchMembersByPage({
+				page,
+				size,
+				sortBy,
+				sortDir,
+			})
+		);
+	}, [dispatch, page, size, sortBy, sortDir, members]);
 
 	useEffect(() => {
 		if (members && members.content) {
@@ -114,8 +111,6 @@ const MemberManagement = () => {
 	};
 
 	const handleSaveChanges = () => {
-		// 변경 완료 버튼 클릭 시, API 요청용 데이터를 준비합니다.
-		// API 요청 부분은 사용자님께서 구현하실 예정입니다.
 		dispatch(
 			updateUser({
 				userId: selectedMemberId,
@@ -139,7 +134,7 @@ const MemberManagement = () => {
 	}, []);
 
 	const handleClick = () => {};
-		// 로딩이 완료된 후에만 테이블 렌더링
+	// 로딩이 완료된 후에만 테이블 렌더링
 	if (loading) {
 		return <div>로딩 중...</div>;
 	}
