@@ -178,7 +178,7 @@ class SembotDocs:
         filtered_docs = []
 
         for doc in docs:
-            if doc.metadata["level"] > level:
+            if int(doc.metadata["level"]) > int(level):
                 continue
 
             filtered_docs.append(doc)
