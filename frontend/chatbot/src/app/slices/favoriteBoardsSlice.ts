@@ -42,11 +42,15 @@ const favoriteBoardsSlice = createSlice({
       state.hasMore = true;
     },
     updateFavoriteStatus: (state, action) => {
-      const { boardId, isFavorite } = action.payload;
+      const { boardId, isFavorite, boardData } = action.payload;
       if (!isFavorite) {
+        // 즐겨찾기 해제 시 목록에서 제거
         state.favorites = state.favorites.filter(
           (board) => board.boardId !== boardId
         );
+      } else if (boardData) {
+        // 즐겨찾기 추가 시 목록 맨 앞에 추가
+        state.favorites = [boardData, ...state.favorites];
       }
     },
   },
@@ -58,7 +62,13 @@ const favoriteBoardsSlice = createSlice({
       })
       .addCase(fetchFavoriteBoards.fulfilled, (state, action) => {
         state.loading = false;
-        state.favorites = [...action.payload.content];
+        if (action.payload.number === 0) {
+          // 첫 페이지인 경우 기존 데이터 교체
+          state.favorites = action.payload.content;
+        } else {
+          // 이후 페이지는 데이터 추가
+          state.favorites = [...state.favorites, ...action.payload.content];
+        }
         state.hasMore = !action.payload.last;
         state.currentPage = action.payload.number;
       })

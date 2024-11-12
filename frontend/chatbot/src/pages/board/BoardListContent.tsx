@@ -14,6 +14,8 @@ import {
   createFavoriteAPI,
   deleteFavoriteAPI,
 } from "@apis/board/boardFavoriteApi";
+import { fetchFavoriteBoards, updateFavoriteStatus } from "@app/slices/favoriteBoardsSlice";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
 
 /** 테이블 헤더 정의 */
 const tableHeader = ["", "작성자", "제목", "등록일"];
@@ -37,10 +39,14 @@ const BoardListContent: React.FC = () => {
     name: undefined, // 작성자 이름
     title: undefined, // 게시글 제목
   });
+  // Redux store에서 favorites 상태 가져오기
+  const { favorites } = useAppSelector((state) => state.favoriteBoards);
+
+  // Redux store에서 favorites 상태 가져오기
 
   // 페이지 이동을 위한 네비게이터
   const navigator = useNavigate();
-
+  const dispatch = useAppDispatch();
   /**
    * 페이지네이션 정보 설정
    * - page: API 요청 시 0부터 시작하므로 현재 페이지에서 1을 뺌
@@ -58,6 +64,17 @@ const BoardListContent: React.FC = () => {
 
   // 각 행의 아이콘 경로를 저장하는 상태
   const [iconPaths, setIconPaths] = useState<{ [key: number]: string }>({});
+
+  const updateIconPaths = useCallback((boards: TableRowData[]) => {
+    const newIconPaths: { [key: number]: string } = {};
+    boards.forEach((row) => {
+      const isFavorite = favorites.some(
+        (favorite) => favorite.boardId === row.id
+      );
+      newIconPaths[row.id] = isFavorite ? favoritedPath : favoritePath;
+    });
+    setIconPaths(newIconPaths);
+  }, [favorites]);
 
   const fetchBoards = useCallback(async () => {
     try {
@@ -82,6 +99,12 @@ const BoardListContent: React.FC = () => {
       console.error("Error fetching boards:", error);
     }
   }, [searchCondition, pageInfo]);
+
+  // useEffect(() => {
+  //   if (tableRows.length > 0) {
+  //     updateIconPaths(tableRows);
+  //   }
+  // }, [favorites, tableRows, updateIconPaths]);
 
   /**
    * 검색 조건 변경 처리 함수
@@ -116,24 +139,34 @@ const BoardListContent: React.FC = () => {
     async (rowId: number) => {
       const currentPath = iconPaths[rowId];
       const isFavorite = currentPath === favoritedPath;
-
+  
       try {
         let success;
         if (isFavorite) {
-          success = await deleteFavoriteAPI(rowId); // 즐겨찾기 해제
+          success = await deleteFavoriteAPI(rowId);
         } else {
-          success = await createFavoriteAPI(rowId); // 즐겨찾기 등록
+          success = await createFavoriteAPI(rowId);
         }
-
+  
         if (success) {
-          // 성공 시에만 목록 갱신
+          // 즐겨찾기 상태 업데이트
+          const board = tableRows.find((row) => row.id === rowId);
+         
+          dispatch(
+            updateFavoriteStatus({
+              boardId: rowId,
+              isFavorite: !isFavorite,
+              boardData: !isFavorite ? board : null,
+            })
+          );
+          // 목록 새로고침
           fetchBoards();
         }
       } catch (error) {
         console.error("Error toggling favorite:", error);
       }
     },
-    [iconPaths, fetchBoards]
+    [iconPaths, tableRows, dispatch, fetchBoards]
   );
 
   // 페이지 변경 처리
@@ -156,6 +189,7 @@ const BoardListContent: React.FC = () => {
   useEffect(() => {
     fetchBoards();
   }, [fetchBoards]);
+
 
   return (
     <>

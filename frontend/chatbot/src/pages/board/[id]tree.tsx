@@ -27,6 +27,7 @@ import {
   fetchFavoriteBoards,
   updateFavoriteStatus,
 } from "@app/slices/favoriteBoardsSlice";
+
 interface BoardParams {
   id: string;
   [key: string]: string | undefined;
@@ -126,19 +127,16 @@ const BoardDetailPage: React.FC = () => {
         : await createFavoriteAPI(boardDetail.boardId);
 
       if (success) {
-        // 즐겨찾기 상태 변경 후 상태 업데이트
+        // 즐겨찾기 상태 업데이트
         dispatch(
           updateFavoriteStatus({
             boardId: boardDetail.boardId,
             isFavorite: !boardDetail.isFavorite,
+            boardData: !boardDetail.isFavorite ? boardDetail : null,
           })
         );
 
-        // 즐겨찾기가 추가된 경우 목록 새로고침
-        if (!boardDetail.isFavorite) {
-          dispatch(fetchFavoriteBoards(0));
-        }
-
+        // 상세 정보 새로고침
         await fetchBoardDetail();
       }
     } catch (error) {
