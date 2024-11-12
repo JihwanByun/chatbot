@@ -194,3 +194,4 @@ const RegulationPage: React.FC<RegulationPageProps> = ({
 };
 
 export default RegulationPage;
+

@@ -25,6 +25,7 @@ public enum ErrorCode {
 
 	// 회원가입 관련 오류,
 	DUPLICATE_EMAIL(409, "DUPLICATE_EMAIL", "이미 존재하는 이메일입니다."),
+	EMPTY_EMAIL_EXCEPTION(409, "EMPTY_EMAIL", "이메일에 공백을 입력할 수 없습니다."),
 
 	// 게시글 관련 오류
 	BOARD_NOT_FOUND(404, "BOARD_NOT_FOUND", "해당 게시글을 찾을 수 없습니다."),

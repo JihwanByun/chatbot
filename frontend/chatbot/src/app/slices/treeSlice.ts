@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { RegulationResponse, RegulationItem } from "@apis/board/boardDetailApi";
 
 export interface TreeNode {
 	id: string;
@@ -19,11 +20,19 @@ interface TreeState {
 }
 
 const initialState: TreeState = {
-	treeData: [],
-	isRevisionMode: false,
-	editNodeId: null,
-	editNodeData: null,
+  isRevisionMode: false,
+  editNodeId: null,
+  editNodeData: null,
+  treeData: [],
 };
+
+// RegulationItem을 TreeNode로 변환하는 헬퍼 함수
+const convertToTreeNode = (item: RegulationItem, depth: number = 1): TreeNode => ({
+  ...item,
+  id: Math.random().toString(36).substr(2, 9), // 임시 ID 생성
+  depth,
+  children: item.itemList?.map(child => convertToTreeNode(child, depth + 1)) || [],
+});
 
 const treeSlice = createSlice({
 	name: "tree",
@@ -148,6 +157,13 @@ const treeSlice = createSlice({
 			state.editNodeId = null;
 			state.editNodeData = null;
 		},
+		setTreeData: (state, action: PayloadAction<RegulationResponse | null>) => {
+      if (!action.payload) {
+        state.treeData = [];
+        return;
+      }
+      state.treeData = action.payload.itemList.map(item => convertToTreeNode(item));
+    },
 	},
 });
 
@@ -159,6 +175,7 @@ export const {
 	updateEditNodeData,
 	saveNodeEdit,
 	cancelEdit,
+	setTreeData,
 } = treeSlice.actions;
 
 export default treeSlice.reducer;

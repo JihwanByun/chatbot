@@ -5,13 +5,7 @@ export const signUp = async (formData: SignUpDTO) => {
     try{
 
         const response = defaultAxios.post("/api/users/register", formData)
-        //      {
-        //     email: formData.email,
-        //     password: formData.password,
-        //     name: formData.name,
-        //     department:formData.department,
-        //     passwordVerify: formData.passwordVerify
-        // });
+       
         return response;
     
     } catch (error) {
@@ -19,3 +13,11 @@ export const signUp = async (formData: SignUpDTO) => {
         throw error;
     }
 } 
+
+ //      {
+        //     email: formData.email,
+        //     password: formData.password,
+        //     name: formData.name,
+        //     department:formData.department,
+        //     passwordVerify: formData.passwordVerify
+        // });

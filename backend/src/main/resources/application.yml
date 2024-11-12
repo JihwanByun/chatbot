@@ -27,6 +27,10 @@ spring:
     mongodb:
       uri: ${SPRING_DATA_MONGODB_URL:mongodb://localhost:27017/sembot}
 
+  servlet:
+    multipart:
+      maxFileSize: 10MB
+      maxRequestSize: 30MB
 
 jwt:
   access_secret: ${JWT_ACCESS_SECRET}
@@ -46,3 +50,4 @@ file:
 ai:
   base:
     url: ${AI_BASE_URL:http://localhost:8000}
+
