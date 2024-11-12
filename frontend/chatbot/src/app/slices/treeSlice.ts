@@ -1,5 +1,7 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RegulationResponse, RegulationItem } from "@apis/board/boardDetailApi";
+import defaultAxios from "@apis/common";
+import { createBoard, updateBoard } from "@apis/board/boardApi";
 
 export interface TreeNode {
 	id: string;
@@ -20,19 +22,53 @@ interface TreeState {
 }
 
 const initialState: TreeState = {
-  isRevisionMode: false,
-  editNodeId: null,
-  editNodeData: null,
-  treeData: [],
+	isRevisionMode: false,
+	editNodeId: null,
+	editNodeData: null,
+	treeData: [],
 };
 
 // RegulationItem을 TreeNode로 변환하는 헬퍼 함수
-const convertToTreeNode = (item: RegulationItem, depth: number = 1): TreeNode => ({
-  ...item,
-  id: Math.random().toString(36).substr(2, 9), // 임시 ID 생성
-  depth,
-  children: item.itemList?.map(child => convertToTreeNode(child, depth + 1)) || [],
+const convertToTreeNode = (
+	item: RegulationItem,
+	depth: number = 1
+): TreeNode => ({
+	...item,
+	id: Math.random().toString(36).substr(2, 9), // 임시 ID 생성
+	depth,
+	children:
+		item.itemList?.map((child) => convertToTreeNode(child, depth + 1)) || [],
 });
+
+export const saveTreeChange = createAsyncThunk(
+	"board/update",
+	async ({ boardId }: { boardId: string | undefined }, { getState }) => {
+		// Access the treeData state
+		const state = getState() as { tree: TreeState };
+		const { treeData } = state.tree;
+
+		// Call the API with treeData and boardId
+		const response = await updateBoard(boardId, treeData);
+		console.log("API Response:", response.data);
+
+		return response.data;
+	}
+);
+
+export const createTree = createAsyncThunk(
+	"board/create",
+	async (_, { getState }) => {
+		// Access the treeData state
+		const state = getState() as { tree: TreeState };
+		const { treeData } = state.tree;
+
+		// Call the API with treeData and boardId
+		const response = await createBoard(treeData);
+		console.log("API Response:", response.data);
+
+		return response.data;
+	}
+);
 
 const treeSlice = createSlice({
 	name: "tree",
@@ -152,18 +188,40 @@ const treeSlice = createSlice({
 			state.treeData = updateTree(state.treeData);
 			state.editNodeId = null;
 			state.editNodeData = null;
+			console.log(state.treeData);
 		},
 		cancelEdit: (state) => {
 			state.editNodeId = null;
 			state.editNodeData = null;
 		},
 		setTreeData: (state, action: PayloadAction<RegulationResponse | null>) => {
-      if (!action.payload) {
-        state.treeData = [];
-        return;
-      }
-      state.treeData = action.payload.itemList.map(item => convertToTreeNode(item));
-    },
+			if (!action.payload) {
+				state.treeData = [];
+				return;
+			}
+			state.treeData = action.payload.itemList.map((item) =>
+				convertToTreeNode(item)
+			);
+		},
+		updateTreeData: (state, action: PayloadAction<TreeNode[]>) => {
+			state.treeData = action.payload;
+			console.log(state.treeData);
+			createTree();
+		},
+	},
+	extraReducers: (builder) => {
+		builder
+			.addCase(createTree.pending, (state) => {
+				// 필요한 경우 로딩 상태 처리
+			})
+			.addCase(createTree.fulfilled, (state, action) => {
+				// API 응답 처리
+				console.log("Tree created successfully:", action.payload);
+			})
+			.addCase(createTree.rejected, (state, action) => {
+				// 에러 처리
+				console.error("Failed to create tree:", action.error);
+			});
 	},
 });
 
@@ -176,6 +234,7 @@ export const {
 	saveNodeEdit,
 	cancelEdit,
 	setTreeData,
+	updateTreeData, // 새로운 액션 export
 } = treeSlice.actions;
 
 export default treeSlice.reducer;

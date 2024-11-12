@@ -58,6 +58,8 @@ public class BoardServiceImpl implements BoardService {
 	public BoardDetailResponseDto createBoard(Long userId, BoardCreateRequestDto boardCreateRequestDto,
 		MultipartFile file) {
 		// 검증 & 조회
+		log.info(String.valueOf(userId));
+		log.info(String.valueOf(boardCreateRequestDto));
 		User user = userRepository.findByIdOrElseThrow(userId);
 		Category category = categoryRepository.findByNameOrElseThrow(boardCreateRequestDto.category());
 

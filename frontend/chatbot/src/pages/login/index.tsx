@@ -22,22 +22,21 @@ const LoginForm: React.FC = () => {
 	};
 
 	useEffect(() => {
-		if (!role) {
-			return;
-		}
-		if (role == "관리자") {
-			console.log(role);
-			navigate("/adminPage");
-		} else {
-			console.log(role);
-			navigate("/chat");
+		console.log(role);
+		if (role) {
+			if (role == "관리자") {
+				console.log(role);
+				navigate("/adminPage");
+			} else {
+				console.log(role);
+				navigate("/chat");
+			}
 		}
 	}, [role]);
 
 	const handleSignUpClick = () => {
 		navigate("/register");
 	};
-
 
 	return (
 		<div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import Alert, { AlertProps } from '@components/atoms/alert/Alert';
 
 export interface SignUpFormProps {
-    onSubmit: (formData: SignUpDTO) => void;
+	onSubmit: (formData: SignUpDTO) => void;
 }
 
 const SignUpForm: React.FC = () => {
@@ -25,7 +25,8 @@ const SignUpForm: React.FC = () => {
     const [isEmailChecked, setIsEmailChecked] = useState(false);
     const [alertProps, setAlertProps] = useState<AlertProps>({ showAlert: false, icon: 'success', title: '', text: '' });
 
-    const navigate = useNavigate();
+	//이메일 중복 확인 여부를 저장하는 상태
+	const [isEmailChecked, setIsEmailChecked] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -40,7 +41,8 @@ const SignUpForm: React.FC = () => {
             return;
         }
 
-        const formData: SignUpDTO = { email, name, employeeNum ,department, password, passwordVerify };
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
 
         try{
             const response =await signUp(formData);
@@ -66,11 +68,28 @@ const SignUpForm: React.FC = () => {
     
     };
 
-    const handleEmailCheck = async (e: React.FormEvent) => {
+		const formData: SignUpDTO = {
+			email,
+			name,
+			employeeNum,
+			department,
+			password,
+			passwordVerify,
+		};
 
-        e.preventDefault();
+		try {
+			const response = await signUp(formData);
+			console.log("회원가입 성공", response);
+			alert("회원가입에 성공했습니다!, 로그인 페이지로 이동합니다.");
+			navigate("/chat");
+		} catch (error) {
+			console.error("회원가입 실패", error);
+			alert("회원가입에 실패했습니다. 다시 시도해주세요.");
+		}
+	};
 
-        const formData: emailDTO = {email};
+	const handleEmailCheck = async (e: React.FormEvent) => {
+		e.preventDefault();
 
         try {
             setAlertProps(prevProps => ({
@@ -120,7 +139,21 @@ const SignUpForm: React.FC = () => {
     };
     
 
-    return (
+				if (isDuplicate) {
+					alert("이메일이 이미 사용 중입니다."); // 중복된 경우
+					setIsEmailChecked(false); // 중복된 경우 체크를 취소
+				} else {
+					alert("사용 가능한 이메일입니다."); // 중복되지 않은 경우
+					setIsEmailChecked(true); // 중복 확인 완료
+				}
+			} else {
+				alert("이메일 중복 확인 중 오류가 발생했습니다."); // 서버 오류
+			}
+		} catch (error) {
+			console.error("이메일 중복 확인 중 오류 발생:", error);
+			alert("이메일 중복 확인 중 오류가 발생했습니다. 다시 시도해 주세요.");
+		}
+	};
 
         <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
             <Alert {...alertProps} />
@@ -167,17 +200,33 @@ const SignUpForm: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="mb-4">
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 text-left">이름</label>
-                        <input
-                            type="text"
-                            placeholder="Name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="border p-2 w-full" 
-                            required
-                        />
-                    </div>
+				<form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+					<div className="mb-4">
+						<label
+							htmlFor="email"
+							className="block text-sm font-medium text-gray-700 text-left"
+						>
+							이메일
+						</label>
+						<div className="flex items-center">
+							<input
+								type="email"
+								placeholder="Email"
+								value={email}
+								onChange={(e) => {
+									setEmail(e.target.value);
+									setIsEmailChecked(false);
+								}}
+								className="border p-2 flex-grow"
+								required
+							/>
+							<ButtonPrimary
+								btnName="중복 확인"
+								styleName="ml-2 bg-[#004F9F] text-white text-xs p-2 rounded hover:bg-blue-700" // Reduced font size
+								handleClick={handleEmailCheck}
+							/>
+						</div>
+					</div>
 
                     <div className="mb-4">
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700 text-left">사번</label>
