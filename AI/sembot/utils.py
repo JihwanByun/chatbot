@@ -113,12 +113,12 @@ def make_data_for_vectorDB(json_file):
 
             # article의 content가 있으면 추가
             if article.get("content"):
-                content += article["content"] + " "
+                content += article["content"] + "\n"
 
             # 항이 있으면 추가
             if article.get("itemList"):
                 for para_index, paragraph in enumerate(article["itemList"], 1):
-                    content += f"제{para_index}항 {paragraph['content']} "
+                    content += f"제{para_index}항 {paragraph['content']}\n"
 
                     # 호가 있으면 추가
                     if paragraph.get("itemList"):
@@ -126,7 +126,7 @@ def make_data_for_vectorDB(json_file):
                             paragraph["itemList"], 1
                         ):
                             content += (
-                                f"제{subPara_index}호 {sub_paragraph['content']} "
+                                f"제{subPara_index}호 {sub_paragraph['content']}\n"
                             )
 
             document = Document(
