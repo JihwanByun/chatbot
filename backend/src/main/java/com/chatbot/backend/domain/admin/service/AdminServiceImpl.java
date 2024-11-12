@@ -64,7 +64,7 @@ public class AdminServiceImpl implements AdminService {
 			throw new NoAuthorityException();
 		}
 
-		Optional<Category> category = categoryRepository.findByName(name);
+		Optional<Category> category = categoryRepository.findByNameAndIsDeletedFalse(name);
 		if (category.isPresent()) {
 			throw new CategoryAlreadyExistsException();
 		}

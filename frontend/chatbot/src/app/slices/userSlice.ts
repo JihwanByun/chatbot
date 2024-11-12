@@ -3,6 +3,9 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { LoginDTO } from "@pages/login/LoginDTO";
 import { login as loginAPI } from "@apis/chat/userApi";
 import axios from "axios";
+import { UpdateUserDTO } from "@pages/admin/UpdateUserDto";
+import { updateUser as updateUserAPI } from "@apis/chat/adminApi";
+import defaultAxios from "@apis/common";
 
 interface UserState {
 	role: string | null;
@@ -15,6 +18,22 @@ const initialState: UserState = {
 	loading: false,
 	error: null,
 };
+
+export const updateUser = createAsyncThunk(
+	"user/updateUser",
+	async (updateUser: UpdateUserDTO, { rejectWithValue }) => {
+		try {
+			const response = await updateUserAPI(updateUser);
+			return response.data; // 성공 시 반환값
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response) {
+				return rejectWithValue(error.response.data);
+			}
+			return rejectWithValue({ message: "Unexpected error occurred" });
+		}
+	}
+);
+
 // 비동기 thunk 함수로 로그인 처리
 export const loginUser = createAsyncThunk(
 	"user/loginUser",
@@ -40,14 +59,37 @@ export const loginUser = createAsyncThunk(
 	}
 );
 
+// 로그아웃 요청
+export const logoutUser = createAsyncThunk(
+	"user/logoutUser",
+	async (_, { rejectWithValue }) => {
+		try {
+			console.log("로그아웃 요청 시작");
+			await defaultAxios.post(
+				"/api/users/logout",
+				{},
+				{
+					headers: {
+						Authorization: localStorage.getItem("Authorization"),
+					},
+				}
+			);
+			console.log("로그아웃 요청 완료");
+			localStorage.removeItem("Authorization");
+			localStorage.removeItem("Role");
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response) {
+				return rejectWithValue(error.response.data);
+			}
+			return rejectWithValue({ message: "Unexpected error occurred" });
+		}
+	}
+);
+
 const userSlice = createSlice({
 	name: "user",
 	initialState,
-	reducers: {
-		logout(state) {
-			state.role = null;
-		},
-	},
+	reducers: {},
 	extraReducers: (builder) => {
 		builder
 			.addCase(loginUser.pending, (state) => {
@@ -70,10 +112,31 @@ const userSlice = createSlice({
 			.addCase(loginUser.rejected, (state, action: PayloadAction<any>) => {
 				state.loading = false;
 				state.error = action.payload?.message || "로그인 실패";
+			})
+			.addCase(updateUser.pending, (state) => {
+				state.loading = true;
+				state.error = null;
+			})
+			.addCase(updateUser.fulfilled, (state) => {
+				state.loading = false;
+			})
+			.addCase(updateUser.rejected, (state, action: PayloadAction<any>) => {
+				state.loading = false;
+				state.error = action.payload?.message || "업데이트 실패";
+			})
+			.addCase(logoutUser.pending, (state) => {
+				state.loading = true;
+				state.error = null;
+			})
+			.addCase(logoutUser.fulfilled, (state) => {
+				state.loading = false;
+				state.role = null; // 로그아웃 시 role 초기화
+			})
+			.addCase(logoutUser.rejected, (state, action: PayloadAction<any>) => {
+				state.loading = false;
+				state.error = action.payload?.message || "로그아웃 실패";
 			});
 	},
 });
-
-export const { logout } = userSlice.actions;
 
 export default userSlice.reducer;

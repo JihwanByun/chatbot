@@ -13,10 +13,12 @@ import com.chatbot.backend.domain.category.exception.CategoryNotFoundException;
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 	Optional<Category> findByName(String name);
 
+	Optional<Category> findByNameAndIsDeletedFalse(String name);
+
 	List<Category> findAllByIsDeletedFalse();
 
 	default Category findByNameOrElseThrow(String name) {
-		return this.findByName(name).orElseThrow(CategoryNotFoundException::new);
+		return this.findByNameAndIsDeletedFalse(name).orElseThrow(CategoryNotFoundException::new);
 	}
 
 	default Category findByIdOrElseThrow(Long id) {

@@ -53,6 +53,7 @@ public class BoardController {
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@Valid @RequestPart(value = "request", required = false) BoardCreateRequestDto boardCreateRequestDto,
 		@RequestPart(value = "file", required = false) MultipartFile file) {
+		log.info(String.valueOf(boardCreateRequestDto));
 		return ResponseEntity.status(HttpStatus.CREATED)
 			.body(boardService.createBoard(userDetails.getId(), boardCreateRequestDto, file));
 	}
@@ -68,6 +69,7 @@ public class BoardController {
 		@PathVariable Long boardId,
 		@Valid @RequestPart(value = "request") BoardUpdateRequestDto boardUpdateRequestDto,
 		@RequestPart(value = "file", required = false) MultipartFile file) {
+		log.info(String.valueOf(boardUpdateRequestDto));
 		return ResponseEntity.status(HttpStatus.OK)
 			.body(boardService.updateBoard(userDetails.getId(), boardId, boardUpdateRequestDto, file));
 	}

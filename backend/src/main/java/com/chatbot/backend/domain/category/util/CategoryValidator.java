@@ -33,7 +33,7 @@ public class CategoryValidator {
 
 	// 카테고리 이름 중복 여부 검증
 	public void validateCategoryAlreadyExists(String name) {
-		if (categoryRepository.findByName(name).isPresent()) {
+		if (categoryRepository.findByNameAndIsDeletedFalse(name).isPresent()) {
 			throw new CategoryAlreadyExistsException();
 		}
 	}
