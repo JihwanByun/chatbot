@@ -14,7 +14,6 @@ export const signUp = async (formData: SignUpDTO) => {
     }
 } 
 
-
  //      {
         //     email: formData.email,
         //     password: formData.password,

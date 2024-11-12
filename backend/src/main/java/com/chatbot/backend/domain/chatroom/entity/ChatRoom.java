@@ -44,7 +44,7 @@ public class ChatRoom {
 	@Builder
 	public ChatRoom(User user, String content) {
 		this.user = user;
-		this.title = content.length() >= 8 ? content.substring(0, 8) : content;
+		this.title = content.length() >= 15 ? content.substring(0, 15) : content;
 		this.createdAt = LocalDateTime.now();
 	}
 
