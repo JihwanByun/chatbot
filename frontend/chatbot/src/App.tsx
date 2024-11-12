@@ -23,6 +23,7 @@ function App() {
 					<Route path="/adminPage" element={<AdminPage />} />
 					<Route path="/chat" element={<Chat />} />
 					<Route path="/board" element={<BoardListPage />} />
+					<Route path="/board/:id" element={<RegulationPage title="규정 정보" />} />
 					<Route path="/tree" element={<TreeView />} />
 				</Route>
 				{/* <Route path="/adminPage" element={<AdminPage />} />
