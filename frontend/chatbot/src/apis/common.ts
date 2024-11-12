@@ -5,16 +5,9 @@ import axios, { AxiosInstance } from "axios";
 // 로그인이 필요없는 axios
 const defaultAxios: AxiosInstance = axios.create({
 
-
 	baseURL: `${BACKEND_URL}`,
 	withCredentials: true, // 쿠키 전송 허용
 });
-
-export const defaultAIAxios: AxiosInstance = axios.create({
-	baseURL: `${AI_URL}`,
-	// withCredentials: true, // 쿠키 전송 허용
-});
-
 
 defaultAxios.interceptors.request.use(function (config) {
 	// Authorization 헤더를 추가
@@ -28,3 +21,8 @@ defaultAxios.interceptors.request.use(function (config) {
   });
 
 export default defaultAxios;
+
+export const defaultAIAxios: AxiosInstance = axios.create({
+	baseURL: `${AI_URL}`,
+	// withCredentials: true, // 쿠키 전송 허용
+});
