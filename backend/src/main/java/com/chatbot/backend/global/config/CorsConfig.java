@@ -9,6 +9,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 	// application.yml 에서 개발 환경의 Origin 주소를 가져옴
+	@Value("${cors.origin.local}")
+	private String localOrigin;
+
+	// application.yml 에서 개발 환경의 Origin 주소를 가져옴
 	@Value("${cors.origin.development}")
 	private String developmentOrigin;
 

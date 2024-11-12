@@ -1,6 +1,6 @@
 import defaultAxios from "@apis/common";
 import { TableRowData } from "@components/atoms/table/TableWithIcon";
-import { favoritePath, favoritedPath } from "@pages/board/BoardListContent";
+import { favoritePath, favoritedPath } from "@pages/board";
 
 //===== Backend API =====//
 
