@@ -28,7 +28,7 @@ public class FileSummaryService {
 		getSummary(file)
 			.subscribeOn(Schedulers.boundedElastic())
 			.subscribe(
-				summary -> updateBoardSummary(boardId, summary),
+				summary -> updateBoardSummary(boardId, summary.substring(1, summary.length() - 1)),
 				error -> handleSummaryError(boardId, error)
 			);
 	}
