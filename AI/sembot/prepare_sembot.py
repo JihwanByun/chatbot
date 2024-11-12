@@ -154,7 +154,9 @@ class SembotDocs:
 
         formated_memory_docs = self._format_related_docs(request)
 
-        formated_docs = self._format_docs(self.retriever.invoke(request["question"]))
+        filtered_docs = self.docs_invoke(request)
+
+        formated_docs = self._format_docs(filtered_docs)
 
         prompt.append(
             {
@@ -165,13 +167,30 @@ class SembotDocs:
 
         return prompt
 
-    def docs_invoke(self, question):
-        return self.retriever.invoke(question)
+    def docs_invoke(self, input_data):
+
+        return self._filter_docs(
+            self.retriever.invoke(input_data["question"]), input_data["level"]
+        )
+
+    def _filter_docs(self, docs: list, level):
+
+        filtered_docs = []
+
+        for doc in docs:
+            if doc.metadata["level"] > level:
+                continue
+
+            filtered_docs.append(doc)
+
+        return filtered_docs
 
 
 if __name__ == "__main__":
     from pprint import pprint
+
     input_data = {
+        "level": 1,
         "memory": [
             {
                 "question": "유류비 청구는 어떻게 할 수 있나요? 제가 3박 4일로 부산에 갓다오는데 비용은 대충 어떻게 계산하죠?",
@@ -190,7 +209,7 @@ if __name__ == "__main__":
                 "answer": "안녕하세요! 연차는 다음과 같은 절차를 따르면 신청할 수 있습니다.",
             },
         ],
-        "question": "퇴직금은 언제 받을 수 있나요?",
+        "question": "지원자 중에 정부 기관에 해킹 방어 대회 수상자가 있는데 가점을 받을 수 있나요?",
     }
 
     file_dir_path = r"../kisa_json/"
@@ -199,6 +218,6 @@ if __name__ == "__main__":
 
     pre_sembot = SembotDocs(file_dir_path, file_type, vectorstore_path)
 
-    docs = pre_sembot.docs_invoke(input_data["question"])
+    docs = pre_sembot.docs_invoke(input_data)
 
     pprint(docs)
