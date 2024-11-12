@@ -1,8 +1,9 @@
 import os
 import json
 from dotenv import load_dotenv
-from langchain_community.document_loaders import PyPDFLoader, PyMuPDFLoader
+from langchain_community.document_loaders import PyPDFLoader, PyMuPDFLoader, PDFPlumberLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+
 
 # 설정 부분
 load_dotenv()
@@ -17,7 +18,7 @@ def load_pdf_files(pdf_path):
     for root, dirs, files in os.walk(pdf_path):
         for file in files:
             if file.endswith('.pdf'):
-                pdf_files.append(os.path.join(root, file))
+                pdf_files.append(file)
     return pdf_files
 
 # PDF를 JSON으로 변환하는 함수
@@ -26,7 +27,7 @@ def pdf_to_json(pdf_path, json_path):
     all_documents = []
 
     for pdf_file in pdf_files:
-        loader = PyPDFLoader(pdf_file)
+        loader = PDFPlumberLoader(os.path.join(PDF_PATH, pdf_file))
         documents = loader.load()  # PDF 문서를 로드합니다
 
         # 텍스트를 작은 청크로 분할
@@ -42,7 +43,10 @@ def pdf_to_json(pdf_path, json_path):
     with open(json_path, 'w', encoding='utf-8') as f:
         json_data = [
             {
-                "metadata": doc.metadata,
+                "metadata": {
+                    **doc.metadata,  # 기존 메타데이터 포함
+                    "file_name": os.path.basename(doc.metadata['source'])  # 파일명만 추가
+                },
                 "page_content": doc.page_content
             }
             for doc in all_documents
