@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import RegulationPage from "./[id]";
+import BoardDetailPage from "./[id]tree";
 
 const meta = {
-  title: "PAGES/BOARD/RegulationPage",
-  component: RegulationPage,
+  title: "PAGES/BOARD/BoardDetailPage",
+  component: BoardDetailPage,
   parameters: {
     layout: "fullscreen",
   },
   tags: ["autodocs"],
-} satisfies Meta<typeof RegulationPage>;
+} satisfies Meta<typeof BoardDetailPage>;
 
 export default meta;
 
