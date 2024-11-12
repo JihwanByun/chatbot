@@ -3,6 +3,7 @@ import memberSlice from "./slices/memberSlice";
 import feedbackSlice from "./slices/feedbackSlice";
 import userSlice from "./slices/userSlice";
 import treeSlice from "./slices/treeSlice";
+import favoriteBoardsReducer from "./slices/favoriteBoardsSlice";
 
 export const store = configureStore({
 	reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
 		feedbacks: feedbackSlice,
 		users: userSlice,
 		tree: treeSlice,
+		favoriteBoards: favoriteBoardsReducer,
 	},
 });
 

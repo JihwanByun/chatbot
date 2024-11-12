@@ -1,5 +1,5 @@
 import React from 'react';
-import CardWithLink from '@components/atoms/card/CardWithLink';
+import CardWithModal from '@components/atoms/card/CardWithModal';
 import { Doc } from './ChatView';
 
 interface ChatDocsProps {
@@ -14,9 +14,9 @@ const ChatDocs: React.FC<ChatDocsProps> = ({
       <div className='text-lg font-bold'>
         출처
       </div>
-      <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2'>
+      <div className='grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 place-items-center justify-center'>
         {docs.map((doc, index)=>(
-          <CardWithLink key={index} content={doc.content} resourceLink={doc.metadata.source} />
+          <CardWithModal key={index} title={doc.metadata.filename} content={doc.content}/>
         ))}
       </div>
     </div>

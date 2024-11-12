@@ -23,6 +23,11 @@ import {
 } from "@apis/board/boardFavoriteApi";
 import ReactMarkdown from "react-markdown";
 import { setTreeData } from "@app/slices/treeSlice";
+import { ButtonWithIconProps } from "@pages/chat";
+import {
+  fetchFavoriteBoards,
+  updateFavoriteStatus,
+} from "@app/slices/favoriteBoardsSlice";
 
 interface BoardParams {
 	id: string;
@@ -40,15 +45,36 @@ const BoardDetailPage: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [role, setRole] = useState<string | null>("");
 
-	// Redux state
-	const isRevisionMode = useAppSelector((state) => state.tree.isRevisionMode);
-	const editNodeData = useAppSelector((state) => state.tree.editNodeData);
+  // Redux state
+  const isRevisionMode = useAppSelector((state) => state.tree.isRevisionMode);
+  const editNodeData = useAppSelector((state) => state.tree.editNodeData);
+  const footStyle =
+    "flex bg-transparent text-white py-2 px-4 rounded mx-1 transform hover:translate-x-1 transition-all duration-200 cursor-pointer";
+  const boardButtonStyle =
+    "flex bg-transparent border border-white text-white py-2 px-4 rounded mx-1 hover:bg-blue-900 transition-colors duration-100 ease-in-out";
 
-	// Role 확인
-	useEffect(() => {
-		const storedRole = localStorage.getItem("Role");
-		if (storedRole) setRole(storedRole);
-	}, []);
+  const { favorites, loading, hasMore, currentPage } = useAppSelector(
+    (state) => state.favoriteBoards
+  );
+
+  // Role 확인
+  useEffect(() => {
+    const storedRole = localStorage.getItem("Role");
+    if (storedRole) setRole(storedRole);
+  }, []);
+
+  useEffect(() => {
+    if (currentPage === 0) {
+      dispatch(fetchFavoriteBoards(0));
+    }
+  }, [dispatch, currentPage]);
+
+  // 더 많은 즐겨찾기 로드
+  const handleLoadMore = () => {
+    if (!loading && hasMore) {
+      dispatch(fetchFavoriteBoards(currentPage + 1));
+    }
+  };
 
 	// 게시글 상세 정보 조회
 	const fetchBoardDetail = useCallback(async () => {
@@ -101,13 +127,23 @@ const BoardDetailPage: React.FC = () => {
 				? await deleteFavoriteAPI(boardDetail.boardId)
 				: await createFavoriteAPI(boardDetail.boardId);
 
-			if (success) {
-				await fetchBoardDetail();
-			}
-		} catch (error) {
-			console.error("Failed to toggle favorite:", error);
-		}
-	};
+      if (success) {
+        // 즐겨찾기 상태 업데이트
+        dispatch(
+          updateFavoriteStatus({
+            boardId: boardDetail.boardId,
+            isFavorite: !boardDetail.isFavorite,
+            boardData: !boardDetail.isFavorite ? boardDetail : null,
+          })
+        );
+
+        // 상세 정보 새로고침
+        await fetchBoardDetail();
+      }
+    } catch (error) {
+      console.error("Failed to toggle favorite:", error);
+    }
+  };
 
 	// TreeView 관련 함수들
 	const toggleRevisionMode = () => dispatch(setRevisionMode(!isRevisionMode));
@@ -259,36 +295,35 @@ const BoardDetailPage: React.FC = () => {
 		</div>
 	);
 
-	const sidebarComponents = [
-		{
-			btnName: "규정목록",
-			styleName: "flex bg-blue-500 text-white py-2 px-4 rounded mx-1",
-			icon: "/src/assets/icons/book-open-text.svg",
-		},
-		{
-			btnName: boardDetail?.title || "규정",
-			styleName: "flex bg-blue-500 text-white py-2 px-4 rounded mx-1",
-			icon: "/src/assets/icons/book-open-text.svg",
-		},
-	];
+  // 사이드바 컴포넌트 구성
+  const sidebarComponents: ButtonWithIconProps[] = [
+    {
+      btnName: "규정목록",
+      styleName: boardButtonStyle,
+      icon: "/src/assets/icons/book-open-text.svg",
+      handleClick: () => navigate("/board"),
+    },
+    // 즐겨찾기 목록을 버튼 컴포넌트로 변환
+    ...favorites.map((favorite) => ({
+      btnName: favorite.title,
+      styleName: boardButtonStyle,
+      icon: "/src/assets/icons/book-open-text.svg",
+      handleClick: () => navigate(`/board/${favorite.boardId}`),
+    })),
+  ];
 
-	const footerComponents = [
-		{
-			btnName: "채팅",
-			styleName: "flex bg-blue-500 text-white py-2 px-4 rounded mx-1",
-			icon: "/src/assets/icons/chatting-icon.svg",
-		},
-		{
-			btnName: "규정 확인하기",
-			styleName: "flex bg-blue-500 text-white py-2 px-4 rounded mx-1",
-			icon: "/src/assets/icons/book-open-text.svg",
-		},
-		{
-			btnName: "로그아웃",
-			styleName: "flex bg-blue-500 text-white py-2 px-4 rounded mx-1",
-			icon: "/src/assets/icons/logout.svg",
-		},
-	];
+  const footerComponents = [
+    {
+      btnName: "채팅",
+      styleName: footStyle,
+      icon: "/src/assets/icons/chatting-icon.svg",
+    },
+    {
+      btnName: "로그아웃",
+      styleName: footStyle,
+      icon: "/src/assets/icons/logout.svg",
+    },
+  ];
 
 	if (error) {
 		return (
@@ -318,14 +353,15 @@ const BoardDetailPage: React.FC = () => {
 		);
 	}
 
-	return (
-		<SembotLayout
-			title={boardDetail?.title || "규정 상세"}
-			sidebarComponents={sidebarComponents}
-			footerComponents={footerComponents}
-			children={getChildren()}
-		/>
-	);
+  return (
+    <SembotLayout
+      title={boardDetail?.title || "규정 상세"}
+      sidebarComponents={sidebarComponents}
+      footerComponents={footerComponents}
+      onLoadMore={handleLoadMore}
+      children={getChildren()}
+    />
+  );
 };
 
 export default BoardDetailPage;
