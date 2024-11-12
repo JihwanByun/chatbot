@@ -15,7 +15,7 @@ import BoardEdit from "@pages/board/BoardEdit";
 import TreeView from "@pages/board/TreeView";
 import BoardContentTree from "@pages/board/[id]tree";
 import RegisterPage from "@pages/signup"
-import RegulationPage from "@pages/board/[id]";
+import BoardDetailPage from "@pages/board/[id]tree";
 
 
 function App() {
@@ -30,8 +30,11 @@ function App() {
 				<Route element={<PrivateRoute />}>
 					<Route path="/adminPage" element={<AdminPage />} />
 					<Route path="/chat" element={<Chat />} />
-					<Route path="/board" element={<BoardListPage />} />
-					<Route path="/board/:id" element={<RegulationPage title="규정 정보" />} />
+					{/* 게시판 라우트 */}
+          <Route path="/board">
+            <Route index element={<BoardListPage />} /> {/* /board */}
+            <Route path=":id" element={<BoardDetailPage />} /> {/* /board/:id */}
+          </Route>
 					<Route path="/tree" element={<TreeView />} />
 				</Route>
 				{/* <Route path="/adminPage" element={<AdminPage />} />
