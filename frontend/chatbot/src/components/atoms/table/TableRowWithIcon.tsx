@@ -14,6 +14,7 @@ interface TableRowWithIconAndButtonProps {
   styleName: string;
   /** 아이콘 click handler */
   onIconClick?: () => void;
+  onRowClick?: () => void;
 }
 
 const TableRowWithIconAndButton: React.FC<TableRowWithIconAndButtonProps> = ({
@@ -23,14 +24,18 @@ const TableRowWithIconAndButton: React.FC<TableRowWithIconAndButtonProps> = ({
   iconPath,
   styleName,
   onIconClick,
+  onRowClick,
 }) => {
-  console.log('*'+ columns)
+  console.log("*" + columns);
 
   return (
-
-    <tr className="text-left bg-white">
+    <tr className="text-left bg-white" onClick={onRowClick}>
       <td className="pl-5 max-w-[6rem]">
-        <ButtonOnlyIcon icon={iconPath} styleName={styleName} onClick={onIconClick} />
+        <ButtonOnlyIcon
+          icon={iconPath}
+          styleName={styleName}
+          onClick={onIconClick}
+        />
       </td>
       {columns.map((column, index) => (
         <td

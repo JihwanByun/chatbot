@@ -2,7 +2,7 @@ import React from "react";
 import TableHeader from "./TableHeader";
 import TableRowWithIcon from "./TableRowWithIcon";
 
-interface TableRowData {
+export interface TableRowData {
   id: number; // 각 행의 고유 ID
   /** 테이블 data 배열 */
   columns: string[];
@@ -17,6 +17,7 @@ interface TableRowWithIconProps {
   width?: string;
   iconPaths: { [key: number]: string }; // 행별 아이콘 경로
   onIconClick: (id: number) => void; // 아이콘 클릭 시 이벤트
+  onRowClick?: (id: number) => void;
 }
 
 const TableWithIconAndButton: React.FC<TableRowWithIconProps> = ({
@@ -25,6 +26,7 @@ const TableWithIconAndButton: React.FC<TableRowWithIconProps> = ({
   width = "auto",
   iconPaths = "정보 변경",
   onIconClick,
+  onRowClick = () => {},
 }) => {
   return (
     <table className="min-w-full border-collapse">
@@ -37,6 +39,7 @@ const TableWithIconAndButton: React.FC<TableRowWithIconProps> = ({
             width={width}
             iconPath={iconPaths[row.id]} // 행별 아이콘 경로
             styleName={"w-4 h-4"}
+            onRowClick={() => onRowClick(row.id)}
             onIconClick={() => onIconClick(row.id)} // 특정 행 ID 전달
           />
         ))}
