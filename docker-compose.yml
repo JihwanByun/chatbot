@@ -52,7 +52,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - SPRING_DATA_REDIS_HOST=${SPRING_DATA_REDIS_HOST}
       - SPRING_DATA_REDIS_PORT=${REDIS_PORT}
-      - SPRING_DATA_MONGODB_URL=mongodb://mongo:${MONGO_PORT}/${MONGO_INITDB_DATABASE}
+      - SPRING_DATA_MONGODB_URL=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo:${MONGO_PORT}/${MONGO_INITDB_DATABASE}?authSource=admin
       - CORS_ORIGIN_DEVELOPMENT=${CORS_ORIGIN_DEVELOPMENT}
       - CORS_ORIGIN_PRODUCTION=${CORS_ORIGIN_PRODUCTION}
       - FILE_UPLOAD_PATH=${FILE_UPLOAD_PATH}
@@ -70,17 +70,17 @@ services:
     networks:
       - sembot-network
 
-  # frontend:
-  #   container_name: sembot-frontend
-  #   build:
-  #     context: ./frontend/chatbot  # 현재 디렉토리에서 빌드 (Dockerfile 위치)
-  #     dockerfile: Dockerfile  # Dockerfile의 경로, 기본값은 'Dockerfile'
-  #   networks:
-  #     - sembot-network
-  #   environment:
-  #     - TZ=Asia/Seoul
-  #   ports:
-  #     - '${FRONTEND_PORT}:${FRONTEND_PORT}'
+  frontend:
+    container_name: sembot-frontend
+    build:
+      context: ./frontend/chatbot  # 현재 디렉토리에서 빌드 (Dockerfile 위치)
+      dockerfile: Dockerfile  # Dockerfile의 경로, 기본값은 'Dockerfile'
+    networks:
+      - sembot-network
+    environment:
+      - TZ=Asia/Seoul
+    ports:
+      - '${FRONTEND_BINDING_PORT}:${FRONTEND_PORT}'
 
 networks:
   sembot-network:

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import SembotLayout from "../SembotLayout"; // SembotLayout 컴포넌트 경로
-import Analystics from "./Analystics";
+import Analystics from "./analystics";
 import MemberManagement from "./MemberManagement";
 import FeedbackManagement from "./FeedbackManagement";
 import CategoryManagement from "./CategoryManagement";
