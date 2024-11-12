@@ -15,22 +15,38 @@ import {
   deleteFavoriteAPI,
 } from "@apis/board/boardFavoriteApi";
 
+/** 테이블 헤더 정의 */
 const tableHeader = ["", "작성자", "제목", "등록일"];
 
-export const favoritePath = "/src/assets/icons/favorite.svg";
-export const favoritedPath = "/src/assets/icons/Favorited.svg";
+/** 즐겨찾기 아이콘 경로 상수 */
+export const favoritePath = "/src/assets/icons/favorite.svg"; // 즐겨찾기 되지 않은 상태 아이콘
+export const favoritedPath = "/src/assets/icons/Favorited.svg"; // 즐겨찾기 된 상태 아이콘
 
+/**
+ * 게시판 목록을 표시
+ * 검색, 페이징, 즐겨찾기 기능
+ * @returns
+ */
 const BoardListContent: React.FC = () => {
-  const [curPage, setCurPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const [tableRows, setTableRows] = useState<TableRowData[]>([]);
-  const [searchCondition, setSearchCondition] = useState<BoardSearchCondition>(
-    {}
-  );
+  // 상태 관리
+  const [curPage, setCurPage] = useState<number>(1); // 현재 페이지
+  const [totalPages, setTotalPages] = useState<number>(1); // 전체 페이지
+  const [tableRows, setTableRows] = useState<TableRowData[]>([]); // 테이블에 표시될 데이터
+  const [searchCondition, setSearchCondition] = useState<BoardSearchCondition>({
+    level: undefined, // 게시글 레벨
+    name: undefined, // 작성자 이름
+    title: undefined, // 게시글 제목
+  });
 
+  // 페이지 이동을 위한 네비게이터
   const navigator = useNavigate();
 
-  // 페이지 정보
+  /**
+   * 페이지네이션 정보 설정
+   * - page: API 요청 시 0부터 시작하므로 현재 페이지에서 1을 뺌
+   * - size: 한 페이지당 표시할 항목 수 (default : 10)
+   * - sort: 정렬 기준 (생성일 기준 내림차순)
+   */
   const pageInfo = useMemo<Pageable>(
     () => ({
       page: curPage - 1,
@@ -41,46 +57,47 @@ const BoardListContent: React.FC = () => {
   );
 
   // 각 행의 아이콘 경로를 저장하는 상태
-  const [iconPaths, setIconPaths] = useState<{ [key: number]: string }>(
-    tableRows.reduce((acc, row) => ({ ...acc, [row.id]: favoritePath }), {})
-  );
-
-  // 아이콘 클릭 시 해당 행의 아이콘 경로만 토글하는 함수
-  const clickEvent = (rowId: number) => {
-    setIconPaths((currentIconPaths) => ({
-      ...currentIconPaths,
-      [rowId]:
-        currentIconPaths[rowId] === favoritePath ? favoritedPath : favoritePath,
-    }));
-  };
+  const [iconPaths, setIconPaths] = useState<{ [key: number]: string }>({});
 
   const fetchBoards = useCallback(async () => {
     try {
+      // 빈 값인 필드는 제외하고 API 요청
+      const cleanedCondition = Object.fromEntries(
+        Object.entries(searchCondition).filter(
+          ([_, value]) => value !== undefined && value !== ""
+        )
+      );
+
+      // API 호출 및 결과 처리
       const boardList: TableResponse | null = await getBoardListAPI(
-        searchCondition,
+        cleanedCondition,
         pageInfo
       );
       if (boardList) {
-        setTableRows(boardList.contents);
-        setIconPaths(boardList.iconPaths);
-        setTotalPages(boardList.totalPages);
+        setTableRows(boardList.contents); // 테이블 데이터 업데이트
+        setIconPaths(boardList.iconPaths); // 즐겨찾기 아이콘 상태 업데이트
+        setTotalPages(boardList.totalPages); // 전체 페이지 수 업데이트
       }
     } catch (error) {
       console.error("Error fetching boards:", error);
     }
   }, [searchCondition, pageInfo]);
 
-  // 검색 조건 변경 처리
+  /**
+   * 검색 조건 변경 처리 함수
+   * - 검색어가 빈 문자열인 경우 undefined로 설정하여 전체 검색되도록 함
+   * - 검색 시 첫 페이지로 이동
+   */
   const handleSearch = useCallback(
     (searchType: string, searchValue: string) => {
       const newCondition: BoardSearchCondition = {};
 
       switch (searchType) {
         case "작성자":
-          newCondition.name = searchValue;
+          newCondition.name = searchValue || undefined;
           break;
         case "제목":
-          newCondition.title = searchValue;
+          newCondition.title = searchValue || undefined;
           break;
       }
 
@@ -90,7 +107,11 @@ const BoardListContent: React.FC = () => {
     []
   );
 
-  // 즐겨찾기 토글 처리 함수
+  /**
+   * 즐겨찾기 토글 처리 함수
+   * - 현재 즐겨찾기 상태를 확인하고 반대 상태로 변경
+   * - API 호출 성공 시 목록을 다시 불러와 화면 갱신
+   */
   const handleFavoriteToggle = useCallback(
     async (rowId: number) => {
       const currentPath = iconPaths[rowId];
@@ -99,9 +120,9 @@ const BoardListContent: React.FC = () => {
       try {
         let success;
         if (isFavorite) {
-          success = await deleteFavoriteAPI(rowId);
+          success = await deleteFavoriteAPI(rowId); // 즐겨찾기 해제
         } else {
-          success = await createFavoriteAPI(rowId);
+          success = await createFavoriteAPI(rowId); // 즐겨찾기 등록
         }
 
         if (success) {
@@ -120,7 +141,10 @@ const BoardListContent: React.FC = () => {
     setCurPage(page);
   }, []);
 
-  // 게시글 상세 페이지 이동
+  /**
+   * 게시글 상세 페이지 이동 함수
+   * - 게시글 ID를 URL 파라미터로 사용
+   */
   const routeBoardDetail = useCallback(
     (rowId: number) => {
       navigator(`/board/${rowId}`);
@@ -139,7 +163,7 @@ const BoardListContent: React.FC = () => {
       <div className="mb-4 flex justify-center mx-5">
         <InputSearch
           onIconClick={handleSearch}
-          searchTypes={["작성자", "제목"]}
+          searchTypes={["제목", "작성자"]}
           placeholder="검색어를 입력하세요"
         />
       </div>

@@ -47,7 +47,7 @@ const InputSearch: React.FC<InputSearchProps> = ({
   };
 
   const handleSearch = () => {
-    if (onIconClick && inputValue.trim()) {
+    if (onIconClick) {
       onIconClick(selectedType, inputValue.trim());
     }
   };
