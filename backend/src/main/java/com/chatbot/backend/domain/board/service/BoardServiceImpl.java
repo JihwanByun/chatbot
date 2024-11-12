@@ -77,7 +77,7 @@ public class BoardServiceImpl implements BoardService {
 		// Regulation 생성 (규정 정보가 있을 경우에만)
 		RegulationResponseDto regulationResponseDto = null;
 		if (boardCreateRequestDto.regulationRequest() != null) {
-			regulationResponseDto = regulationService.createRegulation(board.getId(),
+			regulationResponseDto = regulationService.createRegulation(board.getId(), board.getLevel(),
 				boardCreateRequestDto.regulationRequest());
 		}
 
@@ -173,7 +173,9 @@ public class BoardServiceImpl implements BoardService {
 	@Transactional(readOnly = true)
 	public Page<BoardBaseResponseDto> getBoardList(Long userId, BoardSearchCondition boardSearchCondition,
 		Pageable pageable) {
-		return boardRepository.findAllByConditions(userId, boardSearchCondition, pageable)
-			.map(BoardBaseResponseDto::of);
+		return boardRepository.findAllByConditions(userId, boardSearchCondition, pageable).map((board -> {
+			BoardLike boardLike = boardLikeRepository.findByBoardIdAndUserId(board.getId(), userId).orElse(null);
+			return BoardBaseResponseDto.of(board, boardLike);
+		}));
 	}
 }

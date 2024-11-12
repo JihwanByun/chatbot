@@ -1,10 +1,10 @@
 export type ButtonProps = {
 	icon: string;
 	styleName?: string;
-	width?: number;
+	width?: number | string;
 	// TODO
 	onClick?: () => void;
-	disabled: boolean;
+	disabled?: boolean;
 };
 
 

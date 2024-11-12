@@ -5,21 +5,25 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 export interface ButtonProps {
-	btnName: string;
-	styleName: string;
-	icon: string;
-	handleClick?: () => void;
-	isActive?: boolean;
-	isFooter?: boolean;
+  btnName: string;
+  styleName: string;
+  icon: string;
+  handleClick?: () => void;
+  isActive?: boolean;
+  isFooter?: boolean;
+  iconStyleName?: string;
+  handleIconClick?: () => void;
 }
 
 const ButtonWithIcon: React.FC<ButtonProps> = ({
-	btnName,
-	styleName,
-	icon,
-	handleClick,
-	isActive,
-	isFooter,
+  btnName,
+  styleName,
+  icon,
+  handleClick,
+  isActive,
+  isFooter,
+  iconStyleName,
+  handleIconClick = () => {},
 }) => {
 	const dispatch = useAppDispatch();
 
@@ -57,7 +61,15 @@ const ButtonWithIcon: React.FC<ButtonProps> = ({
 		>
 			<div className="flex">
 				<div className="w-1"></div>
-				<img width="15rem" src={icon}></img>
+				<img
+					width="15rem"
+					src={icon}
+					onClick={(e) => {
+						e.stopPropagation();
+						handleIconClick();
+					}}
+					className={`mr-2 ${iconStyleName}`}
+				></img>
 				<div className="w-2"></div>
 				<div>{btnName}</div>
 			</div>

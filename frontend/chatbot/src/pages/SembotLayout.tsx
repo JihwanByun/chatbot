@@ -10,6 +10,9 @@ export interface SembotLayoutProps {
   hideHeader?: boolean;
   sidebarComponents?: React.ComponentProps<typeof ButtonWithIcon>[];
   footerComponents?: React.ComponentProps<typeof ButtonWithIcon>[];
+  hasMore?: boolean;
+  onLoadMore?: () => void;
+  isLoading?: boolean;
 }
 
 const SembotLayout: React.FC<SembotLayoutProps> = ({
@@ -41,6 +44,9 @@ const SembotLayout: React.FC<SembotLayoutProps> = ({
       icon: "/src/assets/icons/plus.svg",
     },
   ],
+  hasMore,
+  onLoadMore,
+  isLoading,
 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -102,6 +108,9 @@ const SembotLayout: React.FC<SembotLayoutProps> = ({
           components={sidebarComponents}
           footerComponents={footerComponents}
           isRule={isRule}
+          hasMore={hasMore}
+          onLoadMore={onLoadMore}
+          isLoading={isLoading}
         />
       </div>
       
