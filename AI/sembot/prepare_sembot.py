@@ -21,7 +21,10 @@ class SembotDocs:
         self.vector_store = get_vectorestore_by_FAISS(
             vectorstore_path, file_dir_path, file_type
         )
-        self.retriever = self.vector_store.as_retriever()
+        self.retriever = self.vector_store.as_retriever(
+            search_type="similarity_score_threshold",
+            search_kwargs={"score_threshold": 0.7},
+        )
 
     def _init_prompt(self):
         prompt = []
@@ -209,7 +212,7 @@ if __name__ == "__main__":
                 "answer": "안녕하세요! 연차는 다음과 같은 절차를 따르면 신청할 수 있습니다.",
             },
         ],
-        "question": "지원자 중에 정부 기관에 해킹 방어 대회 수상자가 있는데 가점을 받을 수 있나요?",
+        "question": "국외출장시 여비이외에 그 수속에 필요한 서류를 알려주세요",
     }
 
     file_dir_path = r"../kisa_json/"
