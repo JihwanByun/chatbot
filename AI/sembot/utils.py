@@ -71,16 +71,13 @@ def file_splitter(file_dir_path: str, file_type: str):
         chunk_overlap=32,  # 청크 간 중복되는 문자 수
     )
 
-    documents = []
     for file in files:
         if file_type == "pdf":
             loader = PDFPlumberLoader(file)
             documents = loader.load()  # PDF 문서를 로드합니다
 
         elif file_type == "json":
-            new_data = make_data_for_vectorDB(file)
-
-            documents += new_data
+            documents = make_data_for_vectorDB(file)           
 
         chunked_documents = text_splitter.split_documents(documents)
         all_documents.extend(chunked_documents)
