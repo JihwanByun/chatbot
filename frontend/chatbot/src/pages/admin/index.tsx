@@ -4,7 +4,7 @@ import Analystics from "./analystics";
 import MemberManagement from "./MemberManagement";
 import FeedbackManagement from "./FeedbackManagement";
 import CategoryManagement from "./CategoryManagement";
-import BoardList from "@pages/board/BoardListContent";
+import BoardList from "@pages/board";
 
 const SembotPage: React.FC = () => {
 	const [activeButton, setActiveButton] = useState<string>("회원 관리");
