@@ -29,13 +29,13 @@ public class RegulationServiceImpl implements RegulationService {
 	 * @return
 	 */
 	@Override
-	public RegulationResponseDto createRegulation(Long boardId, Integer level,
+	public RegulationResponseDto createRegulation(Long boardId, String title, Integer level,
 		RegulationRequestDto regulationRequestDto) {
 		// Board 존재 여부 확인
 		boardRepository.existsByIdOrElseThrow(boardId);
 
 		// 규정 생성 및 저장
-		Regulation regulation = regulationRequestDto.toDocument(boardId, level);
+		Regulation regulation = regulationRequestDto.toDocument(boardId, title, level);
 		regulationRepository.save(regulation);
 		return RegulationResponseDto.of(regulation);
 	}
@@ -48,7 +48,7 @@ public class RegulationServiceImpl implements RegulationService {
 	 * @return
 	 */
 	@Override
-	public RegulationResponseDto updateRegulation(Long boardId, RegulationRequestDto regulationRequestDto) {
+	public RegulationResponseDto updateRegulation(Long boardId, String title, Integer level, RegulationRequestDto regulationRequestDto) {
 		// Board 존재 여부 확인
 		boardRepository.existsByIdOrElseThrow(boardId);
 
@@ -56,7 +56,7 @@ public class RegulationServiceImpl implements RegulationService {
 		Regulation regulation = regulationRepository.findByBoardIdOrElseThrow(boardId);
 
 		// 규정 업데이트 및 저장
-		regulation.updateRegulation(regulationRequestDto.itemList().stream()
+		regulation.updateRegulation(title, level, regulationRequestDto.itemList().stream()
 			.map(RegulationItemRequestDto::toDocument)
 			.toList());
 		regulationRepository.save(regulation);
