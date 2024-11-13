@@ -88,7 +88,9 @@ public enum ErrorCode {
 
 	// 비고 관련 오류
 	REMARK_ALREADY_DELETED(400, "REMARK_ALREADY_DELETED", "이미 삭제된 비고입니다."),
-	REMARK_NOT_FOUND(404, "REMARK_NOT_FOUND", "비고를 찾을 수 없습니다");
+	REMARK_NOT_FOUND(404, "REMARK_NOT_FOUND", "비고를 찾을 수 없습니다"),
+
+	BOARD_NOTIFICATION_FAIL(500, "BOARD_NOTIFICATION_FAIL", "게시판 알림에 실패했습니다.");
 
 	private final int httpStatus;
 	private final String code;
