@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.chatbot.backend.domain.user.dto.request.LoginRequestDto;
 import com.chatbot.backend.domain.user.dto.request.SignupRequestDto;
-import com.chatbot.backend.domain.user.exception.EmptyEmailException;
 import com.chatbot.backend.domain.user.service.UserService;
 import com.chatbot.backend.global.jwt.Role;
 
@@ -55,10 +54,6 @@ public class UserController {
 
 	@GetMapping
 	public ResponseEntity<Boolean> isDuplicate(@RequestParam("email") String email) {
-
-		if (email == null) {
-			throw new EmptyEmailException();
-		}
 
 		return ResponseEntity.ok().body(userService.isDuplicate(email));
 	}

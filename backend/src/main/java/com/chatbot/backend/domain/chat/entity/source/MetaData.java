@@ -9,4 +9,5 @@ public class MetaData {
 	private int page;
 	private String category;
 	private int id;
+	private int level;
 }
