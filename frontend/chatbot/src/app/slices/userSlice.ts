@@ -9,12 +9,20 @@ import defaultAxios from "@apis/common";
 
 interface UserState {
 	role: string | null;
+	name: string;
+	employeeNum: string;
+	department: string;
+	level: number;
 	loading: boolean;
 	error: string | null;
 }
 
 const initialState: UserState = {
 	role: null,
+	name: "",
+	employeeNum: "",
+	department: "",
+	level: 0,
 	loading: false,
 	error: null,
 };
@@ -42,14 +50,8 @@ export const loginUser = createAsyncThunk(
 			// login API 호출
 			const response = await loginAPI(loginData);
 
-			const { token, role } = response.data;
-
-			// 인증 토큰 설정
-			localStorage.setItem("Authorization", token);
-			localStorage.setItem("Role", role);
-
-			// role과 token 반환
-			return { role };
+			// user 정보 반환
+			return response.data;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
 				return rejectWithValue(error.response.data);
@@ -62,7 +64,7 @@ export const loginUser = createAsyncThunk(
 // 로그아웃 요청
 export const logoutUser = createAsyncThunk(
 	"user/logoutUser",
-	async (_, { rejectWithValue }) => {
+	async (_ : void, { rejectWithValue }) => {
 		try {
 			console.log("로그아웃 요청 시작");
 			await defaultAxios.post(
@@ -102,16 +104,24 @@ const userSlice = createSlice({
 					state,
 					action: PayloadAction<{
 						role: string;
+						name: string;
+						employeeNum: string;
+						department: string;
+						level: number;
 					}>
 				) => {
 					console.log("Fulfilled Action Payload:", action.payload);
 					state.loading = false;
 					state.role = action.payload.role;
+					state.name = action.payload.name;
+					state.employeeNum = action.payload.employeeNum;
+					state.department = action.payload.department;
+					state.level = action.payload.level;
 				}
 			)
-			.addCase(loginUser.rejected, (state, action: PayloadAction<any>) => {
+			.addCase(loginUser.rejected, (state, action) => {
 				state.loading = false;
-				state.error = action.payload?.message || "로그인 실패";
+				state.error = action.error.message || "로그인 실패";
 			})
 			.addCase(updateUser.pending, (state) => {
 				state.loading = true;
@@ -120,9 +130,9 @@ const userSlice = createSlice({
 			.addCase(updateUser.fulfilled, (state) => {
 				state.loading = false;
 			})
-			.addCase(updateUser.rejected, (state, action: PayloadAction<any>) => {
+			.addCase(updateUser.rejected, (state, action) => {
 				state.loading = false;
-				state.error = action.payload?.message || "업데이트 실패";
+				state.error = action.error.message || "업데이트 실패";
 			})
 			.addCase(logoutUser.pending, (state) => {
 				state.loading = true;
@@ -131,10 +141,14 @@ const userSlice = createSlice({
 			.addCase(logoutUser.fulfilled, (state) => {
 				state.loading = false;
 				state.role = null; // 로그아웃 시 role 초기화
+				state.name = "";
+				state.employeeNum = "";
+				state.department = "";
+				state.level = 0;
 			})
-			.addCase(logoutUser.rejected, (state, action: PayloadAction<any>) => {
+			.addCase(logoutUser.rejected, (state, action) => {
 				state.loading = false;
-				state.error = action.payload?.message || "로그아웃 실패";
+				state.error = action.error.message || "로그아웃 실패";
 			});
 	},
 });

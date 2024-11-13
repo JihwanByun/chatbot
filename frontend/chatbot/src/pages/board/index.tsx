@@ -20,9 +20,10 @@ import {
   createFavoriteAPI,
   deleteFavoriteAPI,
 } from "@apis/board/boardFavoriteApi";
-import { ButtonWithIconProps } from "@components/atoms/button/ButtonWithIcon";
+import { ButtonProps as ButtonWithIconProps } from "@components/atoms/button/ButtonWithIcon";
 import ButtonPrimary from "@components/atoms/button/ButtonPrimary";
 import dayjs from "dayjs";
+import { logoutUser } from "@app/slices/userSlice";
 
 /** 즐겨찾기 아이콘 경로 상수 */
 export const favoritePath = "/src/assets/icons/favorite.svg"; // 즐겨찾기 되지 않은 상태 아이콘
@@ -210,9 +211,9 @@ const BoardListPage: React.FC = () => {
       btnName: "로그아웃",
       styleName: footStyle,
       icon: "/src/assets/icons/logout.svg",
-      handleClick: () => {
-        localStorage.removeItem("Authorization");
-        navigate("/login");
+      handleClick: async () => {
+        await dispatch(logoutUser());
+        navigate("/");
       },
     },
   ];

@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RegulationResponse, RegulationItem } from "@apis/board/boardDetailApi";
-import defaultAxios from "@apis/common";
 import { createBoard, updateBoard } from "@apis/board/boardApi";
 
 export interface TreeNode {
@@ -193,6 +192,7 @@ const treeSlice = createSlice({
 		cancelEdit: (state) => {
 			state.editNodeId = null;
 			state.editNodeData = null;
+			state.isRevisionMode = false;
 		},
 		setTreeData: (state, action: PayloadAction<RegulationResponse | null>) => {
 			if (!action.payload) {

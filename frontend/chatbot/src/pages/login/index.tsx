@@ -21,18 +21,16 @@ const LoginForm: React.FC = () => {
 		dispatch(loginUser(formData)); // loginUser thunk를 dispatch하여 로그인 요청
 	};
 
-	useEffect(() => {
-		console.log(role);
-		if (role) {
-			if (role == "관리자") {
-				console.log(role);
-				navigate("/adminPage");
-			} else {
-				console.log(role);
-				navigate("/chat");
-			}
-		}
-	}, [role]);
+  useEffect(() => {
+    // role이 존재하고 빈 문자열이 아닐 때만 navigate
+    if (role) {
+      if (role === "관리자") {
+        navigate("/adminPage", { replace: true });  // replace 옵션 추가
+      } else {
+        navigate("/chat", { replace: true });
+      }
+    }
+  }, [role, navigate]);
 
 	const handleSignUpClick = () => {
 		navigate("/register");

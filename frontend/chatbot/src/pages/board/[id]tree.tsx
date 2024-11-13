@@ -28,6 +28,7 @@ import {
   fetchFavoriteBoards,
   updateFavoriteStatus,
 } from "@app/slices/favoriteBoardsSlice";
+import { logoutUser } from "@app/slices/userSlice";
 
 interface BoardParams {
   id: string;
@@ -167,63 +168,63 @@ const BoardDetailPage: React.FC = () => {
   }, [fetchBoardDetail]);
 
   const getChildren = () => (
-    <div className="bg-white rounded-lg px-6 space-y-6 text-left">
-      {/* 상단 버튼 영역 */}
-      <div className="flex items-center space-x-4">
-        <ButtonOnlyIcon
-          key="move-prev-board"
-          icon="/src/assets/icons/go-to-prev.svg"
-          styleName="p-2 hover:bg-gray-100 rounded"
-          onClick={() => navigate(-1)}
-        />
-        <ButtonOnlyIcon
-          key="favorite"
-          icon={
-            boardDetail?.isFavorite
-              ? "/src/assets/icons/favorited.svg"
-              : "/src/assets/icons/favorite.svg"
-          }
-          width="20rem"
-          styleName="p-2 hover:bg-gray-100 rounded"
-          onClick={handleFavoriteToggle}
-        />
-        {role === "일반 사용자 작성자" ? (
-          !isRevisionMode ? (
-            <ButtonOnlyIcon
-              key="edit"
-              icon="../src/assets/icons/pen.svg"
-              styleName="p-2 hover:bg-gray-100 rounded ml-4"
-              width="20rem"
-              onClick={toggleRevisionMode}
-            />
-          ) : (
-            <div className="flex">
-              <ButtonOnlyIcon
-                key="save"
-                icon="../src/assets/icons/save.svg"
-                styleName="p-2 hover:bg-gray-100 rounded"
-                width="20rem"
-                onClick={saveTree}
-              />
-              <ButtonOnlyIcon
-                key="discard"
-                icon="../src/assets/icons/x-circle.svg"
-                styleName="p-2 hover:bg-gray-100 rounded ml-2"
-                width="20rem"
-                onClick={discardEdit}
-              />
-            </div>
-          )
-        ) : null}
-      </div>
-
+    <div className="bg-white rounded-lg px-6 py-2 space-y-6 text-left">
       {/* 게시글 헤더 */}
       <div className="space-y-4">
-        <div className="flex items-start gap-4">
+        <div className="flex items-center gap-4 relative">
           <h1 className="text-xl font-semibold">{boardDetail?.title}</h1>
           <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 whitespace-nowrap">
             답변 레벨 : {boardDetail?.level}
           </span>
+          {/* 상단 버튼 영역 */}
+          <div className="absolute flex items-end space-x-1 right-0">
+            {/* <ButtonOnlyIcon
+              key="move-prev-board"
+              icon="/src/assets/icons/go-to-prev.svg"
+              width={18}
+              styleName="p-2 hover:bg-gray-100 rounded"
+              onClick={() => navigate(-1)}
+            /> */}
+            {role === "일반 사용자 작성자" ? (
+              !isRevisionMode ? (
+                <ButtonOnlyIcon
+                  key="edit"
+                  icon="/src/assets/icons/pen.svg"
+                  styleName="p-2 hover:bg-gray-100 rounded"
+                  width={18}
+                  onClick={toggleRevisionMode}
+                />
+              ) : (
+                <div className="flex">
+                  <ButtonOnlyIcon
+                    key="save"
+                    icon="/src/assets/icons/save.svg"
+                    styleName="p-2 hover:bg-gray-100 rounded"
+                    width={18}
+                    onClick={saveTree}
+                  />
+                  <ButtonOnlyIcon
+                    key="discard"
+                    icon="/src/assets/icons/x-circle-black.svg"
+                    styleName="p-2 hover:bg-gray-100 rounded"
+                    width={18}
+                    onClick={discardEdit}
+                  />
+                </div>
+              )
+            ) : null}
+            <ButtonOnlyIcon
+              key="favorite"
+              icon={
+                boardDetail?.isFavorite
+                  ? "/src/assets/icons/favorited.svg"
+                  : "/src/assets/icons/favorite.svg"
+              }
+              width={18}
+              styleName="p-2 hover:bg-gray-100 rounded"
+              onClick={handleFavoriteToggle}
+            />
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -317,11 +318,18 @@ const BoardDetailPage: React.FC = () => {
       btnName: "채팅",
       styleName: footStyle,
       icon: "/src/assets/icons/chatting-icon.svg",
+      handleClick: () => {
+        navigate("/chat");
+      },
     },
     {
       btnName: "로그아웃",
       styleName: footStyle,
       icon: "/src/assets/icons/logout.svg",
+      handleClick: async () => {
+        await dispatch(logoutUser());
+        navigate("/");
+      },
     },
   ];
 
