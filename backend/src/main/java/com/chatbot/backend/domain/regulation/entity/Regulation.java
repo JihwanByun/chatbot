@@ -20,13 +20,15 @@ import lombok.ToString;
 public class Regulation extends BaseTimeDocument {
 	@Id
 	private String id;
+	private String title;
 	private Integer level;
 	private Long boardId;
 	private List<RegulationItem> itemList;
 
 	@Builder
-	public Regulation(Long boardId, Integer level, List<RegulationItem> itemList) {
+	public Regulation(Long boardId, String title, Integer level, List<RegulationItem> itemList) {
 		validateItemList(itemList);
+		this.title = title;
 		this.boardId = boardId;
 		this.level = level;
 		this.itemList = itemList;
@@ -34,8 +36,10 @@ public class Regulation extends BaseTimeDocument {
 
 	//== 비즈니스 로직 ==//
 	// 규정 업데이트
-	public void updateRegulation(List<RegulationItem> itemList) {
+	public void updateRegulation(String title, Integer level, List<RegulationItem> itemList) {
 		validateItemList(itemList);
+		this.title = title == null ? this.title : title;
+		this.level = level == null ? this.level : level;
 		this.itemList = itemList;
 	}
 

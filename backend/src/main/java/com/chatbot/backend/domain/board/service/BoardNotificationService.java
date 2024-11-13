@@ -31,22 +31,28 @@ public class BoardNotificationService {
 
 	private Mono<Void> createBoardNotification(MultipartFile file, Integer level) {
 		try {
-			byte[] fileContent = file.getBytes();
 			MultipartBodyBuilder builder = new MultipartBodyBuilder();
 
-			builder.part("file", new ByteArrayResource(fileContent) {
-				@Override
-				public String getFilename() {
-					return file.getOriginalFilename();
-				}
+			// 파일이 null이 아닌 경우에만 파일 추가
+			if (file != null && !file.isEmpty()) {
+				byte[] fileContent = file.getBytes();
+				builder.part("file", new ByteArrayResource(fileContent) {
+					@Override
+					public String getFilename() {
+						return file.getOriginalFilename();
+					}
 
-				@Override
-				public long contentLength() {
-					return fileContent.length;
-				}
-			}).filename(file.getOriginalFilename());
+					@Override
+					public long contentLength() {
+						return fileContent.length;
+					}
+				}).filename(file.getOriginalFilename());
+			}
 
-			builder.part("level", String.valueOf(level));
+			// 레벨이 null이 아닌 경우에만 레벨 추가
+			if (level != null) {
+				builder.part("level", String.valueOf(level));
+			}
 
 			return webClient
 				.post()
