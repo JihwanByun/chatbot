@@ -1,6 +1,4 @@
 import  defaultAxios  from "@apis/common"
-import { categoryDTO } from "@pages/admin/categoryDTO";
-
 
 export const addCategory = async (name: string) => {
     try {

@@ -73,14 +73,30 @@ const convertToMemoryArray = (qnas : QnA[]) : Memory[] => {
   return qnas.map(convertToMemory);
 }
 
-export const generateAPI = async (qnas: QnA[], question: string): Promise<Response> => {
-  return await fetch(`${AI_URL}/generate`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ memory: convertToMemoryArray(qnas), question })
-  });
+export const generateAPI = async (qnas: QnA[], question: string, timeout = 5000): Promise<Response> => {
+  
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+
+  try{
+    const response = await fetch(`${AI_URL}/generate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ memory: convertToMemoryArray(qnas), question }),
+      signal: controller.signal
+    });
+    clearTimeout(id);
+    
+  return response;
+  } catch (error){
+    if(error === "AbortError"){
+      throw new Error("요청에 실패했습니다.");
+    }
+    throw error;
+  }
+
 };
 
 //===== Backend API =====//
