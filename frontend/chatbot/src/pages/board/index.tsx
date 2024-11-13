@@ -21,6 +21,8 @@ import {
   deleteFavoriteAPI,
 } from "@apis/board/boardFavoriteApi";
 import { ButtonWithIconProps } from "@components/atoms/button/ButtonWithIcon";
+import ButtonPrimary from "@components/atoms/button/ButtonPrimary";
+import dayjs from "dayjs";
 
 /** 즐겨찾기 아이콘 경로 상수 */
 export const favoritePath = "/src/assets/icons/favorite.svg"; // 즐겨찾기 되지 않은 상태 아이콘
@@ -48,6 +50,7 @@ const BoardListPage: React.FC = () => {
     name: undefined,
     title: undefined,
   });
+  const [role, setRole] = useState<string | null>("");
 
   // 스타일 정의
   const footStyle =
@@ -55,7 +58,12 @@ const BoardListPage: React.FC = () => {
   const boardButtonStyle =
     "flex bg-transparent border border-white text-white py-2 px-4 rounded mx-1 hover:bg-blue-900 transition-colors duration-100 ease-in-out";
 
-  // 페이지네이션 정보
+  /**
+   * 페이지네이션 정보 설정
+   * - page: API 요청 시 0부터 시작하므로 현재 페이지에서 1을 뺌
+   * - size: 한 페이지당 표시할 항목 수 (default : 10)
+   * - sort: 정렬 기준 (생성일 기준 내림차순)
+   */
   const pageInfo = useMemo<Pageable>(
     () => ({
       page: curPage - 1,
@@ -64,6 +72,12 @@ const BoardListPage: React.FC = () => {
     }),
     [curPage]
   );
+
+  // Role 확인
+  useEffect(() => {
+    const storedRole = localStorage.getItem("Role");
+    if (storedRole) setRole(storedRole);
+  }, []);
 
   // 게시글 목록 조회
   const fetchBoards = useCallback(async () => {
@@ -78,8 +92,19 @@ const BoardListPage: React.FC = () => {
         cleanedCondition,
         pageInfo
       );
+      if (boardList == null) return;
       if (boardList) {
-        setTableRows(boardList.contents);
+        // 날짜 포맷팅이 적용된 데이터로 변환
+        const formattedRows = boardList.contents.map((row) => ({
+          ...row,
+          columns: [
+            row.columns[0], // 첫 번째 열
+            row.columns[1], // 두 번째 열
+            formatDate(row.columns[2]), // 세 번째 열 (날짜)
+          ],
+        }));
+
+        setTableRows(formattedRows);
         setIconPaths(boardList.iconPaths);
         setTotalPages(boardList.totalPages);
       }
@@ -88,7 +113,11 @@ const BoardListPage: React.FC = () => {
     }
   }, [searchCondition, pageInfo]);
 
-  // 즐겨찾기 토글 처리
+  /**
+   * 즐겨찾기 토글 처리 함수
+   * - 현재 즐겨찾기 상태를 확인하고 반대 상태로 변경
+   * - API 호출 성공 시 목록을 다시 불러와 화면 갱신
+   */
   const handleFavoriteToggle = useCallback(
     async (rowId: number) => {
       const currentPath = iconPaths[rowId];
@@ -131,7 +160,11 @@ const BoardListPage: React.FC = () => {
     [iconPaths, tableRows, dispatch]
   );
 
-  // 검색 처리
+  /**
+   * 검색 조건 변경 처리 함수
+   * - 검색어가 빈 문자열인 경우 undefined로 설정하여 전체 검색되도록 함
+   * - 검색 시 첫 페이지로 이동
+   */
   const handleSearch = useCallback(
     (searchType: string, searchValue: string) => {
       const newCondition: BoardSearchCondition = {};
@@ -144,7 +177,7 @@ const BoardListPage: React.FC = () => {
           break;
       }
       setSearchCondition(newCondition);
-      setCurPage(1);
+      setCurPage(1); // 검색 시 첫 페이지로 이동
     },
     []
   );
@@ -160,6 +193,10 @@ const BoardListPage: React.FC = () => {
   const handlePageChange = useCallback((page: number) => {
     setCurPage(page);
   }, []);
+
+  const handleClickWrite = () => {
+    navigate("/treecreate");
+  };
 
   // 컴포넌트 구성
   const footerComponents: ButtonWithIconProps[] = [
@@ -184,13 +221,13 @@ const BoardListPage: React.FC = () => {
     {
       btnName: "규정목록",
       styleName: boardButtonStyle,
-      icon: "/src/assets/icons/book-open-text.svg",
+      icon: "/src/assets/icons/book-open-text-footer.svg",
       handleClick: () => navigate("/board"),
     },
     ...favorites.map((favorite) => ({
       btnName: favorite.title,
       styleName: boardButtonStyle,
-      icon: "/src/assets/icons/book-open-text.svg",
+      icon: "/src/assets/icons/book-open-text-footer.svg",
       handleClick: () => navigate(`/board/${favorite.boardId}`),
     })),
   ];
@@ -206,8 +243,25 @@ const BoardListPage: React.FC = () => {
     fetchBoards();
   }, [fetchBoards]);
 
+  // 날짜 포맷팅 함수
+  const formatDate = (dateString: string): string => {
+    const today = dayjs();
+    const targetDate = dayjs(dateString);
+
+    if (targetDate.isSame(today, "day")) {
+      return targetDate.format("오늘 HH:mm");
+    }
+
+    if (targetDate.isSame(today, "year")) {
+      return targetDate.format("MM/DD HH:mm");
+    }
+
+    return targetDate.format("YY/MM/DD");
+  };
+
   const boardListContent = (
     <>
+      {/* 검색 입력란 */}
       <div className="mb-4 flex justify-center mx-5">
         <InputSearch
           onIconClick={handleSearch}
@@ -216,6 +270,7 @@ const BoardListPage: React.FC = () => {
         />
       </div>
 
+      {/* 게시글 영역 */}
       <div className="mb-4">
         <TableWithIconAndButton
           columns={tableHeader}
@@ -226,6 +281,7 @@ const BoardListPage: React.FC = () => {
         />
       </div>
 
+      {/* 페이지 번호 영역 */}
       <div className="flex justify-center">
         <div className="absolute bottom-5 mt-4">
           <Paging
@@ -235,6 +291,19 @@ const BoardListPage: React.FC = () => {
           />
         </div>
       </div>
+
+      {/*글 쓰기 버튼*/}
+      {role === "일반 사용자 작성자" ? (
+        <div className="absolute top-5 right-[150px]">
+          <ButtonPrimary
+            btnName="규정 글 쓰기"
+            styleName="bg-blue-100"
+            handleClick={handleClickWrite}
+          />
+        </div>
+      ) : (
+        <></>
+      )}
     </>
   );
 

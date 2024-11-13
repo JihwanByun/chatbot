@@ -114,7 +114,7 @@ const Chat: React.FC = () => {
 			-1,
 			"규정 확인하기",
 			footStyle,
-			"/src/assets/icons/book-open-text.svg",
+			"/src/assets/icons/book-open-text-footer.svg",
 			() => navigate("/board")
 		),
 		createChatroomButton(
