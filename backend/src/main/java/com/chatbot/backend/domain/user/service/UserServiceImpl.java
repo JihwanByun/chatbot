@@ -11,8 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.chatbot.backend.domain.user.dto.request.LoginRequestDto;
 import com.chatbot.backend.domain.user.dto.request.SignupRequestDto;
+import com.chatbot.backend.domain.user.dto.response.LoginResponseDto;
 import com.chatbot.backend.domain.user.entity.User;
 import com.chatbot.backend.domain.user.exception.DuplicateEmailException;
+import com.chatbot.backend.domain.user.exception.EmptyEmailException;
 import com.chatbot.backend.domain.user.exception.NotLoginException;
 import com.chatbot.backend.domain.user.repository.UserRepository;
 import com.chatbot.backend.global.jwt.JwtProvider;
@@ -31,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService {
-
+	private final static String BEARER_TOKEN = "Bearer ";
 	private final UserRepository userRepository;
 	private final JwtProvider jwtProvider;
 	@Value("${jwt.refresh_token_expiration}")
@@ -61,7 +63,7 @@ public class UserServiceImpl implements UserService {
 
 	@Transactional
 	@Override
-	public Role login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
+	public LoginResponseDto login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
 
 		// 이메일로 찾았는데 없으면 던지기
 		User loginUser = userRepository.findByEmailOrElseThrow(loginRequestDto.getEmail());
@@ -77,7 +79,7 @@ public class UserServiceImpl implements UserService {
 		String refreshToken = jwtProvider.createRefreshToken(loginUser.getId(), loginRequestDto.getEmail());
 
 		// accessToken 헤더에 저장
-		response.setHeader("Authorization", "Bearer " + accessToken);
+		response.setHeader("Authorization", BEARER_TOKEN + accessToken);
 
 		// refreshToken 쿠키와 redis에 저장
 		Cookie cookie = new Cookie("refreshToken", refreshToken);
@@ -88,7 +90,7 @@ public class UserServiceImpl implements UserService {
 		String redisKey = loginUser.getEmail();
 		redisTemplate.opsForValue().set(redisKey, refreshToken);
 
-		return role;
+		return LoginResponseDto.of(BEARER_TOKEN + accessToken, loginUser);
 	}
 
 	@Override
@@ -178,6 +180,11 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public boolean isDuplicate(String email) {
+
+		if (email.isEmpty()) {
+			throw new EmptyEmailException();
+		}
+
 		Optional<User> user = userRepository.findUserByEmail(email);
 		return user.isPresent();
 	}

@@ -75,8 +75,7 @@ const SignUpForm: React.FC = () => {
     }
   };
 
-  const handleEmailCheck = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleEmailCheck = async () => {
 
     const formData: emailDTO = { email };
 
@@ -174,7 +173,7 @@ const SignUpForm: React.FC = () => {
                                         : "bg-[#004F9F] hover:bg-blue-700 text-white"
                                     }`}
                 handleClick={handleEmailCheck}
-                disabled={isEmailChecked}
+                isDisabled={isEmailChecked}
               />
             </div>
           </div>

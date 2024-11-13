@@ -1,5 +1,8 @@
 package com.chatbot.backend.domain.chat.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +14,7 @@ import com.chatbot.backend.domain.chat.dto.response.CreateChatFeedBackResponseDt
 import com.chatbot.backend.domain.chat.dto.response.CreateChatResponseDto;
 import com.chatbot.backend.domain.chat.entity.Chat;
 import com.chatbot.backend.domain.chat.entity.ChatFeedBack;
+import com.chatbot.backend.domain.chat.entity.source.Doc;
 import com.chatbot.backend.domain.chat.entity.source.Memory;
 import com.chatbot.backend.domain.chat.exception.FeedBackContradictionException;
 import com.chatbot.backend.domain.chat.repository.MongoChatFeedBackRepository;
@@ -30,6 +34,8 @@ public class ChatServiceImpl implements ChatService {
 
 	@Override
 	public CreateChatResponseDto createChat(CreateChatRequestDto createChatRequestDto) {
+
+		List<Doc> docs = new ArrayList<>();
 
 		Memory memory = new Memory(createChatRequestDto.getMemory());
 
