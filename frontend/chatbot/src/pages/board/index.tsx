@@ -22,6 +22,7 @@ import {
 } from "@apis/board/boardFavoriteApi";
 import { ButtonWithIconProps } from "@components/atoms/button/ButtonWithIcon";
 import ButtonPrimary from "@components/atoms/button/ButtonPrimary";
+import dayjs from "dayjs";
 
 /** 즐겨찾기 아이콘 경로 상수 */
 export const favoritePath = "/src/assets/icons/favorite.svg"; // 즐겨찾기 되지 않은 상태 아이콘
@@ -91,8 +92,19 @@ const BoardListPage: React.FC = () => {
         cleanedCondition,
         pageInfo
       );
+      if (boardList == null) return;
       if (boardList) {
-        setTableRows(boardList.contents);
+        // 날짜 포맷팅이 적용된 데이터로 변환
+        const formattedRows = boardList.contents.map((row) => ({
+          ...row,
+          columns: [
+            row.columns[0], // 첫 번째 열
+            row.columns[1], // 두 번째 열
+            formatDate(row.columns[2]), // 세 번째 열 (날짜)
+          ],
+        }));
+
+        setTableRows(formattedRows);
         setIconPaths(boardList.iconPaths);
         setTotalPages(boardList.totalPages);
       }
@@ -230,6 +242,22 @@ const BoardListPage: React.FC = () => {
   useEffect(() => {
     fetchBoards();
   }, [fetchBoards]);
+
+  // 날짜 포맷팅 함수
+  const formatDate = (dateString: string): string => {
+    const today = dayjs();
+    const targetDate = dayjs(dateString);
+
+    if (targetDate.isSame(today, "day")) {
+      return targetDate.format("오늘 HH:mm");
+    }
+
+    if (targetDate.isSame(today, "year")) {
+      return targetDate.format("MM/DD HH:mm");
+    }
+
+    return targetDate.format("YY/MM/DD");
+  };
 
   const boardListContent = (
     <>
