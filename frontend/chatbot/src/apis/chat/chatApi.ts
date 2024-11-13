@@ -73,7 +73,7 @@ const convertToMemoryArray = (qnas : QnA[]) : Memory[] => {
   return qnas.map(convertToMemory);
 }
 
-export const generateAPI = async (qnas: QnA[], question: string, timeout = 5000): Promise<Response> => {
+export const generateAPI = async (qnas: QnA[], question: string, timeout = 30000): Promise<Response> => {
   
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
