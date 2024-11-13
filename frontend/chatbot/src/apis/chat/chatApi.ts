@@ -5,13 +5,14 @@ import { AI_URL } from "@configs/config";
 
 //===== AI API =====//
 type SearchDocResponse = {
-  docs : DocResponse[]
+  docs : DocResponse[] | boolean
 }
 
 type DocMetadataAI = {
-  file_name?: string;
+  file_name: string;
   source?: string;
-  page: number;
+  page?: number;
+  level: number;
 }
 
 type DocResponse = {
@@ -23,7 +24,8 @@ const convertDocMetadataAIToDocMetadata = (metaData : DocMetadataAI) : DocMetada
   return {
     filename: metaData.file_name,
     source: metaData.source,
-    page: metaData.page
+    page: metaData.page,
+    level: metaData.level
   }
 }
 
@@ -43,11 +45,11 @@ export const searchDocsAPI = async (question : string): Promise<Doc[]> => {
   return defaultAIAxios
     .post<SearchDocResponse>('search', { question })
     .then((res) => {
-      return convertToDocArray(res.data.docs);
-    })
-    .catch((error) => {
-      console.error("Error in searchDocsAPI:", error);
-      return [];
+      const docs = res.data.docs;
+
+      if(typeof docs === 'boolean') throw new Error("검색하려는 자료에 대한 접근 권한이 없습니다.");
+
+      return docs && typeof docs !== 'boolean' ? convertToDocArray(docs) : docs;
     });
 };
 
@@ -112,7 +114,7 @@ const convertToChatroomList = (chatroomListResponse : ChatroomListResponse) : Ch
   };
 }
 
-export const getChatroomListAPI = async (page : number = 0): Promise<ChatroomList | null> => {
+export const getChatroomListAPI = async (page : number = 0): Promise<ChatroomList> => {
   return defaultAxios
     .get<ChatroomListResponse>(`/api/chatrooms`,{
       params: {
@@ -124,30 +126,31 @@ export const getChatroomListAPI = async (page : number = 0): Promise<ChatroomLis
     })
     .catch((error) => {
       console.error("Error in getChatroomListAPI:", error);
-      return null;
+      throw new Error("채팅방 목록을 가져오는데 실패했습니다.");
     });
 };
 
 
-export const createChatroomAPI = async (message : string): Promise<ChatroomResponse | null> => {
+export const createChatroomAPI = async (message : string): Promise<ChatroomResponse> => {
   return defaultAxios
     .post<ChatroomResponse>('/api/chatrooms', { content : message })
     .then((res) => {
       return res.data;
     })
     .catch((error) => {
-      console.error("Error in createChatroomAPI:", error);
-      return null;
+      console.log(error);
+      throw new Error(`채팅방 생성에 실패했습니다.`);
     });
 };
 
 
 export type DocMetadataBE = {
-  fileName?: string,
-  totalPages: number | null,
-  page: number,
-  category: string | null,
-  id: number | null
+  fileName: string,
+  totalPages?: number,
+  page?: number,
+  category?: string,
+  id?: number
+  level: number
 }
 
 export type DocBE = {
@@ -182,7 +185,8 @@ export type ChatroomDetail = {
 const convertToDocMetadata = (metaData : DocMetadataBE) : DocMetadata => {
   return {
     filename : metaData.fileName,
-    page : metaData.page
+    page : metaData.page,
+    level: metaData.level
   }
 }
 
@@ -220,15 +224,15 @@ const convertToChatroomDetail = (res : ChatroomDetailResponse) : ChatroomDetail 
   }
 }
 
-export const getChatroomDetailAPI = async (chatroomId : number): Promise<ChatroomDetail | null> => {
+export const getChatroomDetailAPI = async (chatroomId : number): Promise<ChatroomDetail> => {
   return defaultAxios
     .get<ChatroomDetailResponse>(`/api/chatrooms/${chatroomId}`)    
     .then((res) => {
       return convertToChatroomDetail(res.data);
     })
-    .catch((error) => {
-      console.error("Error in getChatroomDetailAPI:", error);
-      return null;
+    .catch((error)=>{
+      console.log(error);
+      throw new Error("채팅방 정보를 가져오는데 실패했습니다.");
     });
 };
 
@@ -236,9 +240,7 @@ const convertToDocMetadataBE = (metadata : DocMetadata) : DocMetadataBE => {
   return {
     fileName : metadata.filename,
     page : metadata.page,
-    totalPages: null,
-    category: null,
-    id: null
+    level: metadata.level
   }
 }
 
@@ -264,7 +266,7 @@ const convertToMemoryBE = (qna : QnA) : MemoryBE => {
 //   return qnas.map(convertToMemoryBE);
 // }
 
-export const createChatAPI = async (chatroomId : number, qna : QnA, ): Promise<ChatResponse | null> => {
+export const createChatAPI = async (chatroomId : number, qna : QnA, ): Promise<ChatResponse> => {
   return defaultAxios
     .post<ChatResponse>('/api/chats', 
       {
@@ -276,9 +278,9 @@ export const createChatAPI = async (chatroomId : number, qna : QnA, ): Promise<C
     .then((res) => {
       return res.data;
     })
-    .catch((error) => {
-      console.error("Error in createChatAPI:", error);
-      return null;
+    .catch((error)=>{
+      console.log(error);
+      throw new Error("채팅 저장에 실패했습니다.");
     });
 };
 
@@ -297,10 +299,6 @@ export const createChatFeedbackAPI = async (chatId : string, isPositive : boolea
     )
     .then((res) => {
       return res.data;
-    })
-    .catch((error) => {
-      console.error("Error in createChatFeedbackAPI:", error);
-      return null;
     });
 };
 
@@ -309,10 +307,6 @@ export const deleteChatroomAPI = async(chatroomId : number) => {
   .delete(`/api/chatrooms/${chatroomId}`)
   .then((res) => {
     return res.data;
-  })
-  .catch((error) => {
-    console.error("Error in deleteChatroomAPI:", error);
-    return error;
   });
 }
 
