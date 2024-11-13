@@ -1,8 +1,5 @@
 package com.chatbot.backend.domain.user.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.chatbot.backend.domain.user.dto.request.LoginRequestDto;
 import com.chatbot.backend.domain.user.dto.request.SignupRequestDto;
+import com.chatbot.backend.domain.user.dto.response.LoginResponseDto;
 import com.chatbot.backend.domain.user.service.UserService;
-import com.chatbot.backend.global.jwt.Role;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,13 +34,9 @@ public class UserController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequestDto loginRequestDto,
+	public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto,
 		HttpServletResponse response) {
-		Role role = userService.login(loginRequestDto, response);
-		Map<String, String> result = new HashMap<>();
-		result.put("token", response.getHeader("Authorization"));
-		result.put("role", role.getRole());
-		return ResponseEntity.ok().body(result);
+		return ResponseEntity.ok().body(userService.login(loginRequestDto, response));
 	}
 
 	@PostMapping("/logout")
