@@ -43,7 +43,7 @@ public class BoardServiceImpl implements BoardService {
 	private final BoardValidator boardValidator;
 	private final RegulationService regulationService;
 	private final FileSummaryService fileSummaryService;
-
+	private final BoardNotificationService boardNotificationService;
 	/**
 	 * 새로운 게시글 작성
 	 *
@@ -71,6 +71,7 @@ public class BoardServiceImpl implements BoardService {
 
 		// 파일이 있는 경우 비동기로 요약 처리 시작
 		if (boardCreateRequestDto.hasFile()) {
+			boardNotificationService.processBoardNotification(file, board.getLevel());
 			fileSummaryService.processFileSummaryAsync(file, board.getId());
 			String fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
 			board.uploadFile(fileUrl);
@@ -112,6 +113,7 @@ public class BoardServiceImpl implements BoardService {
 
 		// File 저장
 		if (boardUpdateRequestDto.hasFile()) {
+			boardNotificationService.processBoardNotification(file, board.getLevel());
 			fileSummaryService.processFileSummaryAsync(file, board.getId());
 			String fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
 			board.uploadFile(fileUrl);

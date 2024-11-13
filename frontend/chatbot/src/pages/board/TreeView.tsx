@@ -32,7 +32,24 @@ const TreeView: React.FC<TreeViewProps> = ({
 	) => {
 		const depthLabel = ["장", "조", "항", "호"];
 		const depthName = depthLabel[depth - 1] || "";
-		return `제${index + 1}${depthName}(${title || ""}) ${content}`;
+
+		// title과 content가 모두 없는 경우 인덱스만 표시
+		if (!title && !content) {
+			return `제${index + 1}${depthName}`;
+		}
+
+		// title만 있는 경우
+		if (title && !content) {
+			return `제${index + 1}${depthName}(${title})`;
+		}
+
+		// content만 있는 경우
+		if (!title && content) {
+			return `제${index + 1}${depthName} ${content}`;
+		}
+
+		// 둘 다 있는 경우
+		return `제${index + 1}${depthName}(${title}) ${content}`;
 	};
 
 	const renderTree = (node: TreeNode, index: number) => (
@@ -50,8 +67,8 @@ const TreeView: React.FC<TreeViewProps> = ({
 									dispatch(updateEditNodeData({ title: e.target.value }))
 								}
 								placeholder="제목을 입력하세요."
-								className="px-2 py-1 border rounded flex-grow" // flex-grow 추가
-								onClick={(e) => e.stopPropagation()} // 트리 확장/축소 막기
+								className="px-2 py-1 border rounded flex-grow"
+								onClick={(e) => e.stopPropagation()}
 							/>
 							<input
 								type="text"
@@ -60,8 +77,8 @@ const TreeView: React.FC<TreeViewProps> = ({
 									dispatch(updateEditNodeData({ content: e.target.value }))
 								}
 								placeholder="내용을 입력하세요."
-								className="px-2 py-1 border rounded flex-grow" // flex-grow 추가
-								onClick={(e) => e.stopPropagation()} // 트리 확장/축소 막기
+								className="px-2 py-1 border rounded flex-grow"
+								onClick={(e) => e.stopPropagation()}
 							/>
 							<button
 								onClick={(e) => {
@@ -73,19 +90,20 @@ const TreeView: React.FC<TreeViewProps> = ({
 							</button>
 						</div>
 					) : (
-						<div className="flex">
-							<span>
+						<div className="flex justify-between w-full">
+							<span className="flex-grow">
 								{getFormattedTitle(node.depth, index, node.title, node.content)}
 							</span>
 							{isRevisionMode && (
-								<button
-									onClick={(e) => {
-										handleStartEdit(node);
-										e.stopPropagation();
-									}}
-								>
-									<EditIcon fontSize="small" />
-
+								<div className="flex gap-2">
+									<button
+										onClick={(e) => {
+											handleStartEdit(node);
+											e.stopPropagation();
+										}}
+									>
+										<EditIcon fontSize="small" />
+									</button>
 									{node.depth <= 3 && (
 										<button
 											onClick={(e) => {
@@ -101,7 +119,7 @@ const TreeView: React.FC<TreeViewProps> = ({
 											<AddIcon fontSize="small" />
 										</button>
 									)}
-								</button>
+								</div>
 							)}
 						</div>
 					)}
@@ -121,17 +139,17 @@ const TreeView: React.FC<TreeViewProps> = ({
 			{isRevisionMode && (
 				<div className="flex justify-center mt-4">
 					<button
-						className="bg-blue-500 text-white px-4 py-2 rounded flex items-center "
+						className="bg-blue-500 text-white px-4 py-2 rounded flex items-center"
 						onClick={() =>
 							dispatch(
 								addNode({
 									parentId: null,
-									parentDepth: 0, // 최상위 장 추가
+									parentDepth: 0,
 								})
 							)
 						}
 					>
-						<AddIcon fontSize="small" className="mr-2 " />장 추가
+						<AddIcon fontSize="small" className="mr-2" />장 추가
 					</button>
 				</div>
 			)}
