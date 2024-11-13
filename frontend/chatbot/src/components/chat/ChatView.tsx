@@ -180,7 +180,7 @@ const ChatView: React.FC<ChatViewProps> = ({
       return (
         <>
           <ButtonOnlyIcon
-            icon="src/assets/icons/like.svg"
+            icon="src/assets/icons/like-white.svg"
             styleName="hover:scale-110 transition-transform duration-200 ease-in-out"
             width={18}
             onClick={() => onFeedback(qna, true)}
