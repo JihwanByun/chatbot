@@ -1,7 +1,6 @@
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import AdminPage from "../src/pages/admin/index";
-import { useState } from "react";
 import Chat from "@pages/chat";
 import BoardListPage from "@pages/board";
 import LoginForm from "@pages/login";
@@ -27,7 +26,7 @@ function App() {
 					<Route path="/board" element={<BoardListPage />} />
 					<Route
 						path="/board/:id"
-						element={<RegulationPage title="규정 정보" />}
+						element={<RegulationPage/>}
 					/>
 					<Route path="/tree/:id" element={<TreeView />} />
 					<Route path="/treecreate" element={<TreeCreate />} />

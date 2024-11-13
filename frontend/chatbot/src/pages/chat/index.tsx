@@ -18,10 +18,12 @@ import {
 	createChatFeedbackAPI,
 	deleteChatroomAPI,
 } from "@apis/chat/chatApi";
-import { logout } from "@apis/chat/userApi";
 import { ChatCategory } from "@components/chat/ChatCategories";
 import { getCategoryListAPI } from "@apis/category/categoryApi";
 import { getFeedbackReasonList } from "@apis/feedback/feedbackApi";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
+import { logoutUser } from "@app/slices/userSlice";
+import { ErrorHandler } from "@util/ErrorHandler";
 
 export type ButtonWithIconProps = React.ComponentProps<typeof ButtonWithIcon>;
 
@@ -36,6 +38,7 @@ interface ChatState {
 	qnas: QnA[];
 	isLoading: boolean;
 	isFetchingChatrooms: boolean;
+	error: string | null;
 }
 
 const initialState: ChatState = {
@@ -45,6 +48,7 @@ const initialState: ChatState = {
 	qnas: [],
 	isLoading: false,
 	isFetchingChatrooms: false,
+	error: null,
 };
 
 const Chat: React.FC = () => {
@@ -55,6 +59,9 @@ const Chat: React.FC = () => {
 		ChatroomButtonProps[]
 	>([]);
 	const [feedbackReasons, setFeedbackReasons] = useState<string[]>([]);
+
+	const dispatch = useAppDispatch();
+	const user = useAppSelector((state) => state.users);
 
 	const navigate = useNavigate();
 
@@ -111,33 +118,17 @@ const Chat: React.FC = () => {
 			"로그아웃",
 			footStyle,
 			"/src/assets/icons/logout.svg",
-			() => {
-				logout();
-				navigate("/");
+			async () => {  // async 추가
+				try {
+					await dispatch(logoutUser());  // logout 완료 대기
+					navigate("/");  // 로그아웃 완료 후 navigate
+				} catch (error) {
+					console.log(error);
+					ErrorHandler.showError(new Error("로그아웃에 실패하였습니다."));
+				}
 			}
 		),
 	];
-
-	// API Handlers
-	const handleError = useCallback(
-		(error: unknown, customMessage: string) => {
-			if(error instanceof Error){
-				Swal.fire({
-					text: error.message,
-					icon: "error",
-					confirmButtonText: "확인",
-					customClass: {
-						confirmButton:
-							"bg-blue-500 text-white px-4 py-2 rounded-lg focus:ring-0 focus:outline-none active:bg-blue-500 hover:bg-blue-600",
-					},
-					buttonsStyling: false, // 기본 스타일링 비활성화
-				});
-			}else{
-				console.log(customMessage);
-			}
-		},
-		[]
-	);
 
 	const deleteChatroom = async (chatroomId: number) => {
 		await deleteChatroomAPI(chatroomId);
@@ -149,20 +140,18 @@ const Chat: React.FC = () => {
 
 	const fetchChatroom = useCallback(
 		async (chatroomId: number) => {
-			try {
-				const chatroom: ChatroomDetail = await getChatroomDetailAPI(chatroomId);
+			const chatroom: ChatroomDetail = await getChatroomDetailAPI(
+				chatroomId
+			);
 
-				setState((prev) => ({
-					...prev,
-					curChatroomId: chatroomId,
-					qnas: chatroom.qnas,
-					error: null,
-				}));
-			} catch (error) {
-				handleError(error, "채팅방 정보를 가져오는데 실패했습니다.");
-			}
+			setState((prev) => ({
+				...prev,
+				curChatroomId: chatroomId,
+				qnas: chatroom.qnas,
+				error: null,
+			}));
 		},
-		[handleError]
+		[]
 	);
 
 	const createChatroomBtnProps = useCallback((content: ChatroomResponse) => {
@@ -201,7 +190,7 @@ const Chat: React.FC = () => {
 	},[fetchChatroom]);
 
 	const fetchChatrooms = useCallback(async () => {
-		if (state.isFetchingChatrooms || !state.hasNextChatroom)
+		if (state.isFetchingChatrooms || !state.hasNextChatroom || state.error)
 			return;
 
 		try {
@@ -221,15 +210,17 @@ const Chat: React.FC = () => {
 
 			setChatroomComponents((prev) => [...prev, ...newComponents]);
 		} catch (error) {
-			handleError(error, "채팅방 목록을 가져오는데 실패했습니다.");
+			if (error instanceof Error) {
+				ErrorHandler.showError(error);
+			}
 		} finally {
 			setState((prev) => ({ ...prev, isFetchingChatrooms: false }));
 		}
 	}, [
 		state.isFetchingChatrooms,
 		state.hasNextChatroom,
+		state.error,
 		state.currentChatroomPage,
-		handleError,
 		createChatroomBtnProps
 	]);
 
@@ -276,7 +267,7 @@ const Chat: React.FC = () => {
 
 	const handleGenerateResponse = useCallback(
 		async (message: string, currentQnA: QnA) => {
-			const res = await generateAPI(state.qnas, message);
+			const res = await generateAPI(state.qnas, message, user.level);
 			if (!res.body) throw new Error("응답 생성에 실패했습니다.");
 
 			const fullAnswer = await handleStreamResponse(
@@ -284,7 +275,6 @@ const Chat: React.FC = () => {
 				new TextDecoder("utf-8")
 			);
 
-			// 채팅방 없으면 생성
 			let activeChatroomId = state.curChatroomId;
 			if (activeChatroomId === -1) {
 				const result = await createChatroomAPI(message);
@@ -301,7 +291,6 @@ const Chat: React.FC = () => {
 				]);
 			}
 
-			// qna 저장
 			const updatedQnA = {
 				...currentQnA,
 				answer: new BaseMessage("answer", fullAnswer),
@@ -323,7 +312,7 @@ const Chat: React.FC = () => {
 				),
 			}));
 		},
-		[state.qnas, state.curChatroomId, handleStreamResponse, createChatroomBtnProps, newChatProp]
+		[state.qnas, state.curChatroomId, handleStreamResponse, createChatroomBtnProps, newChatProp, user.level]
 	);
 
 	const sendMessage = useCallback(
@@ -333,7 +322,7 @@ const Chat: React.FC = () => {
 			try {
 				setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-				const docs = await searchDocsAPI(message);
+				const docs = await searchDocsAPI(message, user.level);
 
 				const newQnA = createQnA(message, docs);
 
@@ -344,7 +333,9 @@ const Chat: React.FC = () => {
 
 				await handleGenerateResponse(message, newQnA);
 			} catch (error) {
-				handleError(error, "메시지 전송에 실패했습니다.");
+				if (error instanceof Error) {
+					ErrorHandler.showError(error);
+				}
 			} finally {
 				setState((prev) => ({ ...prev, isLoading: false }));
 			}
@@ -352,7 +343,7 @@ const Chat: React.FC = () => {
 		[
 			state.isLoading,
 			handleGenerateResponse,
-			handleError
+			user.level,
 		]
 	);
 

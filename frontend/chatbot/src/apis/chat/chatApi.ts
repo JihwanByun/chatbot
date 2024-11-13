@@ -41,15 +41,15 @@ const convertToDocArray = (responses: DocResponse[]): Doc[] => {
 };
 
 // 문서 검색
-export const searchDocsAPI = async (question : string): Promise<Doc[]> => {
+export const searchDocsAPI = async (question : string, level : number): Promise<Doc[]> => {
   return defaultAIAxios
-    .post<SearchDocResponse>('search', { question })
+    .post<SearchDocResponse>('search', { question, level })
     .then((res) => {
       const docs = res.data.docs;
 
       if(typeof docs === 'boolean') throw new Error("검색하려는 자료에 대한 접근 권한이 없습니다.");
 
-      return docs && typeof docs !== 'boolean' ? convertToDocArray(docs) : docs;
+      return convertToDocArray(docs);
     });
 };
 
@@ -75,13 +75,13 @@ const convertToMemoryArray = (qnas : QnA[]) : Memory[] => {
   return qnas.map(convertToMemory);
 }
 
-export const generateAPI = async (qnas: QnA[], question: string): Promise<Response> => {
+export const generateAPI = async (qnas: QnA[], question: string, level : number): Promise<Response> => {
   return await fetch(`${AI_URL}/generate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ memory: convertToMemoryArray(qnas), question })
+    body: JSON.stringify({ memory: convertToMemoryArray(qnas), question, level })
   });
 };
 
