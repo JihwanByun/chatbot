@@ -300,14 +300,14 @@ const BoardDetailPage: React.FC = () => {
     {
       btnName: "규정목록",
       styleName: boardButtonStyle,
-      icon: "/src/assets/icons/book-open-text.svg",
+      icon: "/src/assets/icons/book-open-text-footer.svg",
       handleClick: () => navigate("/board"),
     },
     // 즐겨찾기 목록을 버튼 컴포넌트로 변환
     ...favorites.map((favorite) => ({
       btnName: favorite.title,
       styleName: boardButtonStyle,
-      icon: "/src/assets/icons/book-open-text.svg",
+      icon: "/src/assets/icons/book-open-text-footer.svg",
       handleClick: () => navigate(`/board/${favorite.boardId}`),
     })),
   ];

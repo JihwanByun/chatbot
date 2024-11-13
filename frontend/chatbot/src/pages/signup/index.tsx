@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { emailDTO, SignUpDTO } from "./SignUpDTO";
-import logo from "@/assets/images/head-register.png";
-import topLeftLogo from "@/assets/images/head-logo-group.png"; // Import your top-left logo
+import logo from "@assets/images/head-register.png";
+import topLeftLogo from "@assets/images/head-logo-group.png"; // Import your top-left logo
 import ButtonPrimary from "@components/atoms/button/ButtonPrimary";
 import { signUp } from "@apis/chat/signup";
 import { checkEmailDuplicate } from "@apis/chat/checkEmailDuplicate";
@@ -62,7 +62,7 @@ const SignUpForm: React.FC = () => {
         icon: "success",
         title: "회원가입 성공!",
         text: "로그인 페이지로 이동합니다.",
-        onClose: () => navigate("/chat"),
+        onClose: () => navigate("/login"),
       });
     } catch (error) {
       console.error("회원가입 실패", error);

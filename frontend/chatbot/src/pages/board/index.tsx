@@ -184,13 +184,13 @@ const BoardListPage: React.FC = () => {
     {
       btnName: "규정목록",
       styleName: boardButtonStyle,
-      icon: "/src/assets/icons/book-open-text.svg",
+      icon: "/src/assets/icons/book-open-text-footer.svg",
       handleClick: () => navigate("/board"),
     },
     ...favorites.map((favorite) => ({
       btnName: favorite.title,
       styleName: boardButtonStyle,
-      icon: "/src/assets/icons/book-open-text.svg",
+      icon: "/src/assets/icons/book-open-text-footer.svg",
       handleClick: () => navigate(`/board/${favorite.boardId}`),
     })),
   ];
