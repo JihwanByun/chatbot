@@ -26,21 +26,21 @@ const TableWithIconAndButton: React.FC<TableRowWithIconProps> = ({
     width = "auto",
     iconPaths = "정보 변경",
     onIconClick,
-    onRowClick = () => {},
+    onRowClick = () => { },
 }) => {
     return (
-        <table className="min-w-full border-collapse cursor-pointer">
-            <TableHeader columns={columns} width={width} textColor="#818CF8" />
-            <tbody>
+        <table className="min-w-full divide-y divide-gray-200">
+            <TableHeader columns={columns} width={width} />
+            <tbody className="bg-white divide-y divide-gray-100">
                 {rows.map((row) => (
                     <TableRowWithIcon
                         key={row.id}
                         columns={row.columns}
                         width={width}
-                        iconPath={iconPaths[row.id]} // 행별 아이콘 경로
-                        styleName={"w-4 h-4"}
-                        onRowClick={() => onRowClick(row.id)}
-                        onIconClick={() => onIconClick(row.id)} // 특정 행 ID 전달
+                        iconPath={iconPaths[row.id]}
+                        styleName="w-3.5 h-3.5"
+                        onRowClick={() => onRowClick?.(row.id)}
+                        onIconClick={() => onIconClick?.(row.id)}
                     />
                 ))}
             </tbody>

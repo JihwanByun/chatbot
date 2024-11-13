@@ -43,6 +43,7 @@ public class BoardServiceImpl implements BoardService {
 	private final BoardValidator boardValidator;
 	private final RegulationService regulationService;
 	private final FileSummaryService fileSummaryService;
+	private final BoardNotificationService boardNotificationService;
 
 	/**
 	 * 새로운 게시글 작성
@@ -68,6 +69,7 @@ public class BoardServiceImpl implements BoardService {
 		// Board 생성 (비즈니스 로직)
 		Board board = boardCreateRequestDto.toEntity(user, category);
 		board = boardRepository.save(board);
+		boardNotificationService.processBoardNotification(file, board.getLevel());
 
 		// 파일이 있는 경우 비동기로 요약 처리 시작
 		if (boardCreateRequestDto.hasFile()) {
@@ -79,7 +81,8 @@ public class BoardServiceImpl implements BoardService {
 		// Regulation 생성 (규정 정보가 있을 경우에만)
 		RegulationResponseDto regulationResponseDto = null;
 		if (boardCreateRequestDto.regulationRequest() != null) {
-			regulationResponseDto = regulationService.createRegulation(board.getId(), board.getLevel(),
+			regulationResponseDto = regulationService.createRegulation(board.getId(), board.getTitle(),
+				board.getLevel(),
 				boardCreateRequestDto.regulationRequest());
 		}
 
@@ -109,6 +112,7 @@ public class BoardServiceImpl implements BoardService {
 		board.updateBoard(boardUpdateRequestDto, category, null);
 
 		RegulationResponseDto regulationResponse = null;
+		boardNotificationService.processBoardNotification(file, board.getLevel());
 
 		// File 저장
 		if (boardUpdateRequestDto.hasFile()) {
@@ -116,7 +120,8 @@ public class BoardServiceImpl implements BoardService {
 			String fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
 			board.uploadFile(fileUrl);
 		} else {
-			regulationResponse = regulationService.updateRegulation(boardId, boardUpdateRequestDto.regulationRequest());
+			regulationResponse = regulationService.updateRegulation(boardId, board.getTitle(), board.getLevel(),
+				boardUpdateRequestDto.regulationRequest());
 		}
 
 		BoardLike boardLike = boardLikeRepository.findByBoardIdAndUserId(boardId, userId).orElse(null);
@@ -175,7 +180,8 @@ public class BoardServiceImpl implements BoardService {
 	@Transactional(readOnly = true)
 	public Page<BoardBaseResponseDto> getBoardList(Long userId, BoardSearchCondition boardSearchCondition,
 		Pageable pageable) {
-		return boardRepository.findAllByConditions(userId, boardSearchCondition, pageable).map((board -> {
+		User user = userRepository.findByIdOrElseThrow(userId);
+		return boardRepository.findAllByConditions(user.getLevel(), boardSearchCondition, pageable).map((board -> {
 			BoardLike boardLike = boardLikeRepository.findByBoardIdAndUserId(board.getId(), userId).orElse(null);
 			return BoardBaseResponseDto.of(board, boardLike);
 		}));

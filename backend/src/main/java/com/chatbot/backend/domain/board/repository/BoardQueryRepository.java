@@ -7,6 +7,6 @@ import com.chatbot.backend.domain.board.dto.request.BoardSearchCondition;
 import com.chatbot.backend.domain.board.entity.Board;
 
 public interface BoardQueryRepository {
-	Page<Board> findAllByConditions(Long userId, BoardSearchCondition boardSearchCondition,
+	Page<Board> findAllByConditions(Integer level, BoardSearchCondition boardSearchCondition,
 		Pageable pageable);
 }

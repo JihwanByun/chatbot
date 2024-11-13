@@ -27,13 +27,13 @@ public class BoardQueryRepositoryImpl extends Querydsl4RepositorySupport<Board, 
 
 	/**
 	 * 주어진 검색 조건에 맞는 게시글 목록을 페이지 단위로 조회
-	 * @param userId 사용자 ID
+	 * @param level 레벨
 	 * @param boardSearchCondition 검색 조건 (레벨, 작성자 이름, 제목)
 	 * @param pageable 페이징 정보
 	 * @return 조건에 맞는 게시글 페이지
 	 */
 	@Override
-	public Page<Board> findAllByConditions(Long userId, BoardSearchCondition boardSearchCondition,
+	public Page<Board> findAllByConditions(Integer level, BoardSearchCondition boardSearchCondition,
 		Pageable pageable) {
 		return applyPagination(pageable,
 			select(board)

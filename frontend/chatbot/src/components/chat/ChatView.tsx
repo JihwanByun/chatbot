@@ -8,9 +8,10 @@ import ButtonOnlyIcon from "@components/atoms/button/ButtonOnlyIcon";
 import Swal from "sweetalert2";
 
 export interface DocMetadata {
-  filename?: string;
+  filename: string;
   source?: string;
-  page: number;
+  page?: number;
+  level: number;
 }
 
 export interface Doc {
@@ -180,7 +181,7 @@ const ChatView: React.FC<ChatViewProps> = ({
       return (
         <>
           <ButtonOnlyIcon
-            icon="src/assets/icons/like.svg"
+            icon="src/assets/icons/like-white.svg"
             styleName="hover:scale-110 transition-transform duration-200 ease-in-out"
             width={18}
             onClick={() => onFeedback(qna, true)}
