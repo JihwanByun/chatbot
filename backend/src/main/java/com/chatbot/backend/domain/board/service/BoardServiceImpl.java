@@ -180,7 +180,8 @@ public class BoardServiceImpl implements BoardService {
 	@Transactional(readOnly = true)
 	public Page<BoardBaseResponseDto> getBoardList(Long userId, BoardSearchCondition boardSearchCondition,
 		Pageable pageable) {
-		return boardRepository.findAllByConditions(userId, boardSearchCondition, pageable).map((board -> {
+		User user = userRepository.findByIdOrElseThrow(userId);
+		return boardRepository.findAllByConditions(user.getLevel(), boardSearchCondition, pageable).map((board -> {
 			BoardLike boardLike = boardLikeRepository.findByBoardIdAndUserId(board.getId(), userId).orElse(null);
 			return BoardBaseResponseDto.of(board, boardLike);
 		}));
