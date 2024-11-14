@@ -1,4 +1,5 @@
 import { BACKEND_URL, AI_URL } from "@/configs/config";
+import { logoutUser } from "@app/slices/userSlice";
 import axios, { AxiosInstance } from "axios";
 // import { IncomingMessage, ServerResponse } from 'http';
 
@@ -31,10 +32,9 @@ defaultAxios.interceptors.response.use(
 		return response;
 	},
 	(error) => {
-		// 토큰 에러 체크 (보통 401 에러)
+		// 토큰 에러 체크
 		if (error.response && error.response.status === 401 || error.response.status === 422) {
-			// localStorage에서 토큰 삭제
-			localStorage.removeItem("Authorization");
+			logoutUser();
 		}
 		return Promise.reject(error);
 	}
