@@ -1,7 +1,8 @@
 import defaultAxios from "@apis/common";
 import { ChatCategory } from "@components/chat/ChatCategories";
+import { Category } from "@pages/board/BoardCreateForm";
 
-type CategoryResponse = {
+export type CategoryResponse = {
   categoryId: number;
   name: string
 }
@@ -26,8 +27,25 @@ const convertToChatCategoryList = (res : CategoryListResponse) : ChatCategory[] 
   return res.categories.map(convertToChatCategory);
 }
 
-export const getCategoryListAPI = async () : Promise<ChatCategory[]> => {
+export const getChatCategoryListAPI = async () : Promise<ChatCategory[]> => {
   return defaultAxios
         .get<CategoryListResponse>("/api/categories")
         .then(res => convertToChatCategoryList(res.data))
+}
+
+const convertToCategory = (res : CategoryResponse) : Category => {
+  return {
+    value: res.name,
+    label: res.name,
+  }
+}
+
+const convertTotCategoryList = (res : CategoryListResponse) : Category[] => {
+  return res.categories.map(convertToCategory);
+}
+
+export const getCategoryListAPI = async () : Promise<Category[]> => {
+  return defaultAxios
+        .get<CategoryListResponse>("/api/categories")
+        .then(res => convertTotCategoryList(res.data))
 }

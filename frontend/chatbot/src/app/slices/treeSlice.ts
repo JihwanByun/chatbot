@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RegulationResponse, RegulationItem } from "@apis/board/boardDetailApi";
-import { createBoard, updateBoard } from "@apis/board/boardApi";
+import { BoardRequest, createBoard, updateBoard } from "@apis/board/boardApi";
 
 export interface TreeNode {
 	id: string;
@@ -41,13 +41,13 @@ const convertToTreeNode = (
 
 export const saveTreeChange = createAsyncThunk(
 	"board/update",
-	async ({ boardId }: { boardId: string | undefined }, { getState }) => {
+	async ({ boardId, request }: { boardId: number | undefined, request : BoardRequest }, { getState }) => {
 		// Access the treeData state
 		const state = getState() as { tree: TreeState };
 		const { treeData } = state.tree;
 
 		// Call the API with treeData and boardId
-		const response = await updateBoard(boardId, treeData);
+		const response = await updateBoard(boardId, treeData, request);
 		console.log("API Response:", response.data);
 
 		return response.data;
@@ -56,13 +56,13 @@ export const saveTreeChange = createAsyncThunk(
 
 export const createTree = createAsyncThunk(
 	"board/create",
-	async (_, { getState }) => {
+	async (request : BoardRequest, { getState }) => {
 		// Access the treeData state
 		const state = getState() as { tree: TreeState };
 		const { treeData } = state.tree;
 
 		// Call the API with treeData and boardId
-		const response = await createBoard(treeData);
+		const response = await createBoard(treeData, request);
 		console.log("API Response:", response.data);
 
 		return response.data;
@@ -161,17 +161,16 @@ const treeSlice = createSlice({
 			}
 		},
 		saveNodeEdit: (
-			state,
-			action: PayloadAction<{ id: string; title: string; content: string }>
+			state
 		) => {
-			const { id, title, content } = action.payload;
+			const {editNodeId, editNodeData} = state;
 			const updateTree = (nodes: TreeNode[]): TreeNode[] => {
 				return nodes.map((node) => {
-					if (node.id === id) {
+					if (node.id === editNodeId) {
 						return {
 							...node,
-							title,
-							content,
+							title: editNodeData?.title,
+							content: editNodeData?.content,
 						};
 					}
 					if (node.children) {
@@ -206,17 +205,19 @@ const treeSlice = createSlice({
 		updateTreeData: (state, action: PayloadAction<TreeNode[]>) => {
 			state.treeData = action.payload;
 			console.log(state.treeData);
-			createTree();
 		},
 	},
 	extraReducers: (builder) => {
 		builder
-			.addCase(createTree.pending, (state) => {
-				// 필요한 경우 로딩 상태 처리
-			})
+			// .addCase(createTree.pending, (state) => {
+			// 	// 필요한 경우 로딩 상태 처리
+			// })
 			.addCase(createTree.fulfilled, (state, action) => {
 				// API 응답 처리
 				console.log("Tree created successfully:", action.payload);
+				state.treeData = [];
+				state.editNodeId = null;
+				state.editNodeData = null;
 			})
 			.addCase(createTree.rejected, (state, action) => {
 				// 에러 처리

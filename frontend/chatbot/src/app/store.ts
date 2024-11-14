@@ -8,7 +8,7 @@ import treeSlice from "./slices/treeSlice";
 import favoriteBoardsReducer from "./slices/favoriteBoardsSlice";
 
 const userPersistConfig = {
-  key: 'root',
+  key: 'user',
   storage,
   whitelist: ['role', 'name', 'employeeNum', 'department', 'level'] // 유지하고 싶은 상태만 선택
 };

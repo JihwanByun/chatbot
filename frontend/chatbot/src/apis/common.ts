@@ -1,6 +1,6 @@
 import { BACKEND_URL, AI_URL } from "@/configs/config";
-import { logoutUser } from "@app/slices/userSlice";
 import axios, { AxiosInstance } from "axios";
+import { logout } from "./chat/userApi";
 // import { IncomingMessage, ServerResponse } from 'http';
 
 // 로그인이 필요없는 axios
@@ -26,6 +26,7 @@ export const defaultAIAxios: AxiosInstance = axios.create({
 	baseURL: `${AI_URL}`,
 	// withCredentials: true, // 쿠키 전송 허용
 });
+
 // 응답 인터셉터 추가
 defaultAxios.interceptors.response.use(
 	(response) => {
@@ -33,8 +34,8 @@ defaultAxios.interceptors.response.use(
 	},
 	(error) => {
 		// 토큰 에러 체크
-		if (error.response && error.response.status === 401 || error.response.status === 422) {
-			logoutUser();
+		if (error.status === 401 || error.status === 422) {
+			logout();
 		}
 		return Promise.reject(error);
 	}

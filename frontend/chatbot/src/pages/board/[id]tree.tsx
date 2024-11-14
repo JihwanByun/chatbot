@@ -146,14 +146,10 @@ const BoardDetailPage: React.FC = () => {
   const saveTree = () => dispatch(saveTreeChange({ boardId: id }));
   const discardEdit = () => dispatch(cancelEdit());
 
-  const handleSaveEdit = (nodeId: string) => {
+  const handleSaveEdit = () => {
     if (editNodeData) {
       dispatch(
-        saveNodeEdit({
-          id: nodeId,
-          title: editNodeData.title || "",
-          content: editNodeData.content || "",
-        })
+        saveNodeEdit()
       );
     }
   };
@@ -173,13 +169,6 @@ const BoardDetailPage: React.FC = () => {
           </span>
           {/* 상단 버튼 영역 */}
           <div className="absolute flex items-end space-x-1 right-0">
-            {/* <ButtonOnlyIcon
-              key="move-prev-board"
-              icon="/src/assets/icons/go-to-prev.svg"
-              width={18}
-              styleName="p-2 hover:bg-gray-100 rounded"
-              onClick={() => navigate(-1)}
-            /> */}
             {role === UserRole.USER_WRITE ? (
               !isRevisionMode ? (
                 <ButtonOnlyIcon
@@ -262,7 +251,7 @@ const BoardDetailPage: React.FC = () => {
                 prose-ol:text-left"
       >
         {/* 게시글 내용 - Markdown 렌더링 */}
-        {boardDetail?.contents?.replace(/\\n/g, "\n") && (
+        {boardDetail?.contents && (
           <ReactMarkdown>
             {boardDetail.contents.replace(/\\n/g, "\n")}
           </ReactMarkdown>
@@ -272,7 +261,6 @@ const BoardDetailPage: React.FC = () => {
       {/* 규정 트리뷰 */}
       {boardDetail?.regulationResponseDto && (
         <div className="mt-8">
-          <h3 className="text-lg font-semibold mb-4">규정 정보</h3>
           <TreeView
             isRevisionMode={isRevisionMode}
             handleStartEdit={(node) =>
