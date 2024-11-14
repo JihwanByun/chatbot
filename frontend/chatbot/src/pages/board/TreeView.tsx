@@ -32,25 +32,33 @@ const TreeView: React.FC<TreeViewProps> = ({
 	) => {
 		const depthLabel = ["장", "조", "항", "호"];
 		const depthName = depthLabel[depth - 1] || "";
-
-		// title과 content가 모두 없는 경우 인덱스만 표시
-		if (!title && !content) {
-			return `제${index + 1}${depthName}`;
-		}
-
-		// title만 있는 경우
-		if (title && !content) {
-			return `제${index + 1}${depthName}(${title})`;
-		}
-
-		// content만 있는 경우
-		if (!title && content) {
-			return `제${index + 1}${depthName} ${content}`;
-		}
-
-		// 둘 다 있는 경우
-		return `제${index + 1}${depthName}(${title}) ${content}`;
+		return `제${index + 1}${depthName}(${title || ""}) ${content || ""}`;
 	};
+
+	// const handleSubmit = async () => {
+  //   // API 호출 또는 다른 제출 로직
+  //   console.log('제출된 데이터:', formData);
+
+	// 	try {
+  //     const request : BoardRequest = {
+  //       title : formData.title,
+  //       category : formData.category,
+  //       level : formData.level
+  //     }
+	// 		// createTree 액션 디스패치
+	// 		const result = await dispatch(createTree(request)).unwrap();
+
+	// 		// 성공 처리
+	// 		console.log("Tree saved successfully:", result);
+	// 		successAlert("규정이 등록되었습니다.")
+  //     navigate("/board");
+	// 		// 여기에 성공 메시지나 리다이렉션 로직 추가
+	// 	} catch (error) {
+	// 		console.error("Failed to save tree:", error);
+	// 		errorAlert(new Error("규정 등록에 실패하였습니다."));
+	// 		// 에러 메시지 표시 로직 추가
+	// 	}
+  // };
 
 	const renderTree = (node: TreeNode, index: number) => (
 		<TreeItem
@@ -66,6 +74,11 @@ const TreeView: React.FC<TreeViewProps> = ({
 								onChange={(e) =>
 									dispatch(updateEditNodeData({ title: e.target.value }))
 								}
+								onKeyDown={(e) => {
+									if (e.key === ' ') {
+										e.stopPropagation();
+									}
+								}}
 								placeholder="제목을 입력하세요."
 								className="px-2 py-1 border rounded flex-grow"
 								onClick={(e) => e.stopPropagation()}
@@ -76,6 +89,11 @@ const TreeView: React.FC<TreeViewProps> = ({
 								onChange={(e) =>
 									dispatch(updateEditNodeData({ content: e.target.value }))
 								}
+								onKeyDown={(e) => {
+									if (e.key === ' ') {
+										e.stopPropagation();
+									}
+								}}
 								placeholder="내용을 입력하세요."
 								className="px-2 py-1 border rounded flex-grow"
 								onClick={(e) => e.stopPropagation()}
@@ -90,7 +108,7 @@ const TreeView: React.FC<TreeViewProps> = ({
 							</button>
 						</div>
 					) : (
-						<div className="flex justify-between w-full">
+						<div className="flex items-center justify-between w-full">
 							<span className="flex-grow">
 								{getFormattedTitle(node.depth, index, node.title, node.content)}
 							</span>
