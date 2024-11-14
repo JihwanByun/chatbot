@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import TableWithIconAndButton from "@components/atoms/table/TableWithIcon";
+import TableWithAvatarAndButton from "@components/atoms/table/TableWithAvatar";
 import Paging from "@components/atoms/paging/Paging";
 import InputSearch from "@components/atoms/input/InputSearch";
 import { useAppDispatch, useAppSelector } from "@app/hooks";
@@ -49,7 +49,6 @@ const MemberManagement = () => {
 	}, [dispatch, page, size, sortBy, sortDir]);
 
 	useEffect(() => {
-		console.log(members);
 		if (members && members.contents) {
 			const getTableRowData2 = () => {
 				const TableRowDataList: TableRowData[] = [];
@@ -64,7 +63,7 @@ const MemberManagement = () => {
 							String(element.level),
 							<ButtonPrimary
 								btnName="변경"
-								styleName="bg-blue-200"
+								styleName="bg-blue-200 hover:bg-blue-300 transition-colors duration-150"
 								handleClick={() => openModal(element)}
 							/>,
 						],
@@ -130,7 +129,7 @@ const MemberManagement = () => {
 		return () => window.removeEventListener("resize", updateItemsPerPage);
 	}, []);
 
-	const handleClick = () => {};
+	const handleClick = () => { };
 	// 로딩이 완료된 후에만 테이블 렌더링
 	if (loading) {
 		return <div>로딩 중...</div>;
@@ -142,7 +141,7 @@ const MemberManagement = () => {
 				<InputSearch />
 			</div>
 			<div>
-				<TableWithIconAndButton
+				<TableWithAvatarAndButton
 					columns={header}
 					rows={tableData}
 					iconPaths={"/src/assets/icons/user_2.svg"}
