@@ -201,7 +201,7 @@ const BoardListPage: React.FC = () => {
 
   useEffect(() => {
     fetchBoards();
-  }, [fetchBoards]);
+  });
 
   // 날짜 포맷팅 함수
   const formatDate = (dateString: string): string => {

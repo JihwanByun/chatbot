@@ -9,8 +9,6 @@ import {
   setRevisionMode,
   startEditNode,
   saveNodeEdit,
-  cancelEdit,
-  saveTreeChange,
 } from "@app/slices/treeSlice";
 import {
   getBoardDetailAPI,
@@ -30,6 +28,9 @@ import {
 } from "@app/slices/favoriteBoardsSlice";
 import { logoutUser } from "@app/slices/userSlice";
 import { UserRole } from "@util/userConfig";
+import BoardUpdate from "@pages/board/BoardUpdate";
+import { deleteAlert, errorAlert } from "@util/alert";
+import { deleteBoardAPI } from "@apis/board/boardApi";
 
 interface BoardParams {
   id: string;
@@ -40,9 +41,7 @@ const BoardDetailPage: React.FC = () => {
   const { id } = useParams<BoardParams>();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [boardDetail, setBoardDetail] = useState<BoardDetailResponse | null>(
-    null
-  );
+  const [boardDetail, setBoardDetail] = useState<BoardDetailResponse>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const {role} = useAppSelector(state=>state.users);
@@ -63,6 +62,7 @@ const BoardDetailPage: React.FC = () => {
     if (currentPage === 0) {
       dispatch(fetchFavoriteBoards(0));
     }
+    dispatch(setRevisionMode(false))
   }, [dispatch, currentPage]);
 
   // 더 많은 즐겨찾기 로드
@@ -91,6 +91,7 @@ const BoardDetailPage: React.FC = () => {
     } catch (error) {
       console.error("Failed to fetch board detail:", error);
       setError("게시글을 불러오는데 실패했습니다.");
+      navigate("/board");
     } finally {
       setIsLoading(false);
     }
@@ -143,8 +144,6 @@ const BoardDetailPage: React.FC = () => {
 
   // TreeView 관련 함수들
   const toggleRevisionMode = () => dispatch(setRevisionMode(!isRevisionMode));
-  const saveTree = () => dispatch(saveTreeChange({ boardId: id }));
-  const discardEdit = () => dispatch(cancelEdit());
 
   const handleSaveEdit = () => {
     if (editNodeData) {
@@ -153,12 +152,30 @@ const BoardDetailPage: React.FC = () => {
       );
     }
   };
+  
+  const handleDelete = () => {    
+    try{
+      if(boardDetail) deleteBoardAPI(boardDetail?.boardId);
+      else throw new Error("게시글 정보가 없습니다.");
+    }catch(error){
+			if (error instanceof Error) {
+				errorAlert(error);
+			}
+    }finally{
+      navigate("/board");
+    }
+  }
 
   useEffect(() => {
     fetchBoardDetail();
-  }, [fetchBoardDetail]);
+  }, [fetchBoardDetail,isRevisionMode]);
 
   const getChildren = () => (
+    isRevisionMode ? boardDetail &&
+    <>
+      <BoardUpdate board={boardDetail} onUpdate={toggleRevisionMode} onBackClick={()=>dispatch(setRevisionMode(false))} />
+    </>
+    : 
     <div className="bg-white rounded-lg px-6 py-2 space-y-6 text-left">
       {/* 게시글 헤더 */}
       <div className="space-y-4">
@@ -169,8 +186,8 @@ const BoardDetailPage: React.FC = () => {
           </span>
           {/* 상단 버튼 영역 */}
           <div className="absolute flex items-end space-x-1 right-0">
-            {role === UserRole.USER_WRITE ? (
-              !isRevisionMode ? (
+            {role === UserRole.USER_WRITE && (
+              <>
                 <ButtonOnlyIcon
                   key="edit"
                   icon="/src/assets/icons/pen.svg"
@@ -178,25 +195,15 @@ const BoardDetailPage: React.FC = () => {
                   width={18}
                   onClick={toggleRevisionMode}
                 />
-              ) : (
-                <div className="flex">
-                  <ButtonOnlyIcon
-                    key="save"
-                    icon="/src/assets/icons/save.svg"
-                    styleName="p-2 hover:bg-gray-100 rounded"
-                    width={18}
-                    onClick={saveTree}
-                  />
-                  <ButtonOnlyIcon
-                    key="discard"
-                    icon="/src/assets/icons/x-circle-black.svg"
-                    styleName="p-2 hover:bg-gray-100 rounded"
-                    width={18}
-                    onClick={discardEdit}
-                  />
-                </div>
-              )
-            ) : null}
+                <ButtonOnlyIcon
+                  key="delete"
+                  icon="/src/assets/icons/delete-black.svg"
+                  styleName="p-2 hover:bg-gray-100 rounded"
+                  width={18}
+                  onClick={()=>deleteAlert(handleDelete)}
+                />
+              </>
+            )}
             <ButtonOnlyIcon
               key="favorite"
               icon={
@@ -282,7 +289,7 @@ const BoardDetailPage: React.FC = () => {
   // 사이드바 컴포넌트 구성
   const sidebarComponents: ButtonWithIconProps[] = [
     {
-      btnName: "규정목록",
+      btnName: "규정 목록",
       styleName: boardButtonStyle,
       icon: "/src/assets/icons/book-open-text-footer.svg",
       handleClick: () => navigate("/board"),

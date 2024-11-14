@@ -4,10 +4,11 @@ import SembotLayout from "@pages/SembotLayout";
 import TreeCreate from "@pages/board/TreeCreate"; // TreeCreate 컴포넌트 import
 import { useAppDispatch, useAppSelector } from "@app/hooks";
 import BoardCreateForm, { Category, FormData } from "@pages/board/BoardCreateForm";
-import { createTree } from "@app/slices/treeSlice";
+import { createTree, setTreeData } from "@app/slices/treeSlice";
 import { BoardRequest } from "@apis/board/boardApi";
 import { errorAlert, successAlert } from "@util/alert";
 import { getCategoryListAPI } from "@apis/category/categoryApi";
+import ButtonOnlyIcon from "@components/atoms/button/ButtonOnlyIcon";
 
 const BoardCreatePage: React.FC = () => {
   // 스타일 정의
@@ -40,6 +41,7 @@ const BoardCreatePage: React.FC = () => {
 
   useEffect(()=>{
     fetchCategories();
+    dispatch(setTreeData(null));
   },[]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -78,7 +80,14 @@ const BoardCreatePage: React.FC = () => {
   const getChildren = () => (
     <div className="bg-white px-6">
       {/* 메인 컨텐츠 */}
-      <div className="shadow-md rounded-lg text-left mb-6">
+      <div className="shadow-md rounded-lg text-left mb-6 relative">
+        <ButtonOnlyIcon
+          key="move-prev-board"
+          icon="/src/assets/icons/go-to-prev.svg"
+          width={18}
+          styleName="p-2 hover:bg-gray-100 rounded absolute right-4 top-4"
+          onClick={()=>navigate(-1)}
+        />
         <BoardCreateForm 
           formData={formData} 
           categories={categories} 

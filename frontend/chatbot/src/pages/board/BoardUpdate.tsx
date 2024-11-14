@@ -7,15 +7,18 @@ import { BoardRequest } from "@apis/board/boardApi";
 import { errorAlert, successAlert } from "@util/alert";
 import { getCategoryListAPI } from "@apis/category/categoryApi";
 import { BoardDetailResponse } from "@apis/board/boardDetailApi";
+import ButtonOnlyIcon from "@components/atoms/button/ButtonOnlyIcon";
 
-export interface BoardUpdatePageProps {
-  board : BoardDetailResponse;
+export interface BoardUpdateProps {
+  board : BoardDetailResponse
   onUpdate: () => void
+  onBackClick: () => void
 }
 
-const BoardUpdatePage: React.FC<BoardUpdatePageProps> = ({
+const BoardUpdate: React.FC<BoardUpdateProps> = ({
   board,
-  onUpdate
+  onUpdate,
+  onBackClick
 }) => {
   const dispatch = useAppDispatch();
 
@@ -84,7 +87,14 @@ const BoardUpdatePage: React.FC<BoardUpdatePageProps> = ({
   return (
     <div className="bg-white px-6">
       {/* 메인 컨텐츠 */}
-      <div className="shadow-md rounded-lg text-left mb-6">
+      <div className="shadow-md rounded-lg text-left mb-6 relative">
+        <ButtonOnlyIcon
+          key="move-prev-board"
+          icon="/src/assets/icons/go-to-prev.svg"
+          width={18}
+          styleName="p-2 hover:bg-gray-100 rounded absolute right-4 top-4"
+          onClick={onBackClick}
+        />
         <BoardCreateForm 
           formData={formData} 
           categories={categories} 
@@ -107,4 +117,4 @@ const BoardUpdatePage: React.FC<BoardUpdatePageProps> = ({
   );
 };
 
-export default BoardUpdatePage;
+export default BoardUpdate;

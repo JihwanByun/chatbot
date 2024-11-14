@@ -86,7 +86,7 @@ const BoardCreateForm: React.FC<BoardCreateFormProps> = ({
                     type="radio"
                     name="level"
                     value={level}
-                    checked={formData.level === level}
+                    checked={Number(formData.level) === level}
                     onChange={onInputChange}
                     className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                   />
