@@ -6,6 +6,7 @@ import ButtonPrimary from "@components/atoms/button/ButtonPrimary";
 import { useAppDispatch, useAppSelector } from "@app/hooks"; // Redux hooks 사용
 import { loginUser } from "@app/slices/userSlice"; // loginUser thunk import
 import { useNavigate } from "react-router-dom";
+import { UserRole } from "@util/userConfig";
 
 const LoginForm: React.FC = () => {
 	const navigate = useNavigate();
@@ -24,7 +25,7 @@ const LoginForm: React.FC = () => {
   useEffect(() => {
     // role이 존재하고 빈 문자열이 아닐 때만 navigate
     if (role) {
-      if (role === "관리자") {
+      if (role === UserRole.ADMIN) {
         navigate("/adminPage", { replace: true });  // replace 옵션 추가
       } else {
         navigate("/chat", { replace: true });

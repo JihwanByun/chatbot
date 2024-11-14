@@ -29,6 +29,7 @@ import {
   updateFavoriteStatus,
 } from "@app/slices/favoriteBoardsSlice";
 import { logoutUser } from "@app/slices/userSlice";
+import { UserRole } from "@util/userConfig";
 
 interface BoardParams {
   id: string;
@@ -185,7 +186,7 @@ const BoardDetailPage: React.FC = () => {
               styleName="p-2 hover:bg-gray-100 rounded"
               onClick={() => navigate(-1)}
             /> */}
-            {role === "일반 사용자 작성자" ? (
+            {role === UserRole.USER_WRITE ? (
               !isRevisionMode ? (
                 <ButtonOnlyIcon
                   key="edit"
