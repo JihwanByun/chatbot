@@ -1,195 +1,244 @@
 import React, { useState, useEffect } from "react";
-import TableWithIconAndButton from "@components/atoms/table/TableWithIcon";
+import { useAppDispatch, useAppSelector } from "@app/hooks";
+import TableWithAvatarAndButton from "@components/atoms/table/TableWithAvatar";
 import Paging from "@components/atoms/paging/Paging";
 import InputSearch from "@components/atoms/input/InputSearch";
-import { useAppDispatch, useAppSelector } from "@app/hooks";
-import { fetchMembersByPage } from "@app/slices/memberSlice";
-import { loginUser, updateUser } from "@app/slices/userSlice";
+import Modal from "@components/atoms/modal/Modal";
+import DropdownBase from "@components/atoms/dropdown/DropdownBase";
 import ButtonPrimary from "@components/atoms/button/ButtonPrimary";
-import Modal from "@pages/admin/Modal";
-import Dropdown from "@components/atoms/dropdown/Dropdown";
+import { fetchMembersByPage } from "@app/slices/memberSlice";
+import { updateUser } from "@app/slices/userSlice";
 
-const header = ["", "사번", "이름", "부서", "쓰기권한", "회원레벨", "정보변경"];
-const columns = ["ssafy_1", "김광현", "개발부", "O", "3"];
-
-// TableRowData 타입 정의
 interface TableRowData {
-	id: number;
-	columns: (string | JSX.Element)[];
+  id: number;
+  columns: (string | JSX.Element)[];
 }
 
+interface SelectedMember {
+  userId: number;
+  level: number;
+  role: string;
+}
+
+const searchTypeMapping = {
+  이름: "name",
+  사번: "employeeNum",
+  부서: "department",
+  권한: "role",
+  레벨: "level",
+};
+
 const MemberManagement = () => {
-	const dispatch = useAppDispatch();
-	const { members, loading } = useAppSelector((state) => state.members);
-	const [page, setPage] = useState(1);
-	const [size, setSize] = useState(10); // 초기값 설정
-	const [sortBy, setSortBy] = useState("createdAt");
-	const [sortDir, setSortDir] = useState("desc");
-	const [tableData, setTableData] = useState<TableRowData[]>([]);
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [selectedMemberId, setSelectedMemberId] = useState(null);
-	const [newLevel, setNewLevel] = useState("");
-	const [newRole, setNewRole] = useState("");
+  const dispatch = useAppDispatch();
+  const { members, loading } = useAppSelector((state) => state.members);
 
-	useEffect(() => {
-		if (loading) {
-			console.log("데이터 로딩 중..");
-		} else {
-			console.log("데이터 로딩 완료", members);
-		}
+  // State management
+  const [page, setPage] = useState(1);
+  const [size, setSize] = useState(10);
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortDir, setSortDir] = useState("desc");
+  const [searchType, setSearchType] = useState("name");
+  const [searchValue, setSearchValue] = useState("");
+  const [selectedLevels, setSelectedLevels] = useState<number[]>([]);
 
-		dispatch(
-			fetchMembersByPage({
-				page,
-				size,
-				sortBy,
-				sortDir,
-			})
-		);
-	}, [dispatch, page, size, sortBy, sortDir]);
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<SelectedMember | null>(null);
+  const [newLevel, setNewLevel] = useState("");
+  const [newRole, setNewRole] = useState("");
 
-	useEffect(() => {
-		console.log(members);
-		if (members && members.contents) {
-			const getTableRowData2 = () => {
-				const TableRowDataList: TableRowData[] = [];
-				members.contents.forEach((element, index) => {
-					TableRowDataList.push({
-						id: index + 1,
-						columns: [
-							element.employeeNum,
-							element.name,
-							element.department,
-							element.role,
-							String(element.level),
-							<ButtonPrimary
-								btnName="변경"
-								styleName="bg-blue-200"
-								handleClick={() => openModal(element)}
-							/>,
-						],
-					});
-				});
-				return TableRowDataList;
-			};
+  const header = ["", "사번", "이름", "부서", "권한", "레벨", "정보변경"];
+  const levelOptions = [
+    { id: 1, label: "Level 1" },
+    { id: 2, label: "Level 2" },
+    { id: 3, label: "Level 3" },
+  ];
+  const roleOptions = ["USER", "USER_WRITE", "ADMIN"];
 
-			const currentItems = () => {
-				// members.contents가 비어있을 때 빈 배열을 반환하도록 추가
-				return members.contents.length > 0
-					? getTableRowData2().slice(size * (page - 1), size * page)
-					: [];
-			};
+  const handleSearch = (type: string, value: string) => {
+    const mappedType = searchTypeMapping[type as keyof typeof searchTypeMapping] || "name";
+    setSearchType(mappedType);
+    setSearchValue(value);
+    setPage(1); // 검색 시 첫 페이지로 이동
+  };
 
-			setTableData(currentItems());
-		}
-	}, [members, page, size]);
+  const handleLevelChange = (level: number) => {
+    setSelectedLevels((prev) => {
+      if (prev.includes(level)) {
+        return prev.filter((l) => l !== level);
+      }
+      return [...prev, level];
+    });
+    setPage(1);
+  };
 
-	// 뷰포트 높이에 따라 itemsPerPage를 계산하는 함수
-	const calculateItemsPerPage = () => {
-		const viewportHeight = window.innerHeight;
+  const openModal = (member: any) => {
+    setSelectedMember({
+      userId: member.userId,
+      level: member.level,
+      role: member.role,
+    });
+    setNewLevel(String(member.level));
+    setNewRole(member.role);
+    setIsModalOpen(true);
+  };
 
-		if (viewportHeight < 800) return 10;
-		else if (viewportHeight < 1200) return 9;
-		else return 12;
-	};
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedMember(null);
+    setNewLevel("");
+    setNewRole("");
+  };
 
-	const openModal = (member) => {
-		setSelectedMemberId(member.userId);
-		setNewLevel(String(member.level));
-		setNewRole(member.role);
-		setIsModalOpen(true);
-	};
+  const handleSaveChanges = async () => {
+    if (selectedMember) {
+      try {
+        await dispatch(
+          updateUser({
+            userId: selectedMember.userId,
+            level: Number(newLevel),
+            role: newRole,
+          })
+        ).unwrap();
 
-	const closeModal = () => {
-		setIsModalOpen(false);
-		setSelectedMemberId(null);
-		setNewLevel("");
-		setNewRole("");
-	};
+        await dispatch(
+          fetchMembersByPage({
+            page,
+            size,
+            sortBy,
+            sortDir,
+            [searchType]: searchValue,
+          })
+        );
 
-	const handleSaveChanges = () => {
-		dispatch(
-			updateUser({
-				userId: selectedMemberId,
-				level: Number(newLevel),
-				role: newRole,
-			})
-		);
+        closeModal();
+      } catch (error) {
+        console.error("Failed to update user:", error);
+      }
+    }
+  };
 
-		console.log("변경된 level:", newLevel);
-		console.log("변경된 role:", newRole);
-		closeModal();
-	};
+  const searchFields = ["name", "employeeNum", "department", "role", "level"];
 
-	useEffect(() => {
-		// 페이지 로드 시와 화면 크기 변경 시 itemsPerPage 업데이트
-		const updateItemsPerPage = () => setSize(calculateItemsPerPage());
-		updateItemsPerPage();
+  const getTableData = () => {
+    if (!members.contents) return [];
 
-		window.addEventListener("resize", updateItemsPerPage);
-		return () => window.removeEventListener("resize", updateItemsPerPage);
-	}, []);
+    // 레벨 필터만 클라이언트에서 처리 (또는 이것도 서버로 이동 가능)
+    let filteredData = members.contents;
+    if (selectedLevels.length > 0) {
+      filteredData = filteredData.filter((member) => selectedLevels.includes(member.level));
+    }
 
-	const handleClick = () => {};
-	// 로딩이 완료된 후에만 테이블 렌더링
-	if (loading) {
-		return <div>로딩 중...</div>;
-	}
+    return filteredData.map((member) => ({
+      id: member.userId,
+      columns: [
+        member.employeeNum,
+        member.name,
+        member.department,
+        member.role,
+        member.level.toString(),
+        <ButtonPrimary
+          key={member.userId}
+          btnName="변경"
+          styleName="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+          handleClick={() => openModal(member)}
+        />,
+      ],
+    }));
+  };
 
-	return (
-		<div>
-			<div>
-				<InputSearch />
-			</div>
-			<div>
-				<TableWithIconAndButton
-					columns={header}
-					rows={tableData}
-					iconPaths={"/src/assets/icons/user_2.svg"}
-					onIconClick={handleClick}
-					width="50px"
-				/>
-			</div>
-			<div className="flex justify-center">
-				<div className="absolute bottom-5 mt-4 mb-[8%]">
-					<Paging
-						curPage={page}
-						onPageChange={setPage}
-						totalPage={members.totalPages} // 전체 페이지 수 계산
-					/>
-				</div>
-			</div>
-			{isModalOpen && (
-				<Modal onClose={closeModal}>
-					<div className="p-4">
-						<h2>정보 변경</h2>
-						<div className="mt-4">
-							<label>회원 레벨</label>
-							<Dropdown
-								buttonLabel={newLevel}
-								items={["1", "2", "3"]}
-								onSelect={setNewLevel}
-							/>
-						</div>
-						<div className="mt-4">
-							<label>쓰기 권한</label>
-							<Dropdown
-								buttonLabel={newRole}
-								items={["USER", "USER_WRITE", "ADMIN"]}
-								onSelect={setNewRole}
-							/>
-						</div>
-						<div className="flex justify-end mt-6">
-							<ButtonPrimary
-								btnName="변경 완료"
-								handleClick={handleSaveChanges}
-							/>
-						</div>
-					</div>
-				</Modal>
-			)}
-		</div>
-	);
+  useEffect(() => {
+    dispatch(
+      fetchMembersByPage({
+        page,
+        size,
+        sortBy,
+        sortDir,
+        searchType: searchValue ? searchType : undefined,
+        searchValue: searchValue || undefined,
+      })
+    );
+  }, [dispatch, page, size, sortBy, sortDir, searchType, searchValue, selectedLevels]);
+
+  if (loading) {
+    return <div className="flex justify-center items-center h-screen">로딩 중...</div>;
+  }
+
+  return (
+    <div className="p-6">
+      <div className="flex items-center space-x-4">
+        <div className="flex-grow">
+          <InputSearch
+            placeholder="회원 검색..."
+            searchTypes={["이름", "사번", "부서", "권한", "레벨"]}
+            onIconClick={handleSearch}
+          />
+        </div>
+
+        <div className="flex items-center space-x-4 bg-white p-4 rounded-lg shadow">
+          <span className="text-gray-700 font-medium">레벨 :</span>
+          <div className="flex space-x-4">
+            {levelOptions.map((option) => (
+              <label key={option.id} className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={selectedLevels.includes(option.id)}
+                  onChange={() => handleLevelChange(option.id)}
+                  className="form-checkbox h-4 w-4 text-blue-500"
+                />
+                <span className="text-gray-700">{option.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <TableWithAvatarAndButton
+          columns={header}
+          rows={getTableData()}
+          iconPaths={{}}
+          onIconClick={() => {}}
+          width="50px"
+        />
+      </div>
+
+      <div className="flex justify-center mt-6">
+        <Paging curPage={page} onPageChange={setPage} totalPage={members.totalPages} />
+      </div>
+
+      {isModalOpen && (
+        <Modal onClose={closeModal}>
+          <div className="p-6 space-y-4 h-[50svh]">
+            <h2 className="text-xl font-semibold mb-4">회원 정보 변경</h2>
+
+            <div className="space-y-2">
+              <label className="block text-gray-700">회원 레벨</label>
+              <DropdownBase items={["1", "2", "3"]} buttonLabel={newLevel} onSelect={setNewLevel} width="100%" />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-gray-700">회원 권한</label>
+              <DropdownBase items={roleOptions} buttonLabel={newRole} onSelect={setNewRole} width="100%" />
+            </div>
+
+            <div className="flex justify-end space-x-3 mt-6">
+              <ButtonPrimary
+                btnName="취소"
+                styleName="bg-gray-500 hover:bg-gray-600 text-white"
+                handleClick={closeModal}
+              />
+              <ButtonPrimary
+                btnName="저장"
+                styleName="bg-blue-500 hover:bg-blue-600 text-white"
+                handleClick={handleSaveChanges}
+              />
+            </div>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
 };
 
 export default MemberManagement;

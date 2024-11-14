@@ -69,7 +69,9 @@ public class BoardServiceImpl implements BoardService {
 		// Board 생성 (비즈니스 로직)
 		Board board = boardCreateRequestDto.toEntity(user, category);
 		board = boardRepository.save(board);
-		boardNotificationService.processBoardNotification(file, board.getLevel());
+		boardNotificationService.processBoardNotification(file, file != null ? file.getOriginalFilename() : "",
+			board.getLevel());
+		log.info("Create File 명 : " + file.getOriginalFilename());
 
 		// 파일이 있는 경우 비동기로 요약 처리 시작
 		if (boardCreateRequestDto.hasFile()) {
@@ -112,7 +114,8 @@ public class BoardServiceImpl implements BoardService {
 		board.updateBoard(boardUpdateRequestDto, category, null);
 
 		RegulationResponseDto regulationResponse = null;
-		boardNotificationService.processBoardNotification(file, board.getLevel());
+		boardNotificationService.processBoardNotification(file, file != null ? file.getName() : "", board.getLevel());
+		log.info("Update File 명 : " + file.getOriginalFilename());
 
 		// File 저장
 		if (boardUpdateRequestDto.hasFile()) {
