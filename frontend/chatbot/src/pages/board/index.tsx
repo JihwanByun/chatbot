@@ -52,7 +52,7 @@ const BoardListPage: React.FC = () => {
     name: undefined,
     title: undefined,
   });
-  const [role, setRole] = useState<string | null>("");
+  const {role} = useAppSelector(state=>state.users)
 
   // 스타일 정의
   const footStyle =
@@ -74,12 +74,6 @@ const BoardListPage: React.FC = () => {
     }),
     [curPage]
   );
-
-  // Role 확인
-  useEffect(() => {
-    const storedRole = localStorage.getItem("Role");
-    if (storedRole) setRole(storedRole);
-  }, []);
 
   // 게시글 목록 조회
   const fetchBoards = useCallback(async () => {

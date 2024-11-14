@@ -70,7 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <React.Fragment key={index}>
                   <ButtonWithIcon {...buttonProps} />
                   {index === 0 && isRule && (
-                    <div className="text-white text-xl ml-4">규정 즐겨찾기</div>
+                    <div className="text-white text-xl">규정 즐겨찾기</div>
                   )}
                 </React.Fragment>
               ))}

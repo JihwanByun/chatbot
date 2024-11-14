@@ -45,7 +45,7 @@ const BoardDetailPage: React.FC = () => {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [role, setRole] = useState<string | null>("");
+  const {role} = useAppSelector(state=>state.users);
 
   // Redux state
   const isRevisionMode = useAppSelector((state) => state.tree.isRevisionMode);
@@ -58,12 +58,6 @@ const BoardDetailPage: React.FC = () => {
   const { favorites, loading, hasMore, currentPage } = useAppSelector(
     (state) => state.favoriteBoards
   );
-
-  // Role 확인
-  useEffect(() => {
-    const storedRole = localStorage.getItem("Role");
-    if (storedRole) setRole(storedRole);
-  }, []);
 
   useEffect(() => {
     if (currentPage === 0) {
