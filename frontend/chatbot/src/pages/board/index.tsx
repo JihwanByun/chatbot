@@ -52,7 +52,7 @@ const BoardListPage: React.FC = () => {
     name: undefined,
     title: undefined,
   });
-  const {role} = useAppSelector(state=>state.users)
+  const { role } = useAppSelector(state => state.users)
 
   // 스타일 정의
   const footStyle =
@@ -136,9 +136,9 @@ const BoardListPage: React.FC = () => {
               isFavorite: !isFavorite,
               boardData: !isFavorite
                 ? {
-                    boardId: rowId,
-                    title: board.columns[1],
-                  }
+                  boardId: rowId,
+                  title: board.columns[1],
+                }
                 : null,
             })
           );
@@ -215,7 +215,7 @@ const BoardListPage: React.FC = () => {
 
   const sidebarComponents: ButtonWithIconProps[] = [
     {
-      btnName: "규정목록",
+      btnName: "규정 목록",
       styleName: boardButtonStyle,
       icon: "/src/assets/icons/book-open-text-footer.svg",
       handleClick: () => navigate("/board"),
@@ -267,7 +267,7 @@ const BoardListPage: React.FC = () => {
       </div>
 
       {/* 게시글 영역 */}
-      <div className="mb-4">
+      <div className="mb-4 px-5">
         <TableWithIconAndButton
           columns={tableHeader}
           rows={tableRows}
@@ -305,7 +305,7 @@ const BoardListPage: React.FC = () => {
 
   return (
     <SembotLayout
-      title="규정목록"
+      title="규정 목록"
       sidebarComponents={sidebarComponents}
       footerComponents={footerComponents}
       hasMore={hasMore}
