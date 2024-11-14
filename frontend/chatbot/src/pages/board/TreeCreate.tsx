@@ -51,6 +51,11 @@ const TreeCreate = () => {
 								onChange={(e) => {
 									dispatch(updateEditNodeData({title: e.target.value}))
 								}}
+								onKeyDown={(e) => {
+									if (e.key === ' ') {
+										e.stopPropagation();
+									}
+								}}
 								placeholder="제목을 입력하세요"
 								className="px-2 py-1 border rounded"
 								onClick={(e) => e.stopPropagation()}
@@ -61,6 +66,11 @@ const TreeCreate = () => {
 								onChange={(e) =>
 									dispatch(updateEditNodeData({content: e.target.value}))
 								}
+								onKeyDown={(e) => {
+									if (e.key === ' ') {
+										e.stopPropagation();
+									}
+								}}
 								placeholder="내용을 입력하세요"
 								className="px-2 py-1 border rounded"
 								onClick={(e) => e.stopPropagation()}
