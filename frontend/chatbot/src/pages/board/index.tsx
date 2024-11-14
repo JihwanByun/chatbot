@@ -6,25 +6,15 @@ import Paging from "@components/atoms/paging/Paging";
 import TableWithIconAndButton from "@components/atoms/table/TableWithIcon";
 import { TableRowData } from "@components/atoms/table/TableWithIcon";
 import { useAppDispatch, useAppSelector } from "@app/hooks";
-import {
-  fetchFavoriteBoards,
-  updateFavoriteStatus,
-} from "@app/slices/favoriteBoardsSlice";
-import {
-  getBoardListAPI,
-  TableResponse,
-  BoardSearchCondition,
-  Pageable,
-} from "@apis/board/boardApi";
-import {
-  createFavoriteAPI,
-  deleteFavoriteAPI,
-} from "@apis/board/boardFavoriteApi";
+import { fetchFavoriteBoards, updateFavoriteStatus } from "@app/slices/favoriteBoardsSlice";
+import { getBoardListAPI, TableResponse, BoardSearchCondition, Pageable } from "@apis/board/boardApi";
+import { createFavoriteAPI, deleteFavoriteAPI } from "@apis/board/boardFavoriteApi";
 import { ButtonProps as ButtonWithIconProps } from "@components/atoms/button/ButtonWithIcon";
 import ButtonPrimary from "@components/atoms/button/ButtonPrimary";
 import dayjs from "dayjs";
 import { logoutUser } from "@app/slices/userSlice";
 import { UserRole } from "@util/userConfig";
+import { getNavigationConfig } from "@pages/admin/adminNavigation";
 
 /** 즐겨찾기 아이콘 경로 상수 */
 export const favoritePath = "/src/assets/icons/favorite.svg"; // 즐겨찾기 되지 않은 상태 아이콘
@@ -38,9 +28,7 @@ const BoardListPage: React.FC = () => {
   const dispatch = useAppDispatch();
 
   // Redux store에서 상태 가져오기
-  const { favorites, loading, hasMore, currentPage } = useAppSelector(
-    (state) => state.favoriteBoards
-  );
+  const { favorites, loading, hasMore, currentPage } = useAppSelector((state) => state.favoriteBoards);
 
   // 로컬 상태 관리
   const [curPage, setCurPage] = useState<number>(1);
@@ -52,7 +40,7 @@ const BoardListPage: React.FC = () => {
     name: undefined,
     title: undefined,
   });
-  const { role } = useAppSelector(state => state.users)
+  const { role } = useAppSelector((state) => state.users);
 
   // 스타일 정의
   const footStyle =
@@ -79,15 +67,10 @@ const BoardListPage: React.FC = () => {
   const fetchBoards = useCallback(async () => {
     try {
       const cleanedCondition = Object.fromEntries(
-        Object.entries(searchCondition).filter(
-          ([_, value]) => value !== undefined && value !== ""
-        )
+        Object.entries(searchCondition).filter(([_, value]) => value !== undefined && value !== "")
       );
 
-      const boardList: TableResponse | null = await getBoardListAPI(
-        cleanedCondition,
-        pageInfo
-      );
+      const boardList: TableResponse | null = await getBoardListAPI(cleanedCondition, pageInfo);
       if (boardList == null) return;
       if (boardList) {
         // 날짜 포맷팅이 적용된 데이터로 변환
@@ -136,9 +119,9 @@ const BoardListPage: React.FC = () => {
               isFavorite: !isFavorite,
               boardData: !isFavorite
                 ? {
-                  boardId: rowId,
-                  title: board.columns[1],
-                }
+                    boardId: rowId,
+                    title: board.columns[1],
+                  }
                 : null,
             })
           );
@@ -161,22 +144,19 @@ const BoardListPage: React.FC = () => {
    * - 검색어가 빈 문자열인 경우 undefined로 설정하여 전체 검색되도록 함
    * - 검색 시 첫 페이지로 이동
    */
-  const handleSearch = useCallback(
-    (searchType: string, searchValue: string) => {
-      const newCondition: BoardSearchCondition = {};
-      switch (searchType) {
-        case "작성자":
-          newCondition.name = searchValue || undefined;
-          break;
-        case "제목":
-          newCondition.title = searchValue || undefined;
-          break;
-      }
-      setSearchCondition(newCondition);
-      setCurPage(1); // 검색 시 첫 페이지로 이동
-    },
-    []
-  );
+  const handleSearch = useCallback((searchType: string, searchValue: string) => {
+    const newCondition: BoardSearchCondition = {};
+    switch (searchType) {
+      case "작성자":
+        newCondition.name = searchValue || undefined;
+        break;
+      case "제목":
+        newCondition.title = searchValue || undefined;
+        break;
+    }
+    setSearchCondition(newCondition);
+    setCurPage(1); // 검색 시 첫 페이지로 이동
+  }, []);
 
   // 더 많은 즐겨찾기 로드
   const handleLoadMore = () => {
@@ -195,23 +175,7 @@ const BoardListPage: React.FC = () => {
   };
 
   // 컴포넌트 구성
-  const footerComponents: ButtonWithIconProps[] = [
-    {
-      btnName: "채팅",
-      styleName: footStyle,
-      icon: "/src/assets/icons/chatting-icon.svg",
-      handleClick: () => navigate("/chat"),
-    },
-    {
-      btnName: "로그아웃",
-      styleName: footStyle,
-      icon: "/src/assets/icons/logout.svg",
-      handleClick: async () => {
-        await dispatch(logoutUser());
-        navigate("/");
-      },
-    },
-  ];
+  const { footerComponents } = getNavigationConfig(role, navigate, dispatch);
 
   const sidebarComponents: ButtonWithIconProps[] = [
     {
@@ -259,11 +223,7 @@ const BoardListPage: React.FC = () => {
     <>
       {/* 검색 입력란 */}
       <div className="mb-4 flex justify-center mx-5">
-        <InputSearch
-          onIconClick={handleSearch}
-          searchTypes={["제목", "작성자"]}
-          placeholder="검색어를 입력하세요"
-        />
+        <InputSearch onIconClick={handleSearch} searchTypes={["제목", "작성자"]} placeholder="검색어를 입력하세요" />
       </div>
 
       {/* 게시글 영역 */}
@@ -280,22 +240,14 @@ const BoardListPage: React.FC = () => {
       {/* 페이지 번호 영역 */}
       <div className="flex justify-center">
         <div className="absolute bottom-5 mt-4">
-          <Paging
-            curPage={curPage}
-            totalPage={totalPages}
-            onPageChange={handlePageChange}
-          />
+          <Paging curPage={curPage} totalPage={totalPages} onPageChange={handlePageChange} />
         </div>
       </div>
 
       {/*글 쓰기 버튼*/}
       {role === UserRole.USER_WRITE ? (
         <div className="absolute top-5 right-[150px]">
-          <ButtonPrimary
-            btnName="규정 글 쓰기"
-            styleName="bg-blue-100"
-            handleClick={handleClickWrite}
-          />
+          <ButtonPrimary btnName="규정 글 쓰기" styleName="bg-blue-100" handleClick={handleClickWrite} />
         </div>
       ) : (
         <></>
