@@ -3,7 +3,6 @@ import ChatView, { Doc, QnA } from "@components/chat/ChatView";
 import ButtonWithIcon from "@components/atoms/button/ButtonWithIcon";
 import { BaseMessage } from "@components/chat/ChatMessage";
 import SembotLayout from "@pages/SembotLayout";
-import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import {
 	searchDocsAPI,
@@ -19,11 +18,11 @@ import {
 	deleteChatroomAPI,
 } from "@apis/chat/chatApi";
 import { ChatCategory } from "@components/chat/ChatCategories";
-import { getCategoryListAPI } from "@apis/category/categoryApi";
+import { getChatCategoryListAPI as getCategoryListAPI } from "@apis/category/categoryApi";
 import { getFeedbackReasonList } from "@apis/feedback/feedbackApi";
 import { useAppDispatch, useAppSelector } from "@app/hooks";
 import { logoutUser } from "@app/slices/userSlice";
-import { ErrorHandler } from "@util/ErrorHandler";
+import { deleteAlert, errorAlert } from "@util/alert";
 
 export type ButtonWithIconProps = React.ComponentProps<typeof ButtonWithIcon>;
 
@@ -61,7 +60,7 @@ const Chat: React.FC = () => {
 	const [feedbackReasons, setFeedbackReasons] = useState<string[]>([]);
 
 	const dispatch = useAppDispatch();
-	const user = useAppSelector((state) => state.users);
+	const user = useAppSelector((state) => state.users);	
 
 	const navigate = useNavigate();
 
@@ -124,7 +123,7 @@ const Chat: React.FC = () => {
 					navigate("/");  // 로그아웃 완료 후 navigate
 				} catch (error) {
 					console.log(error);
-					ErrorHandler.showError(new Error("로그아웃에 실패하였습니다."));
+					errorAlert(new Error("로그아웃에 실패하였습니다."));
 				}
 			}
 		),
@@ -162,30 +161,7 @@ const Chat: React.FC = () => {
 			"src/assets/icons/delete.svg",
 			() => fetchChatroom(content.chatRoomId),
 			deleteIconStyle,
-			() => {
-				Swal.fire({
-					title: "삭제하시겠습니까?",
-					text: "삭제 후 복구는 불가능합니다.",
-					icon: "warning",
-					showCancelButton: true,
-					// confirmButtonColor: '#d33',
-					// cancelButtonColor: '#3085d6',
-					confirmButtonText: "삭제",
-					cancelButtonText: "취소",
-					customClass: {
-						confirmButton:
-							"bg-red-500 text-white px-4 py-2 rounded-lg focus:ring-0 focus:outline-none active:bg-red-500 hover:bg-red-600",
-						cancelButton:
-							"bg-white border-2 border-gray-300 text-gray-700 px-4 py-2 rounded-lg ml-2 hover:bg-gray-200",
-					},
-					buttonsStyling: false, // 기본 스타일링 비활성화
-				}).then((result) => {
-					if (result.isConfirmed) {
-						deleteChatroom(content.chatRoomId);
-						Swal.fire("삭제되었습니다.");
-					}
-				});
-			}
+			()=>deleteAlert(()=>deleteChatroom(content.chatRoomId))
 		);
 	},[fetchChatroom]);
 
@@ -211,7 +187,7 @@ const Chat: React.FC = () => {
 			setChatroomComponents((prev) => [...prev, ...newComponents]);
 		} catch (error) {
 			if (error instanceof Error) {
-				ErrorHandler.showError(error);
+				errorAlert(error);
 			}
 		} finally {
 			setState((prev) => ({ ...prev, isFetchingChatrooms: false }));
@@ -334,7 +310,7 @@ const Chat: React.FC = () => {
 				await handleGenerateResponse(message, newQnA);
 			} catch (error) {
 				if (error instanceof Error) {
-					ErrorHandler.showError(error);
+					errorAlert(error);
 				}
 			} finally {
 				setState((prev) => ({ ...prev, isLoading: false }));
@@ -382,6 +358,7 @@ const Chat: React.FC = () => {
 	}, [state.currentChatroomPage, fetchChatrooms]);
 
 	useEffect(() => {
+		console.log(user);
 		fetchCategories();
 		fetchFeedbackReasons();
 		setChatroomComponents([newChatProp]);
