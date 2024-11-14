@@ -1,5 +1,5 @@
 import React from "react";
-import TableHeader from "./TableHeader";
+import MemberTableHeader from "./MemberTableHeader";
 import TableRowWithAvatar from "./TableRowWithAvatar";
 
 export interface TableRowData {
@@ -26,7 +26,7 @@ const TableWithAvaterAndButton: React.FC<TableRowWithAvatarProps> = ({
 }) => {
   return (
     <table className="min-w-full divide-y divide-gray-200 shadow-sm rounded-lg overflow-hidden">
-      <TableHeader columns={columns} width={width} />
+      <MemberTableHeader columns={columns} width={width} />
       <tbody className="bg-white divide-y divide-gray-100">
         {rows.map((row) => (
           <TableRowWithAvatar
