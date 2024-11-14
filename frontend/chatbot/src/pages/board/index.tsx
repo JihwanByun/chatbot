@@ -24,6 +24,7 @@ import { ButtonProps as ButtonWithIconProps } from "@components/atoms/button/But
 import ButtonPrimary from "@components/atoms/button/ButtonPrimary";
 import dayjs from "dayjs";
 import { logoutUser } from "@app/slices/userSlice";
+import { UserRole } from "@util/userConfig";
 
 /** 즐겨찾기 아이콘 경로 상수 */
 export const favoritePath = "/src/assets/icons/favorite.svg"; // 즐겨찾기 되지 않은 상태 아이콘
@@ -294,7 +295,7 @@ const BoardListPage: React.FC = () => {
       </div>
 
       {/*글 쓰기 버튼*/}
-      {role === "일반 사용자 작성자" ? (
+      {role === UserRole.USER_WRITE ? (
         <div className="absolute top-5 right-[150px]">
           <ButtonPrimary
             btnName="규정 글 쓰기"
