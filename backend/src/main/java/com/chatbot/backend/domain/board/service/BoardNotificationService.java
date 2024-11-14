@@ -32,8 +32,8 @@ public class BoardNotificationService {
 	 * @param file    알림 생성에 필요한 PDF 파일
 	 * @param level 게시글 접근 수준을 나타내는 레벨
 	 */
-	public void processBoardNotification(MultipartFile file, Integer level) {
-		createBoardNotification(file, level)    // 알림 생성 요청을 실행
+	public void processBoardNotification(MultipartFile file, String title, Integer level) {
+		createBoardNotification(file, title, level)    // 알림 생성 요청을 실행
 			.subscribeOn(Schedulers.boundedElastic())
 			.subscribe(
 				success -> log.info("Notification processed successfully"),
@@ -64,7 +64,7 @@ public class BoardNotificationService {
 	 * @param level 게시글의 접근 수준
 	 * @return FastAPI 요청에 대한 Mono 객체
 	 */
-	private Mono<Void> createBoardNotification(MultipartFile file, Integer level) {
+	private Mono<Void> createBoardNotification(MultipartFile file, String title, Integer level) {
 		try {
 			String pdfText = null;
 
@@ -75,7 +75,10 @@ public class BoardNotificationService {
 			}
 
 			// Request DTO 생성
-			PdfRequestDto requestDto = PdfRequestDto.of(pdfText, level);
+			PdfRequestDto requestDto = PdfRequestDto.of(pdfText, title, level);
+			log.info("RequestDto 정보 : (Text)" + requestDto.text());
+			log.info("RequestDto 정보 : (Title)" + requestDto.title());
+			log.info("RequestDto 정보 : (Level)" + requestDto.level());
 
 			// FastAPI 에 POST 요청을 보내 알림 정보를 전송
 			return webClient

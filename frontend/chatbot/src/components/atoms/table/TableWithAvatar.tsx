@@ -1,26 +1,22 @@
 import React from "react";
-import TableHeader from "./TableHeader";
-import TableRowWithIcon from "./TableRowWithIcon";
+import MemberTableHeader from "./MemberTableHeader";
+import TableRowWithAvatar from "./TableRowWithAvatar";
 
 export interface TableRowData {
-  id: number; // 각 행의 고유 ID
-  /** 테이블 data 배열 */
+  id: number;
   columns: (string | JSX.Element)[];
 }
 
-interface TableRowWithIconProps {
-  /** 테이블 title row */
+interface TableRowWithAvatarProps {
   columns: (string | JSX.Element)[];
-  /** 테이블 data row 배열 */
   rows: TableRowData[];
-  /** 테이블 셀 width */
   width?: string;
-  iconPaths: { [key: number]: string }; // 행별 아이콘 경로
-  onIconClick: (id: number) => void; // 아이콘 클릭 시 이벤트
+  iconPaths: { [key: number]: string };
+  onIconClick: (id: number) => void;
   onRowClick?: (id: number) => void;
 }
 
-const TableWithIconAndButton: React.FC<TableRowWithIconProps> = ({
+const TableWithAvaterAndButton: React.FC<TableRowWithAvatarProps> = ({
   columns,
   rows,
   width = "auto",
@@ -29,16 +25,16 @@ const TableWithIconAndButton: React.FC<TableRowWithIconProps> = ({
   onRowClick = () => { },
 }) => {
   return (
-    <table className="min-w-full divide-y divide-gray-200">
-      <TableHeader columns={columns} width={width} />
+    <table className="min-w-full divide-y divide-gray-200 shadow-sm rounded-lg overflow-hidden">
+      <MemberTableHeader columns={columns} width={width} />
       <tbody className="bg-white divide-y divide-gray-100">
         {rows.map((row) => (
-          <TableRowWithIcon
+          <TableRowWithAvatar
             key={row.id}
             columns={row.columns}
             width={width}
             iconPath={iconPaths[row.id]}
-            styleName="w-3.5 h-3.5"
+            styleName="w-2 h-2"
             onRowClick={() => onRowClick?.(row.id)}
             onIconClick={() => onIconClick?.(row.id)}
           />
@@ -48,4 +44,4 @@ const TableWithIconAndButton: React.FC<TableRowWithIconProps> = ({
   );
 };
 
-export default TableWithIconAndButton;
+export default TableWithAvaterAndButton;
