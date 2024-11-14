@@ -35,6 +35,7 @@ public class UserQueryRepositoryImpl extends Querydsl4RepositorySupport<User, QU
 		return applyPagination(pageable,
 			selectFrom(user)
 				.where(
+					hasName(userSearchCondition.name()),
 					hasEmail(userSearchCondition.email()),
 					hasEmployeeNum(userSearchCondition.employeeNum()),
 					hasDepartment(userSearchCondition.department()),
@@ -44,7 +45,12 @@ public class UserQueryRepositoryImpl extends Querydsl4RepositorySupport<User, QU
 		);
 	}
 
-	// 이메일로 사용자 필터링 (검색 조건에 해당 이메일의 일부가 있을 때 조회
+	// 이름으로 사용자 필터링 (검색 조건에 해당 이름의 일부가 있을 때 조회)
+	private BooleanExpression hasName(String name) {
+		return name != null ? user.name.contains(name) : null;
+	}
+
+	// 이메일로 사용자 필터링 (검색 조건에 해당 이메일의 일부가 있을 때 조회)
 	private BooleanExpression hasEmail(String email) {
 		return email != null ? user.email.contains(email) : null;
 	}
