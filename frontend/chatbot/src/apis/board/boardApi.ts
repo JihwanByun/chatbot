@@ -50,22 +50,22 @@ export type BoardSearchCondition = {
 	title?: string;
 };
 
-interface TreeState {
-	treeData: TreeNode[];
-	isRevisionMode: boolean;
-	editNodeId: string | null;
-	editNodeData: {
-		title: string;
-		content: string;
-	} | null;
-}
+// interface TreeState {
+// 	treeData: TreeNode[];
+// 	isRevisionMode: boolean;
+// 	editNodeId: string | null;
+// 	editNodeData: {
+// 		title: string;
+// 		content: string;
+// 	} | null;
+// }
 
-const initialState: TreeState = {
-	isRevisionMode: false,
-	editNodeId: null,
-	editNodeData: null,
-	treeData: [],
-};
+// const initialState: TreeState = {
+// 	isRevisionMode: false,
+// 	editNodeId: null,
+// 	editNodeData: null,
+// 	treeData: [],
+// };
 
 export interface TreeNode {
 	id: string;
@@ -270,8 +270,15 @@ export const updateBoard = async (
 	});
 };
 
+export type BoardRequest = {
+	title: string;
+	category: string;
+	level: number;
+	file?: File;
+}
+
 // boardApi.ts
-export const createBoard = async (treeData: TreeNode[], file?: File | null) => {
+export const createBoard = async (treeData: TreeNode[], request : BoardRequest) => {
 	// FormData 객체 생성
 	console.log("Creating board with treeData:", treeData);
 
@@ -280,14 +287,15 @@ export const createBoard = async (treeData: TreeNode[], file?: File | null) => {
 	// treeData를 RegulationRequestDto 구조로 변환
 	const regulationRequestDto = convertTreeDataToRegulationRequest(treeData);
 
+	const file = request.file;
+
 	// BoardUpdateRequestDto 구조 생성
 	const boardCreateRequestDto: BoardCreateRequestDto = {
-		title: "제목제목제목",
-		contents: "내용내용내용",
-		category: "휴가 지침",
-		level: 3,
+		title : request.title,
+		category : request.category,
+		level : request.level,
 		regulationRequest: regulationRequestDto,
-		hasFile: !!file,
+		hasFile: file ? true : false,
 	};
 
 	console.log("Request DTO:", boardCreateRequestDto);
@@ -306,26 +314,17 @@ export const createBoard = async (treeData: TreeNode[], file?: File | null) => {
 	}
 
 	// FormData 내용 로깅
-	for (let pair of formData.entries()) {
+	for (const pair of formData.entries()) {
 		console.log(pair[0], pair[1]);
 	}
 
 	// API 요청 전송 - 경로 수정
-	try {
-		const response = await defaultAxios.post("/api/boards", formData, {
-			headers: {
-				"Content-Type": "multipart/form-data",
-			},
-			// axios 디버깅을 위한 설정 추가
-			validateStatus: function (status) {
-				return status < 500; // 500 미만의 상태 코드는 에러로 처리하지 않음
-			},
-		});
+	const response = await defaultAxios.post("/api/boards", formData, {
+		headers: {
+			"Content-Type": "multipart/form-data",
+		},
+	});
 
-		console.log("API Response:", response);
-		return response;
-	} catch (error) {
-		console.error("API Error:", error);
-		throw error;
-	}
+	console.log("API Response:", response);
+	return response;
 };
