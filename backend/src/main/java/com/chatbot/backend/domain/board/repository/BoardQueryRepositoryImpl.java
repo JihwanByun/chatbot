@@ -40,16 +40,22 @@ public class BoardQueryRepositoryImpl extends Querydsl4RepositorySupport<Board, 
 				.from(board)
 				.leftJoin(board.user, user)
 				.where(
-					isAccessibleByLevel(boardSearchCondition.level()),
+					hasLevel(boardSearchCondition.level()),
+					isAccessibleByLevel(level),
 					hasName(boardSearchCondition.name()),
 					hasTitle(boardSearchCondition.title()),
 					board.isDeleted.isFalse()));
 	}
 
+	// 레벨으로 게시글 작성자 필터링
+	private BooleanExpression hasLevel(Integer level) {
+		return level != null ? board.level.eq(level) : null;
+	}
+
 	// 게시글 접근 권한 확인을 위한 메소드
 	// 사용자 레벨에 따른 접근 가능 여부 판단
 	private BooleanExpression isAccessibleByLevel(Integer level) {
-		return level != null ? board.level.eq(level).and(board.level.loe(user.level)) : board.level.loe(user.level);
+		return level != null ? board.level.loe(level) : null;
 	}
 
 	// 이름으로 게시글 작성자 필터링
