@@ -222,7 +222,13 @@ const treeSlice = createSlice({
 			.addCase(createTree.rejected, (state, action) => {
 				// 에러 처리
 				console.error("Failed to create tree:", action.error);
-			});
+			})
+			.addCase(saveTreeChange.fulfilled, (state, action) => {
+				// API 응답 처리
+				console.log("Tree 수정 완료:", action.payload);
+				state.editNodeId = null;
+				state.editNodeData = null;
+			})
 	},
 });
 

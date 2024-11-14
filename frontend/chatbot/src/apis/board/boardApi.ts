@@ -172,6 +172,17 @@ export const getBoardListAPI = async (
 		});
 };
 
+export const deleteBoardAPI = async (
+	boardId : number,
+) => {
+	defaultAxios
+		.delete<void>(`/api/boards/${boardId}`)
+		.catch((error) => {
+			console.log(error);
+			throw new Error("게시글 삭제에 실패하였습니다.");
+		});
+};
+
 export type BoardUpdateRequestDto = {
 	title?: string;
 	contents?: string;
