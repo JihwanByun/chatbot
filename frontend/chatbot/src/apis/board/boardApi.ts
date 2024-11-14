@@ -229,9 +229,9 @@ function convertTreeDataToRegulationRequest(
 }
 
 export const updateBoard = async (
-	boardId: string | undefined,
+	boardId: number | undefined,
 	treeData: TreeNode[],
-	file?: File | null
+	request : BoardRequest
 ) => {
 	// FormData 객체 생성
 	const formData = new FormData();
@@ -239,14 +239,15 @@ export const updateBoard = async (
 	// treeData를 RegulationRequestDto 구조로 변환
 	const regulationRequestDto = convertTreeDataToRegulationRequest(treeData);
 
+	const file = request.file;
+
 	// BoardUpdateRequestDto 구조 생성
 	const boardUpdateRequestDto: BoardUpdateRequestDto = {
-		title: "제목제목제목",
-		contents: "내용내용내용",
-		category: "휴가 지침",
-		level: 3,
+		title : request.title,
+		category : request.category,
+		level : request.level,
 		regulationRequest: regulationRequestDto,
-		hasFile: !!file,
+		hasFile: file ? true : false,
 	};
 
 	// request 부분을 JSON 문자열로 변환하여 FormData에 추가

@@ -34,32 +34,7 @@ const TreeView: React.FC<TreeViewProps> = ({
 		const depthName = depthLabel[depth - 1] || "";
 		return `제${index + 1}${depthName}(${title || ""}) ${content || ""}`;
 	};
-
-	// const handleSubmit = async () => {
-  //   // API 호출 또는 다른 제출 로직
-  //   console.log('제출된 데이터:', formData);
-
-	// 	try {
-  //     const request : BoardRequest = {
-  //       title : formData.title,
-  //       category : formData.category,
-  //       level : formData.level
-  //     }
-	// 		// createTree 액션 디스패치
-	// 		const result = await dispatch(createTree(request)).unwrap();
-
-	// 		// 성공 처리
-	// 		console.log("Tree saved successfully:", result);
-	// 		successAlert("규정이 등록되었습니다.")
-  //     navigate("/board");
-	// 		// 여기에 성공 메시지나 리다이렉션 로직 추가
-	// 	} catch (error) {
-	// 		console.error("Failed to save tree:", error);
-	// 		errorAlert(new Error("규정 등록에 실패하였습니다."));
-	// 		// 에러 메시지 표시 로직 추가
-	// 	}
-  // };
-
+	
 	const renderTree = (node: TreeNode, index: number) => (
 		<TreeItem
 			key={node.id}

@@ -41,13 +41,13 @@ const convertToTreeNode = (
 
 export const saveTreeChange = createAsyncThunk(
 	"board/update",
-	async ({ boardId }: { boardId: string | undefined }, { getState }) => {
+	async ({ boardId, request }: { boardId: number | undefined, request : BoardRequest }, { getState }) => {
 		// Access the treeData state
 		const state = getState() as { tree: TreeState };
 		const { treeData } = state.tree;
 
 		// Call the API with treeData and boardId
-		const response = await updateBoard(boardId, treeData);
+		const response = await updateBoard(boardId, treeData, request);
 		console.log("API Response:", response.data);
 
 		return response.data;
