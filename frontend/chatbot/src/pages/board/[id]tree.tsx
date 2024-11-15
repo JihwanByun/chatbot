@@ -162,7 +162,7 @@ const BoardDetailPage: React.FC = () => {
 				errorAlert(error);
 			}
     }finally{
-      navigate("/board");
+      navigate("/board", { state: { refresh: true } });
     }
   }
 
@@ -237,7 +237,7 @@ const BoardDetailPage: React.FC = () => {
             {boardDetail?.hasFile && (
               <ButtonWithIcon
                 btnName="파일 다운로드"
-                styleName="mt-2 text-sm text-blue-600 hover:text-blue-800"
+                styleName="mt-2 text-sm text-blue-600 hover:text-blue-800 bg-white"
                 icon="/src/assets/icons/document-download.svg"
                 handleClick={handleDownloadFile}
               />

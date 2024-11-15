@@ -35,7 +35,7 @@ const BoardCreateForm: React.FC<BoardCreateFormProps> = ({
 }) => {
 
   return (
-    <div className="p-6 bg-white border-b text-base">
+    <div className="py-6 bg-white border-b text-base">
       <div className="max-w-2xl space-y-6">
         {/* Title Input */}
         <div className="space-y-2">

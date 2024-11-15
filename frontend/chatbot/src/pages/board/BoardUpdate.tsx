@@ -6,8 +6,9 @@ import { saveTreeChange, setTreeData } from "@app/slices/treeSlice";
 import { BoardRequest } from "@apis/board/boardApi";
 import { errorAlert, successAlert } from "@util/alert";
 import { getCategoryListAPI } from "@apis/category/categoryApi";
-import { BoardDetailResponse } from "@apis/board/boardDetailApi";
+import { BoardDetailResponse, downloadFileAPI } from "@apis/board/boardDetailApi";
 import ButtonOnlyIcon from "@components/atoms/button/ButtonOnlyIcon";
+import FileUploadForm from "@components/atoms/input/InputFile";
 
 export interface BoardUpdateProps {
   board : BoardDetailResponse
@@ -21,6 +22,8 @@ const BoardUpdate: React.FC<BoardUpdateProps> = ({
   onBackClick
 }) => {
   const dispatch = useAppDispatch();
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
     title: '',
@@ -46,11 +49,32 @@ const BoardUpdate: React.FC<BoardUpdateProps> = ({
       level: board.level
     });
   }
+  
+  const initFileData = async () => {
+    if (board.hasFile && board.fileUrl) {
+      try {
+        const blob = await downloadFileAPI(board.fileUrl);
+        const fileName = board.fileUrl.split("/").pop() || "download.pdf";
+        
+        // Blob을 File 객체로 변환
+        const file = new File([blob], fileName, {
+          type: blob.type || 'application/pdf',
+          lastModified: new Date().getTime()
+        });
+        
+        setSelectedFile(file);
+      } catch (error) {
+        console.error("Failed to initialize file:", error);
+        errorAlert(new Error("파일 정보를 불러오는데 실패했습니다."));
+      }
+    }
+  };
 
   useEffect(()=>{
     fetchCategories();
     initRequlationData();
     initFormData();
+    initFileData();
   },[]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -61,6 +85,16 @@ const BoardUpdate: React.FC<BoardUpdateProps> = ({
     }));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type === 'application/pdf') {
+      setSelectedFile(file);
+    } else {
+      errorAlert(new Error("PDF 파일만 업로드 가능합니다."));
+      e.target.value = '';
+    }
+  };
+
   const handleSubmit = async () => {
     // API 호출 또는 다른 제출 로직
     console.log('제출된 데이터:', formData);
@@ -69,7 +103,8 @@ const BoardUpdate: React.FC<BoardUpdateProps> = ({
       const request : BoardRequest = {
         title : formData.title,
         category : formData.category,
-        level : formData.level
+        level : formData.level,
+        file: selectedFile
       }
 			// saveTreeChange 액션 디스패치
 			const result = await dispatch(saveTreeChange({boardId:board.boardId, request})).unwrap();
@@ -86,13 +121,13 @@ const BoardUpdate: React.FC<BoardUpdateProps> = ({
 
   return (
     <div className="bg-white px-6">
-      {/* 메인 컨텐츠 */}
-      <div className="shadow-md rounded-lg text-left mb-6 relative">
+      {/**메인 컨텐츠 */}
+      <div className="rounded-lg text-left mb-6 relative">
         <ButtonOnlyIcon
           key="move-prev-board"
           icon="/src/assets/icons/go-to-prev.svg"
           width={18}
-          styleName="p-2 hover:bg-gray-100 rounded absolute right-4 top-4"
+          styleName="p-2 hover:bg-gray-100 rounded absolute right-0 top-4"
           onClick={onBackClick}
         />
         <BoardCreateForm 
@@ -100,8 +135,13 @@ const BoardUpdate: React.FC<BoardUpdateProps> = ({
           categories={categories} 
           onInputChange={handleInputChange}
         />
-        <div className="rounded-md">
-          <TreeCreate />
+        <div className="mt-4">
+          {!board.hasFile ? <TreeCreate /> : 
+          <FileUploadForm
+            selectedFile={selectedFile}
+            setSelectedFile={setSelectedFile}
+            handleFileChange={handleFileChange}
+          />}
         </div>
       </div>
       {/** 버튼 */}

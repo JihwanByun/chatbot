@@ -32,7 +32,7 @@ const LoginForm: React.FC = () => {
         navigate("/chat", { replace: true });
       }
     }
-  }, [role, navigate]);
+  }, [role, navigate, loading]);
 
 	const handleSignUpClick = () => {
 		navigate("/register");

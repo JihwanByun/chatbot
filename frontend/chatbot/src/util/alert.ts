@@ -25,7 +25,7 @@ export const deleteAlert = (handleClick : () => void) => {
   });
 }
 
-export const errorAlert = (error : Error) => {
+export const errorAlert = (error : Error, handleClick? : () => void) => {
   Swal.fire({
     text: error.message || '오류가 발생했습니다.',
     icon: 'error',
@@ -35,6 +35,10 @@ export const errorAlert = (error : Error) => {
         'bg-blue-500 text-white px-4 py-2 rounded-lg focus:ring-0 focus:outline-none active:bg-blue-500 hover:bg-blue-600',
     },
     buttonsStyling: false,
+  }).then(() => {
+    if (handleClick) {
+      handleClick();
+    }
   });
 }
 

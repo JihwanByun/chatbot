@@ -3,7 +3,7 @@ import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
-import { addNode, saveNodeEdit, startEditNode, TreeNode, updateEditNodeData } from "@app/slices/treeSlice";
+import { addNode, deleteNode, saveNodeEdit, startEditNode, TreeNode, updateEditNodeData } from "@app/slices/treeSlice";
 import { useAppDispatch, useAppSelector } from "@app/hooks";
 
 const TreeCreate = () => {
@@ -37,6 +37,10 @@ const TreeCreate = () => {
 		dispatch(addNode({parentId, parentDepth:depth}));
 	};
 
+	const handleDeleteNode = (nodeId: string) => {
+		dispatch(deleteNode(nodeId));
+	};
+
 	const renderTree = (node: TreeNode, index: number) => (
 		<TreeItem
 			key={node.id}
@@ -44,17 +48,20 @@ const TreeCreate = () => {
 			label={
 				<div className="flex items-center w-full py-2 px-4 hover:bg-gray-50 justify-between">
 					{node.id === editNodeId ? (
-						<div className="flex gap-2 items-center">
+						<div className="flex gap-2 items-center"
+							onKeyDown={(e) => {
+								if (e.key === ' ') {
+									e.stopPropagation();
+								}else if(e.key === 'Enter'){
+									handleSaveEdit();
+								}
+							}}
+						>
 							<input
 								type="text"
 								value={editNodeData?.title}
 								onChange={(e) => {
 									dispatch(updateEditNodeData({title: e.target.value}))
-								}}
-								onKeyDown={(e) => {
-									if (e.key === ' ') {
-										e.stopPropagation();
-									}
 								}}
 								placeholder="제목을 입력하세요"
 								className="px-2 py-1 border rounded"
@@ -66,11 +73,6 @@ const TreeCreate = () => {
 								onChange={(e) =>
 									dispatch(updateEditNodeData({content: e.target.value}))
 								}
-								onKeyDown={(e) => {
-									if (e.key === ' ') {
-										e.stopPropagation();
-									}
-								}}
 								placeholder="내용을 입력하세요"
 								className="px-2 py-1 border rounded"
 								onClick={(e) => e.stopPropagation()}
@@ -97,6 +99,14 @@ const TreeCreate = () => {
 									}}
 								>
 									<EditIcon fontSize="small" />
+								</button>
+								<button
+									onClick={(e) => {
+										e.stopPropagation();
+										handleDeleteNode(node.id);
+									}}
+								>
+									<img width={18} src="/src/assets/icons/delete-black.svg" />
 								</button>
 								{node.depth <= 3 && (
 									<button
