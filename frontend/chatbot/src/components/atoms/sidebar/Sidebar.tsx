@@ -51,45 +51,60 @@ const Sidebar: React.FC<SidebarProps> = ({
   }, [hasMore, isLoading, onLoadMore]);
 
   return (
-    <div>
-      <div className="w-full border-r border-indigo-900 bg-semesBlue">
-        <div className="flex h-screen flex-col justify-between pt-2 pb-6">
-          <div>
-            {/* Logo Header */}
+    <div className="h-full">
+      <div className="w-full h-full border-r border-indigo-900 bg-semesBlue">
+        <div className="flex h-full flex-col">
+          {/* Logo Header - Fixed height */}
+          <div className="flex-none p-2">
             <div className="w-full flex flex-row mb-2">
               <img src={SEMBOT_LOGO} alt="SEMBOT LOGO" />
               <div className="text-white text-xl mt-2 ml-1">SEMBOT</div>
             </div>
+          </div>
 
-            {/* Scrollable Component List */}
-            <div
-              className="w-full flex flex-col space-y-2 overflow-y-auto max-h-[calc(100vh-250px)]
-                        [&::-webkit-scrollbar]:w-0"
-            >
+          <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+            <div className="flex-1 overflow-y-auto px-2 [&::-webkit-scrollbar]:w-0">
               {components.map((buttonProps, index) => (
                 <React.Fragment key={index}>
-                  <ButtonWithIcon {...buttonProps} />
-                  {index === 0 && isRule && (
-                    <div className="text-white text-xl">규정 즐겨찾기</div>
-                  )}
+                  <div
+                    className="mb-2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      buttonProps.handleClick?.(e);
+                    }}
+                  >
+                    <ButtonWithIcon
+                      {...buttonProps}
+                      className={`${buttonProps.styleName} ${
+                        buttonProps.isActive ? "bg-white text-semesBlue" : "text-white hover:bg-white/10"
+                      }`}
+                    />
+                  </div>
+                  {index === 0 && isRule && <div className="text-white text-xl mb-2">규정 즐겨찾기</div>}
                 </React.Fragment>
               ))}
 
               {/* Loading indicator and sentinel */}
-              <div ref={lastItemRef}>
-                {isLoading && (
-                  <div className="text-white text-center py-2">Loading...</div>
-                )}
-              </div>
+              <div ref={lastItemRef}>{isLoading && <div className="text-white text-center py-2">Loading...</div>}</div>
             </div>
           </div>
 
-          {/* Footer Section */}
-          <div>
-            <hr className="mx-2 mb-3 border border-gray-100" />
-            <div className="w-full mb-3 flex flex-col space-y-2">
+          <div className="flex-none px-2 pb-6">
+            <hr className="mb-3 border border-gray-100" />
+            <div className="space-y-2">
               {footerComponents.map((buttonProps, index) => (
-                <ButtonWithIcon key={index} {...buttonProps} />
+                <div
+                  key={index}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    buttonProps.handleClick?.(e);
+                  }}
+                >
+                  <ButtonWithIcon
+                    {...buttonProps}
+                    className={`${buttonProps.styleName} text-white hover:bg-white/10`}
+                  />
+                </div>
               ))}
             </div>
           </div>
