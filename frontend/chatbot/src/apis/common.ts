@@ -39,9 +39,9 @@ defaultAxios.interceptors.response.use(
 		if (error.response.data) {
 			const code = error.response.data.code;
 			switch(code){
-				case Error.EXPIRED_TOKEN:
+				case Error.EXPIRED_TOKEN.code:
 					// refresh 처리
-					logout();
+					localStorage.removeItem("Authorization");
 					break;
 				case Error.INVALID_TOKEN.code:
 				case Error.UNSUPPORTED_TOKEN.code:
