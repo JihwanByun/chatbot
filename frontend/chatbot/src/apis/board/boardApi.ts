@@ -286,7 +286,7 @@ export type BoardRequest = {
 	title: string;
 	category: string;
 	level: number;
-	file?: File;
+	file: File | null;
 }
 
 // boardApi.ts
@@ -306,7 +306,7 @@ export const createBoard = async (treeData: TreeNode[], request : BoardRequest) 
 		title : request.title,
 		category : request.category,
 		level : request.level,
-		regulationRequest: regulationRequestDto,
+		regulationRequest: file ? undefined : regulationRequestDto,
 		hasFile: file ? true : false,
 	};
 

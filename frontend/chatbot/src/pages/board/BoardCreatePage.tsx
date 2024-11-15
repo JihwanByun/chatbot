@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SembotLayout from "@pages/SembotLayout";
-import TreeCreate from "@pages/board/TreeCreate"; // TreeCreate 컴포넌트 import
+import TreeCreate from "@pages/board/TreeCreate";
 import { useAppDispatch, useAppSelector } from "@app/hooks";
-import BoardCreateForm, { Category, FormData } from "@pages/board/BoardCreateForm";
+import BoardCreateForm, { Category, FormData as BoardFormData } from "@pages/board/BoardCreateForm";
 import { createTree, setTreeData } from "@app/slices/treeSlice";
 import { BoardRequest } from "@apis/board/boardApi";
 import { errorAlert, successAlert } from "@util/alert";
 import { getCategoryListAPI } from "@apis/category/categoryApi";
 import ButtonOnlyIcon from "@components/atoms/button/ButtonOnlyIcon";
+import FileUploadForm from "@components/atoms/input/InputFile";
+
+type InputType = 'manual' | 'file';
 
 const BoardCreatePage: React.FC = () => {
-  // 스타일 정의
   const footStyle =
     "flex bg-transparent text-white py-2 px-4 rounded mx-1 transform hover:translate-x-1 transition-all duration-200 cursor-pointer";
   const boardButtonStyle =
@@ -19,23 +21,24 @@ const BoardCreatePage: React.FC = () => {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  // Redux store에서 상태 가져오기
   const { favorites } = useAppSelector((state) => state.favoriteBoards);
 
-  const [formData, setFormData] = useState<FormData>({
+  const [inputType, setInputType] = useState<InputType>('manual');
+  const [formData, setFormData] = useState<BoardFormData>({
     title: '',
     category: '',
     level: 1
   });
-
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
 
   const fetchCategories = async () => {
     const categories = await getCategoryListAPI();
     setCategories(categories);
 
-    if(categories.length === 0) errorAlert(new Error("카테고리가 없습니다."),()=>navigate("/board", {replace : true}));    
-    else{
+    if(categories.length === 0) {
+      errorAlert(new Error("카테고리가 없습니다."),()=>navigate("/board", {replace : true}));    
+    } else {
       setFormData(prev => ({
         ...prev,
         category: categories[0].value
@@ -56,40 +59,44 @@ const BoardCreatePage: React.FC = () => {
     }));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type === 'application/pdf') {
+      setSelectedFile(file);
+    } else {
+      errorAlert(new Error("PDF 파일만 업로드 가능합니다."));
+      e.target.value = '';
+    }
+  };
+
   const handleSubmit = async () => {
-    // API 호출 또는 다른 제출 로직
-    console.log('제출된 데이터:', formData);
-
-		try {
-      const request : BoardRequest = {
-        title : formData.title,
-        category : formData.category,
-        level : formData.level
+    try {
+      const request: BoardRequest = {
+        title: formData.title,
+        category: formData.category,
+        level: formData.level,
+        file: selectedFile
       }
-			// createTree 액션 디스패치
-			const result = await dispatch(createTree(request)).unwrap();
 
-			// 성공 처리
-			console.log("Tree saved successfully:", result);
-			successAlert("규정이 등록되었습니다.")
+      const result = await dispatch(createTree(request)).unwrap();
+      console.log("Tree saved successfully:", result);
+
+      successAlert("규정이 등록되었습니다.");
       navigate("/board");
-			// 여기에 성공 메시지나 리다이렉션 로직 추가
-		} catch (error) {
-			console.error("Failed to save tree:", error);
-			errorAlert(new Error("규정 등록에 실패하였습니다."));
-			// 에러 메시지 표시 로직 추가
-		}
+    } catch (error) {
+      console.error("Failed to save:", error);
+      errorAlert(new Error("규정 등록에 실패하였습니다."));
+    }
   };
 
   const getChildren = () => (
     <div className="bg-white px-6">
-      {/* 메인 컨텐츠 */}
-      <div className="shadow-md rounded-lg text-left mb-6 relative">
+      <div className="rounded-lg text-left mb-6 relative">
         <ButtonOnlyIcon
           key="move-prev-board"
           icon="/src/assets/icons/go-to-prev.svg"
           width={18}
-          styleName="p-2 hover:bg-gray-100 rounded absolute right-4 top-4"
+          styleName="p-2 hover:bg-gray-100 rounded absolute right-0 top-4"
           onClick={()=>navigate(-1)}
         />
         <BoardCreateForm 
@@ -97,8 +104,39 @@ const BoardCreatePage: React.FC = () => {
           categories={categories} 
           onInputChange={handleInputChange}
         />
-        <div className="rounded-md">
-          <TreeCreate />
+        {/** 입력 방식 토글 버튼 */}
+        <div className="mt-4">
+          <div className="flex">
+            <button
+              className={`py-2 px-4 font-medium focus:outline-none border rounded-b-none border-b-white ${
+                inputType === 'manual'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-gray-200 text-gray-500 hover:text-gray-700 hover:border-gray-400 hover:border-b-white'
+              }`}
+              onClick={() => setInputType('manual')}
+            >
+              직접 입력
+            </button>
+            <button
+              className={`py-2 px-4 font-medium focus:outline-none border rounded-b-none border-b-white ${
+                inputType === 'file'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-gray-200 text-gray-500 hover:text-gray-700 hover:border-gray-400 hover:border-b-white'
+              }`}
+              onClick={() => setInputType('file')}
+            >
+              파일 업로드
+            </button>
+          </div>
+        </div>
+        {/** 규정 입력 or 파일 입력 */}
+        <div className="border border-t-0 rounded-t-none rounded-md px-6 py-6">
+          {inputType === 'manual' ? <TreeCreate /> : 
+          <FileUploadForm
+            selectedFile={selectedFile}
+            setSelectedFile={setSelectedFile}
+            handleFileChange={handleFileChange}
+          />}
         </div>
       </div>
       {/** 버튼 */}
