@@ -5,33 +5,20 @@ import ButtonOnlyIcon from "@components/atoms/button/ButtonOnlyIcon";
 import ButtonWithIcon from "@components/atoms/button/ButtonWithIcon";
 import TreeView from "@pages/board/TreeView";
 import { useAppDispatch, useAppSelector } from "@app/hooks";
-import {
-  setRevisionMode,
-  startEditNode,
-  saveNodeEdit,
-} from "@app/slices/treeSlice";
-import {
-  getBoardDetailAPI,
-  downloadFileAPI,
-  BoardDetailResponse,
-} from "@apis/board/boardDetailApi";
-import {
-  createFavoriteAPI,
-  deleteFavoriteAPI,
-} from "@apis/board/boardFavoriteApi";
+import { setRevisionMode, startEditNode, saveNodeEdit } from "@app/slices/treeSlice";
+import { getBoardDetailAPI, downloadFileAPI, BoardDetailResponse } from "@apis/board/boardDetailApi";
+import { createFavoriteAPI, deleteFavoriteAPI } from "@apis/board/boardFavoriteApi";
 import ReactMarkdown from "react-markdown";
 import { setTreeData } from "@app/slices/treeSlice";
 import { ButtonWithIconProps } from "@pages/chat";
-import {
-  fetchFavoriteBoards,
-  updateFavoriteStatus,
-} from "@app/slices/favoriteBoardsSlice";
+import { fetchFavoriteBoards, updateFavoriteStatus } from "@app/slices/favoriteBoardsSlice";
 import { logoutUser } from "@app/slices/userSlice";
 import { UserRole } from "@util/userConfig";
 import BoardUpdate from "@pages/board/BoardUpdate";
 import { deleteAlert, errorAlert } from "@util/alert";
 import { deleteBoardAPI } from "@apis/board/boardApi";
-
+import { getNavigationConfig } from "@pages/admin/adminNavigation";
+import { Avatar } from "@components/atoms/avatar/Avatar";
 interface BoardParams {
   id: string;
   [key: string]: string | undefined;
@@ -44,7 +31,7 @@ const BoardDetailPage: React.FC = () => {
   const [boardDetail, setBoardDetail] = useState<BoardDetailResponse>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const {role} = useAppSelector(state=>state.users);
+  const { role } = useAppSelector((state) => state.users);
 
   // Redux state
   const isRevisionMode = useAppSelector((state) => state.tree.isRevisionMode);
@@ -54,15 +41,13 @@ const BoardDetailPage: React.FC = () => {
   const boardButtonStyle =
     "flex bg-transparent border border-white text-white py-2 px-4 rounded mx-1 hover:bg-blue-900 transition-colors duration-100 ease-in-out";
 
-  const { favorites, loading, hasMore, currentPage } = useAppSelector(
-    (state) => state.favoriteBoards
-  );
+  const { favorites, loading, hasMore, currentPage } = useAppSelector((state) => state.favoriteBoards);
 
   useEffect(() => {
     if (currentPage === 0) {
       dispatch(fetchFavoriteBoards(0));
     }
-    dispatch(setRevisionMode(false))
+    dispatch(setRevisionMode(false));
   }, [dispatch, currentPage]);
 
   // 더 많은 즐겨찾기 로드
@@ -147,28 +132,26 @@ const BoardDetailPage: React.FC = () => {
 
   const handleSaveEdit = () => {
     if (editNodeData) {
-      dispatch(
-        saveNodeEdit()
-      );
+      dispatch(saveNodeEdit());
     }
   };
-  
-  const handleDelete = () => {    
-    try{
-      if(boardDetail) deleteBoardAPI(boardDetail?.boardId);
+
+  const handleDelete = () => {
+    try {
+      if (boardDetail) deleteBoardAPI(boardDetail?.boardId);
       else throw new Error("게시글 정보가 없습니다.");
-    }catch(error){
-			if (error instanceof Error) {
-				errorAlert(error);
-			}
-    }finally{
+    } catch (error) {
+      if (error instanceof Error) {
+        errorAlert(error);
+      }
+    } finally {
       navigate("/board", { state: { refresh: true } });
     }
-  }
+  };
 
   useEffect(() => {
     fetchBoardDetail();
-  }, [fetchBoardDetail,isRevisionMode]);
+  }, [fetchBoardDetail, isRevisionMode]);
 
   const getChildren = () => (
     isRevisionMode ? boardDetail &&
@@ -229,64 +212,99 @@ const BoardDetailPage: React.FC = () => {
             <span className="text-gray-500 text-xs">
               &lt;{boardDetail?.writer.email}&gt;
             </span>
-          </div>
-          <div className="flex flex-col items-start sm:items-end">
-            <span className="text-xs text-gray-500">
-              {boardDetail && new Date(boardDetail.createdAt).toLocaleString()}
-            </span>
-            {boardDetail?.hasFile && (
-              <ButtonWithIcon
-                btnName="파일 다운로드"
-                styleName="mt-2 text-sm text-blue-600 hover:text-blue-800 bg-white"
-                icon="/src/assets/icons/document-download.svg"
-                handleClick={handleDownloadFile}
+            {/* 상단 버튼 영역 */}
+            <div className="absolute flex items-end space-x-1 right-0">
+              {role === UserRole.USER_WRITE && (
+                <>
+                  <ButtonOnlyIcon
+                    key="edit"
+                    icon="/src/assets/icons/pen.svg"
+                    styleName="p-2 hover:bg-gray-100 rounded"
+                    width={18}
+                    onClick={toggleRevisionMode}
+                  />
+                  <ButtonOnlyIcon
+                    key="delete"
+                    icon="/src/assets/icons/delete-black.svg"
+                    styleName="p-2 hover:bg-gray-100 rounded"
+                    width={18}
+                    onClick={() => deleteAlert(handleDelete)}
+                  />
+                </>
+              )}
+              <ButtonOnlyIcon
+                key="favorite"
+                icon={boardDetail?.isFavorite ? "/src/assets/icons/favorited.svg" : "/src/assets/icons/favorite.svg"}
+                width={18}
+                styleName="p-2 hover:bg-gray-100 rounded"
+                onClick={handleFavoriteToggle}
               />
-            )}
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="flex items-center space-x-3">
+              <Avatar name={boardDetail?.writer.name || "Unknown"} size="2.5rem" className="flex-shrink-0" />
+              <div className="flex flex-col">
+                <span className="font-medium">{boardDetail?.writer.name}</span>
+                <span className="text-gray-500 text-xs">{boardDetail?.writer.email}</span>
+              </div>
+            </div>
+            <div className="flex flex-col items-start sm:items-end">
+              <span className="text-xs text-gray-500">
+                {boardDetail && new Date(boardDetail.createdAt).toLocaleString()}
+              </span>
+              {boardDetail?.hasFile && (
+                <ButtonWithIcon
+                  btnName="파일 다운로드"
+                  styleName="mt-2 text-sm text-blue-600 hover:text-blue-800 bg-white"
+                  icon="/src/assets/icons/document-download.svg"
+                  handleClick={handleDownloadFile}
+                />
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      <hr className="border-gray-200" />
+        <hr className="border-gray-200" />
 
-      {/* 게시글 내용 - Markdown 렌더링 */}
-      <div
-        className="prose max-w-none text-left
+        {/* 게시글 내용 - Markdown 렌더링 */}
+        <div
+          className="prose max-w-none text-left
                 [&>*]:text-left 
                 prose-headings:text-left
                 prose-p:text-left
                 prose-ul:text-left
                 prose-ol:text-left"
-      >
-        {/* 게시글 내용 - Markdown 렌더링 */}
-        {boardDetail?.contents && (
-          <ReactMarkdown>
-            {boardDetail.contents.replace(/\\n/g, "\n")}
-          </ReactMarkdown>
+        >
+          {/* 게시글 내용 - Markdown 렌더링 */}
+          {boardDetail?.contents && <ReactMarkdown>{boardDetail.contents.replace(/\\n/g, "\n")}</ReactMarkdown>}
+        </div>
+
+        {/* 규정 트리뷰 */}
+        {boardDetail?.regulationResponseDto && (
+          <div className="mt-8">
+            <TreeView
+              isRevisionMode={isRevisionMode}
+              handleStartEdit={(node) =>
+                dispatch(
+                  startEditNode({
+                    id: node.id,
+                    title: node.title || "",
+                    content: node.content || "",
+                  })
+                )
+              }
+              handleSaveEdit={handleSaveEdit}
+            />
+          </div>
         )}
       </div>
+    );
 
-      {/* 규정 트리뷰 */}
-      {boardDetail?.regulationResponseDto && (
-        <div className="mt-8">
-          <TreeView
-            isRevisionMode={isRevisionMode}
-            handleStartEdit={(node) =>
-              dispatch(
-                startEditNode({
-                  id: node.id,
-                  title: node.title || "",
-                  content: node.content || "",
-                })
-              )
-            }
-            handleSaveEdit={handleSaveEdit}
-          />
-        </div>
-      )}
-    </div>
-  );
+  // 컴포넌트 구성
+  const { footerComponents } = getNavigationConfig(role, navigate, dispatch);
 
-  // 사이드바 컴포넌트 구성
   const sidebarComponents: ButtonWithIconProps[] = [
     {
       btnName: "규정 목록",
@@ -294,7 +312,6 @@ const BoardDetailPage: React.FC = () => {
       icon: "/src/assets/icons/book-open-text-footer.svg",
       handleClick: () => navigate("/board"),
     },
-    // 즐겨찾기 목록을 버튼 컴포넌트로 변환
     ...favorites.map((favorite) => ({
       btnName: favorite.title,
       styleName: boardButtonStyle,
@@ -303,33 +320,9 @@ const BoardDetailPage: React.FC = () => {
     })),
   ];
 
-  const footerComponents = [
-    {
-      btnName: "채팅",
-      styleName: footStyle,
-      icon: "/src/assets/icons/chatting-icon.svg",
-      handleClick: () => {
-        navigate("/chat");
-      },
-    },
-    {
-      btnName: "로그아웃",
-      styleName: footStyle,
-      icon: "/src/assets/icons/logout.svg",
-      handleClick: async () => {
-        await dispatch(logoutUser());
-        navigate("/");
-      },
-    },
-  ];
-
   if (error) {
     return (
-      <SembotLayout
-        title="오류"
-        sidebarComponents={sidebarComponents}
-        footerComponents={footerComponents}
-      >
+      <SembotLayout title="오류" sidebarComponents={sidebarComponents} footerComponents={footerComponents}>
         <div className="flex justify-center items-center h-full">
           <div className="text-red-500">{error}</div>
         </div>
@@ -339,11 +332,7 @@ const BoardDetailPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <SembotLayout
-        title="로딩 중..."
-        sidebarComponents={sidebarComponents}
-        footerComponents={footerComponents}
-      >
+      <SembotLayout title="로딩 중..." sidebarComponents={sidebarComponents} footerComponents={footerComponents}>
         <div className="flex justify-center items-center h-full">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
         </div>
@@ -353,11 +342,13 @@ const BoardDetailPage: React.FC = () => {
 
   return (
     <SembotLayout
-      title={"규정 상세"}
+      title="규정 상세"
       sidebarComponents={sidebarComponents}
       footerComponents={footerComponents}
+      hasMore={hasMore}
       onLoadMore={handleLoadMore}
       children={getChildren()}
+      isLoading={loading}
     />
   );
 };
