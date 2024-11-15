@@ -35,7 +35,7 @@ const LoginForm: React.FC = () => {
         showAlert: false,
       }));
 
-      const result = await dispatch(loginUser(formData)).unwrap();
+      await dispatch(loginUser(formData)).unwrap();
 
       // 로그인 성공 시 Alert 표시
       setAlertProps({
