@@ -188,7 +188,7 @@ export type BoardUpdateRequestDto = {
 	contents?: string;
 	category: string;
 	level: number;
-	regulationRequest?: RegulationRequestDto;
+	regulationRequest?: RegulationRequestDto | null;
 	hasFile?: boolean;
 };
 
@@ -197,7 +197,7 @@ export type BoardCreateRequestDto = {
 	contents?: string;
 	category: string;
 	level: number;
-	regulationRequest?: RegulationRequestDto;
+	regulationRequest?: RegulationRequestDto | null;
 	hasFile?: boolean;
 };
 
@@ -233,8 +233,8 @@ function convertTreeNodeToRegulationItem(
 
 function convertTreeDataToRegulationRequest(
 	treeData: TreeNode[]
-): RegulationRequestDto {
-	return {
+): RegulationRequestDto | null {
+	return treeData.length == 0 ? null : {
 		itemList: treeData.map(convertTreeNodeToRegulationItem),
 	};
 }
