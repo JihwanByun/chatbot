@@ -204,7 +204,7 @@ const ChatView: React.FC<ChatViewProps> = ({
       {qnas.length === 0 ? (
         <div className="w-full max-w-3xl h-full flex flex-col justify-center items-center px-4">
           <div className="flex justify-center items-center">
-            <img src="/src/assets/icons/logo.svg" alt="SEMES" width="300rem" />
+            <img src="/src/assets/icons/logo.svg" alt="SEMES" width="250rem" />
           </div>
           <InputWithIcon
             isLoading={isLoading}

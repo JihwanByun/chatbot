@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import ButtonWithIcon from "../button/ButtonOnlyIcon";
 
 interface InputWithIconProps {
   /** Input란에 띄워질 메세지 */
@@ -20,7 +19,6 @@ const InputWithIcon: React.FC<InputWithIconProps> = ({
   /** 기본 값 할당 */
   placeholder = "",
   bgColor = "#EAF1FB",
-  borderColor = "#004F9F",
   textColor = "#434343",
   iconPath,
   onIconClick,
@@ -53,18 +51,48 @@ const InputWithIcon: React.FC<InputWithIconProps> = ({
   };
 
   return (
-    <div className="relative text-gray-800 w-full">
+    <div className="relative w-full">
       <input
         type="text"
         value={inputValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        style={{ backgroundColor: bgColor, borderColor, color: textColor }}
-        className={`rounded-md h-12 w-full px-5 pr-10 text-base border focus:outline-none focus:ring-0 ${className}`}
+        style={{ 
+          backgroundColor: bgColor || 'white',
+          color: textColor || 'rgb(17 24 39)'
+        }}
+        className={`
+          h-12 w-full px-5 pr-12
+          text-base font-medium
+          rounded-lg
+          border-2 border-semesBlue/30
+          transition-all duration-100
+          placeholder:text-gray-400
+          focus:outline-0 focus:border-semesBlue/80
+          hover:border-semesBlue/70
+          shadow-[0_2px_8px_-3px_rgba(0,0,0,0.1)]
+          ${className}
+        `}
       />
-      <div className="absolute right-0 top-1/2 transform -translate-y-1/2 pr-3">
-        <ButtonWithIcon icon={isLoading ? loadingIconPath : iconPath} onClick={onClick} width={18} />
+      
+      {/* 버튼 영역 */}
+      <div className="absolute right-1.5 top-1/2 -translate-y-1/2">
+        <button
+          onClick={onClick}
+          className="p-2 rounded-md
+            hover:bg-semesBlue/10 
+            active:bg-semesBlue/20 
+            transition-colors"
+          aria-label="Search"
+        >
+          <img 
+            src={isLoading ? loadingIconPath : iconPath} 
+            alt="icon"
+            width={18}
+            className="opacity-80 hover:opacity-100 transition-opacity" 
+          />
+        </button>
       </div>
     </div>
   );
