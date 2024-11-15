@@ -162,7 +162,7 @@ const BoardDetailPage: React.FC = () => {
 				errorAlert(error);
 			}
     }finally{
-      navigate("/board");
+      navigate("/board", { state: { refresh: true } });
     }
   }
 

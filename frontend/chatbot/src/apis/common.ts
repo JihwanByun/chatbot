@@ -34,7 +34,7 @@ defaultAxios.interceptors.response.use(
 	},
 	(error) => {
 		// 토큰 에러 체크
-		if (error.status === 401 || error.status === 422) {
+		if (error.status === 401) {
 			logout();
 		}
 		return Promise.reject(error);

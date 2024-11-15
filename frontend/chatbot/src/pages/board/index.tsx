@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import SembotLayout from "../SembotLayout";
 import InputSearch from "@components/atoms/input/InputSearch";
 import Paging from "@components/atoms/paging/Paging";
@@ -12,7 +12,6 @@ import { createFavoriteAPI, deleteFavoriteAPI } from "@apis/board/boardFavoriteA
 import { ButtonProps as ButtonWithIconProps } from "@components/atoms/button/ButtonWithIcon";
 import ButtonPrimary from "@components/atoms/button/ButtonPrimary";
 import dayjs from "dayjs";
-import { logoutUser } from "@app/slices/userSlice";
 import { UserRole } from "@util/userConfig";
 import { getNavigationConfig } from "@pages/admin/adminNavigation";
 
@@ -24,6 +23,7 @@ export const favoritedPath = "/src/assets/icons/Favorited.svg"; // 즐겨찾기 
 const tableHeader = ["", "작성자", "제목", "등록일"];
 
 const BoardListPage: React.FC = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -43,8 +43,6 @@ const BoardListPage: React.FC = () => {
   const { role } = useAppSelector((state) => state.users);
 
   // 스타일 정의
-  const footStyle =
-    "flex bg-transparent text-white py-2 px-4 rounded mx-1 transform hover:translate-x-1 transition-all duration-200 cursor-pointer";
   const boardButtonStyle =
     "flex bg-transparent border border-white text-white py-2 px-4 rounded mx-1 hover:bg-blue-900 transition-colors duration-100 ease-in-out";
 
@@ -66,11 +64,11 @@ const BoardListPage: React.FC = () => {
   // 게시글 목록 조회
   const fetchBoards = useCallback(async () => {
     try {
-      const cleanedCondition = Object.fromEntries(
-        Object.entries(searchCondition).filter(([_, value]) => value !== undefined && value !== "")
-      );
+      // const cleanedCondition = Object.fromEntries(
+      //   Object.entries(searchCondition).filter(([key, value]) => value !== undefined && value !== "")
+      // );
 
-      const boardList: TableResponse | null = await getBoardListAPI(cleanedCondition, pageInfo);
+      const boardList: TableResponse | null = await getBoardListAPI(searchCondition, pageInfo);
       if (boardList == null) return;
       if (boardList) {
         // 날짜 포맷팅이 적용된 데이터로 변환
@@ -89,7 +87,7 @@ const BoardListPage: React.FC = () => {
       }
     } catch (error) {
       console.error("Error fetching boards:", error);
-    }
+    } 
   }, [searchCondition, pageInfo]);
 
   /**
@@ -201,7 +199,12 @@ const BoardListPage: React.FC = () => {
 
   useEffect(() => {
     fetchBoards();
-  });
+    
+    // state로 들어왔다면 state 초기화
+    if (location.state?.refresh) {
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location.state?.refresh, fetchBoards, navigate, location.pathname]);
 
   // 날짜 포맷팅 함수
   const formatDate = (dateString: string): string => {

@@ -33,10 +33,14 @@ const BoardCreatePage: React.FC = () => {
   const fetchCategories = async () => {
     const categories = await getCategoryListAPI();
     setCategories(categories);
-    setFormData(prev => ({
-      ...prev,
-      category: categories[0].value
-    }));
+
+    if(categories.length === 0) errorAlert(new Error("카테고리가 없습니다."),()=>navigate("/board", {replace : true}));    
+    else{
+      setFormData(prev => ({
+        ...prev,
+        category: categories[0].value
+      }));
+    }
   }
 
   useEffect(()=>{
