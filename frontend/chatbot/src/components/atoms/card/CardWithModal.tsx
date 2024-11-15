@@ -26,7 +26,7 @@ const Card = ({ title, content }: CardWithModalProps) => {
   };
 
   return (
-    <>
+    <div className='h-full w-full'>
       <div
         onClick={() => setIsOpen(true)}
         className="relative p-4 border border-gray-200 bg-white rounded-2xl shadow-sm max-w-full hover:bg-gray-100 hover:cursor-pointer transition-all duration-100 ease-in-out"
@@ -76,7 +76,7 @@ const Card = ({ title, content }: CardWithModalProps) => {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
