@@ -14,6 +14,7 @@ import ButtonPrimary from "@components/atoms/button/ButtonPrimary";
 import dayjs from "dayjs";
 import { UserRole } from "@util/userConfig";
 import { getNavigationConfig } from "@pages/admin/adminNavigation";
+import { errorAlert } from "@util/alert";
 
 /** 즐겨찾기 아이콘 경로 상수 */
 export const favoritePath = "/src/assets/icons/favorite.svg"; // 즐겨찾기 되지 않은 상태 아이콘
@@ -28,9 +29,11 @@ const BoardListPage: React.FC = () => {
   const dispatch = useAppDispatch();
 
   // Redux store에서 상태 가져오기
-  const { favorites, loading, hasMore, currentPage } = useAppSelector((state) => state.favoriteBoards);
+  const { favorites, loading, hasMore, currentPage} = useAppSelector((state) => state.favoriteBoards);
+  const favoriteError = useAppSelector((state) => state.favoriteBoards.error);
 
   // 로컬 상태 관리
+  const [error, setError] = useState<string | null>(null);
   const [curPage, setCurPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [tableRows, setTableRows] = useState<TableRowData[]>([]);
@@ -61,6 +64,15 @@ const BoardListPage: React.FC = () => {
     [curPage]
   );
 
+	const handleError = (error : unknown) => {
+		if (error instanceof Error) {
+			errorAlert(error);
+      setError(error.message);
+		}else{
+      setError("알 수 없는 오류가 발생했습니다.");
+		}
+	}
+
   // 게시글 목록 조회
   const fetchBoards = useCallback(async () => {
     try {
@@ -86,7 +98,7 @@ const BoardListPage: React.FC = () => {
         setTotalPages(boardList.totalPages);
       }
     } catch (error) {
-      console.error("Error fetching boards:", error);
+      handleError(error);
     } 
   }, [searchCondition, pageInfo]);
 
@@ -157,11 +169,11 @@ const BoardListPage: React.FC = () => {
   }, []);
 
   // 더 많은 즐겨찾기 로드
-  const handleLoadMore = () => {
-    if (!loading && hasMore) {
+  const handleLoadMore = useCallback(() => {
+    if (!favoriteError && !loading && hasMore) {
       dispatch(fetchFavoriteBoards(currentPage + 1));
     }
-  };
+  },[favoriteError, loading, hasMore, currentPage, dispatch]);
 
   // 페이지 변경 처리
   const handlePageChange = useCallback((page: number) => {
@@ -192,19 +204,25 @@ const BoardListPage: React.FC = () => {
 
   // 초기 데이터 로딩
   useEffect(() => {
-    if (currentPage === 0) {
-      dispatch(fetchFavoriteBoards(0));
+    if (!favoriteError && currentPage === 0) {
+      try{
+        dispatch(fetchFavoriteBoards(0));
+      }catch(error){
+        handleError(error);
+      }
     }
-  }, [dispatch, currentPage]);
+  }, [favoriteError, dispatch, currentPage]);
 
   useEffect(() => {
-    fetchBoards();
+    if(!error){
+      fetchBoards();
+    }
     
     // state로 들어왔다면 state 초기화
     if (location.state?.refresh) {
       navigate(location.pathname, { replace: true });
     }
-  }, [location.state?.refresh, fetchBoards, navigate, location.pathname]);
+  }, [error, location.state?.refresh, fetchBoards, navigate, location.pathname]);
 
   // 날짜 포맷팅 함수
   const formatDate = (dateString: string): string => {

@@ -1,6 +1,7 @@
 import { BACKEND_URL, AI_URL } from "@/configs/config";
 import axios, { AxiosInstance } from "axios";
 import { logout } from "./chat/userApi";
+import { Error } from "@util/errorCode";
 // import { IncomingMessage, ServerResponse } from 'http';
 
 // 로그인이 필요없는 axios
@@ -34,8 +35,21 @@ defaultAxios.interceptors.response.use(
 	},
 	(error) => {
 		// 토큰 에러 체크
-		if (error.status === 401) {
-			logout();
+		console.log(error);
+		if (error.response.data) {
+			const code = error.response.data.code;
+			switch(code){
+				case Error.EXPIRED_TOKEN:
+					// refresh 처리
+					logout();
+					break;
+				case Error.INVALID_TOKEN.code:
+				case Error.UNSUPPORTED_TOKEN.code:
+					localStorage.removeItem("Authorization");
+					break;
+				case Error.NO_REFRESH_TOKEN.code:
+					logout();
+			}
 		}
 		return Promise.reject(error);
 	}

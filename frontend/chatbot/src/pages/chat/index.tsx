@@ -74,6 +74,15 @@ const Chat: React.FC = () => {
 	const deleteIconStyle =
 		"hover:scale-125 transform-gpu origin-center transition-transform duration-200 absolute right-1 top-2.5";
 
+	const handleError = (error : unknown) => {
+		if (error instanceof Error) {
+			errorAlert(error);
+			setState((prev) => ({ ...prev, error: error.message}))
+		}else{
+			setState((prev) => ({ ...prev, error: "알 수 없는 오류가 발생했습니다."}))
+		}
+	}
+
 	// Utility Functions
 	const createChatroomButton = (
 		chatroomId: number,
@@ -186,9 +195,7 @@ const Chat: React.FC = () => {
 
 			setChatroomComponents((prev) => [...prev, ...newComponents]);
 		} catch (error) {
-			if (error instanceof Error) {
-				errorAlert(error);
-			}
+			handleError(error);
 		} finally {
 			setState((prev) => ({ ...prev, isFetchingChatrooms: false }));
 		}
@@ -309,9 +316,7 @@ const Chat: React.FC = () => {
 
 				await handleGenerateResponse(message, newQnA);
 			} catch (error) {
-				if (error instanceof Error) {
-					errorAlert(error);
-				}
+				handleError(error);
 			} finally {
 				setState((prev) => ({ ...prev, isLoading: false }));
 			}
@@ -352,16 +357,18 @@ const Chat: React.FC = () => {
 
 	// Initial Load
 	useEffect(() => {
-		if (state.currentChatroomPage === 0) {
+		if (!state.error && state.currentChatroomPage === 0) {
 			fetchChatrooms();
 		}
-	}, [state.currentChatroomPage, fetchChatrooms]);
+	}, [state.error, state.currentChatroomPage, fetchChatrooms]);
 
 	useEffect(() => {
 		console.log(user);
-		fetchCategories();
-		fetchFeedbackReasons();
-		setChatroomComponents([newChatProp]);
+		if(!state.error){
+			fetchCategories();
+			fetchFeedbackReasons();
+			setChatroomComponents([newChatProp]);
+		}
 	}, []);
 
 	return (
