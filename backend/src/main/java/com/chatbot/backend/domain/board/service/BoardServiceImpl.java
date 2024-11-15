@@ -71,10 +71,10 @@ public class BoardServiceImpl implements BoardService {
 		board = boardRepository.save(board);
 		boardNotificationService.processBoardNotification(file, file != null ? file.getOriginalFilename() : "",
 			board.getLevel());
-		log.info("Create File 명 : " + file.getOriginalFilename());
 
 		// 파일이 있는 경우 비동기로 요약 처리 시작
 		if (boardCreateRequestDto.hasFile()) {
+			log.info("Create File 명 : " + file.getOriginalFilename());
 			fileSummaryService.processFileSummaryAsync(file, board.getId());
 			String fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
 			board.uploadFile(fileUrl);
@@ -115,10 +115,10 @@ public class BoardServiceImpl implements BoardService {
 
 		RegulationResponseDto regulationResponse = null;
 		boardNotificationService.processBoardNotification(file, file != null ? file.getName() : "", board.getLevel());
-		log.info("Update File 명 : " + file.getOriginalFilename());
 
 		// File 저장
 		if (boardUpdateRequestDto.hasFile()) {
+			log.info("Update File 명 : " + file.getOriginalFilename());
 			fileSummaryService.processFileSummaryAsync(file, board.getId());
 			String fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
 			board.uploadFile(fileUrl);
