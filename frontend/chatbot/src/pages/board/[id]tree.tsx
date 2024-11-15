@@ -153,64 +153,25 @@ const BoardDetailPage: React.FC = () => {
     fetchBoardDetail();
   }, [fetchBoardDetail, isRevisionMode]);
 
-  const getChildren = () => (
-    isRevisionMode ? boardDetail &&
-    <>
-      <BoardUpdate board={boardDetail} onUpdate={toggleRevisionMode} onBackClick={()=>dispatch(setRevisionMode(false))} />
-    </>
-    : 
-    <div className="bg-white rounded-lg px-6 py-2 space-y-6 text-left">
-      {/* 게시글 헤더 */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-4 relative">
-          <h1 className="text-xl font-semibold">{boardDetail?.title}</h1>
-          <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 whitespace-nowrap">
-            답변 레벨 : {boardDetail?.level}
-          </span>
-          {/* 상단 버튼 영역 */}
-          <div className="absolute flex items-end space-x-1 right-0">
-            {role === UserRole.USER_WRITE && (
-              <>
-                <ButtonOnlyIcon
-                  key="edit"
-                  icon="/src/assets/icons/pen.svg"
-                  styleName="p-2 hover:bg-gray-100 rounded"
-                  width={18}
-                  onClick={toggleRevisionMode}
-                />
-                <ButtonOnlyIcon
-                  key="delete"
-                  icon="/src/assets/icons/delete-black.svg"
-                  styleName="p-2 hover:bg-gray-100 rounded"
-                  width={18}
-                  onClick={()=>deleteAlert(handleDelete)}
-                />
-              </>
-            )}
-            <ButtonOnlyIcon
-              key="favorite"
-              icon={
-                boardDetail?.isFavorite
-                  ? "/src/assets/icons/Favorited.svg"
-                  : "/src/assets/icons/favorite.svg"
-              }
-              width={18}
-              styleName="p-2 hover:bg-gray-100 rounded"
-              onClick={handleFavoriteToggle}
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="flex items-center space-x-2">
-            <img
-              className="h-8 w-8 rounded-full"
-              src={boardDetail?.writer.profileUrl}
-              alt={boardDetail?.writer.name}
-            />
-            <span className="font-medium">{boardDetail?.writer.name}</span>
-            <span className="text-gray-500 text-xs">
-              &lt;{boardDetail?.writer.email}&gt;
+  const getChildren = () =>
+    isRevisionMode ? (
+      boardDetail && (
+        <>
+          <BoardUpdate
+            board={boardDetail}
+            onUpdate={toggleRevisionMode}
+            onBackClick={() => dispatch(setRevisionMode(false))}
+          />
+        </>
+      )
+    ) : (
+      <div className="bg-white rounded-lg px-6 py-2 space-y-6 text-left">
+        {/* 게시글 헤더 */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-4 relative">
+            <h1 className="text-xl font-semibold">{boardDetail?.title}</h1>
+            <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 whitespace-nowrap">
+              답변 레벨 : {boardDetail?.level}
             </span>
             {/* 상단 버튼 영역 */}
             <div className="absolute flex items-end space-x-1 right-0">
@@ -234,7 +195,7 @@ const BoardDetailPage: React.FC = () => {
               )}
               <ButtonOnlyIcon
                 key="favorite"
-                icon={boardDetail?.isFavorite ? "/src/assets/icons/favorited.svg" : "/src/assets/icons/favorite.svg"}
+                icon={boardDetail?.isFavorite ? "/src/assets/icons/Favorited.svg" : "/src/assets/icons/favorite.svg"}
                 width={18}
                 styleName="p-2 hover:bg-gray-100 rounded"
                 onClick={handleFavoriteToggle}
