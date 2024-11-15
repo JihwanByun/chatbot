@@ -60,6 +60,8 @@ services:
       - JWT_ACCESS_TOKEN_EXPIRATION=${JWT_ACCESS_TOKEN_EXPIRATION}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
       - JWT_REFRESH_TOKEN_EXPIRATION=${JWT_REFRESH_TOKEN_EXPIRATION}
+    volumes:
+      - /files:${FILE_UPLOAD_PATH}  # 데이터 영속성 보장 (로컬 볼륨 사용)
     ports:
       - '${BACKEND_PORT}:${BACKEND_PORT}'
     depends_on:   
