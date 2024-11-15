@@ -133,7 +133,7 @@ const SignUpForm: React.FC = () => {
       <img
         src={topLeftLogo}
         alt="Top Left Logo"
-        className="absolute top-4 left-4 w-16 h-auto"
+        className="absolute top-4 left-4 w-32 h-auto"
       />
       <div className="max-w-md mx-auto p-4 bg-white shadow-md rounded relative z-10">
         <div className="text-center mb-6">
