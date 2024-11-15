@@ -19,4 +19,6 @@ public interface BoardLikeRepository extends JpaRepository<BoardLike, Long> {
 	}
 
 	Slice<BoardLike> findByUserId(Long userId, Pageable pageable);
+
+	void deleteAllByBoardId(Long boardId);
 }

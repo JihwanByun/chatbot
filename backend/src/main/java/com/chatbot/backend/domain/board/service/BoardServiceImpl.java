@@ -40,6 +40,7 @@ public class BoardServiceImpl implements BoardService {
 	private final FileService fileService;
 	private final CategoryRepository categoryRepository;
 	private final BoardLikeRepository boardLikeRepository;
+	private final BoardLikeService boardLikeService;
 	private final BoardValidator boardValidator;
 	private final RegulationService regulationService;
 	private final FileSummaryService fileSummaryService;
@@ -144,6 +145,9 @@ public class BoardServiceImpl implements BoardService {
 		Board board = boardRepository.findByIdOrElseThrow(boardId);
 
 		boardValidator.validateBoardExists(board);
+
+		// 연관된 BoardLike 삭제
+		boardLikeRepository.deleteAllByBoardId(boardId);
 
 		board.deleteBoard();
 	}
