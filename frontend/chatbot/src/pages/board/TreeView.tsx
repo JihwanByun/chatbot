@@ -25,14 +25,16 @@ const TreeView: React.FC<TreeViewProps> = ({
 	);
 
 	const getFormattedTitle = (
-		depth: number,
+		depth: number, 
 		index: number,
 		title?: string | null,
 		content?: string | null
 	) => {
 		const depthLabel = ["장", "조", "항", "호"];
 		const depthName = depthLabel[depth - 1] || "";
-		return `제${index + 1}${depthName}(${title || ""}) ${content || ""}`;
+		const titlePart = title ? `(${title})` : "";
+		const contentPart = content ? ` ${content}` : "";
+		return `제${index + 1}${depthName}${titlePart}${contentPart}`;
 	};
 	
 	const renderTree = (node: TreeNode, index: number) => (

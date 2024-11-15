@@ -123,7 +123,9 @@ public class BoardServiceImpl implements BoardService {
 			fileSummaryService.processFileSummaryAsync(file, board.getId());
 			String fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
 			board.uploadFile(fileUrl);
-		} else {
+		}
+
+		if (boardUpdateRequestDto.regulationRequest() != null) {
 			regulationResponse = regulationService.updateRegulation(boardId, board.getTitle(), board.getLevel(),
 				boardUpdateRequestDto.regulationRequest());
 		}
