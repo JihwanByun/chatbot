@@ -208,7 +208,7 @@ const BoardDetailPage: React.FC = () => {
               key="favorite"
               icon={
                 boardDetail?.isFavorite
-                  ? "/src/assets/icons/favorited.svg"
+                  ? "/src/assets/icons/Favorited.svg"
                   : "/src/assets/icons/favorite.svg"
               }
               width={18}
