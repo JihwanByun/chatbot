@@ -71,14 +71,6 @@ public class BoardServiceImpl implements BoardService {
 		Board board = boardCreateRequestDto.toEntity(user, category);
 		board = boardRepository.save(board);
 
-		// 파일이 있는 경우 비동기로 요약 처리 시작
-		if (boardCreateRequestDto.hasFile()) {
-			log.info("Create File 명 : " + file.getOriginalFilename());
-			fileSummaryService.processFileSummaryAsync(file, board.getId());
-			String fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
-			board.uploadFile(fileUrl);
-		}
-
 		// Regulation 생성 (규정 정보가 있을 경우에만)
 		RegulationResponseDto regulationResponseDto = null;
 		if (boardCreateRequestDto.regulationRequest() != null) {
@@ -87,8 +79,16 @@ public class BoardServiceImpl implements BoardService {
 				boardCreateRequestDto.regulationRequest());
 		}
 
-		boardNotificationService.processBoardNotification(file, file != null ? file.getOriginalFilename() : "",
+		boardNotificationService.processBoardNotification(file, file == null ? "" : file.getOriginalFilename(),
 			board.getLevel());
+
+		// 파일이 있는 경우 비동기로 요약 처리 시작
+		if (boardCreateRequestDto.hasFile()) {
+			log.info("Create File 명 : " + file.getOriginalFilename());
+			fileSummaryService.processFileSummaryAsync(file, board.getId());
+			String fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
+			board.uploadFile(fileUrl);
+		}
 
 		return BoardDetailResponseDto.of(board, regulationResponseDto);
 	}
@@ -117,6 +117,14 @@ public class BoardServiceImpl implements BoardService {
 
 		RegulationResponseDto regulationResponse = null;
 
+		if (boardUpdateRequestDto.regulationRequest() != null) {
+			regulationResponse = regulationService.updateRegulation(boardId, board.getTitle(), board.getLevel(),
+				boardUpdateRequestDto.regulationRequest());
+		}
+
+		boardNotificationService.processBoardNotification(file, file == null ? "" : file.getOriginalFilename(),
+			board.getLevel());
+
 		// File 저장
 		if (boardUpdateRequestDto.hasFile()) {
 			log.info("Update File 명 : " + file.getOriginalFilename());
@@ -124,13 +132,6 @@ public class BoardServiceImpl implements BoardService {
 			String fileUrl = fileService.saveFile(file, BOARD_UPLOAD_DIR);
 			board.uploadFile(fileUrl);
 		}
-
-		if (boardUpdateRequestDto.regulationRequest() != null) {
-			regulationResponse = regulationService.updateRegulation(boardId, board.getTitle(), board.getLevel(),
-				boardUpdateRequestDto.regulationRequest());
-		}
-
-		boardNotificationService.processBoardNotification(file, file != null ? file.getOriginalFilename() : "", board.getLevel());
 
 		BoardLike boardLike = boardLikeRepository.findByBoardIdAndUserId(boardId, userId).orElse(null);
 		return BoardDetailResponseDto.of(board, boardLike, regulationResponse);

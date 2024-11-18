@@ -1,11 +1,14 @@
 package com.chatbot.backend.domain.board.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,6 +16,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.chatbot.backend.domain.board.exception.BoardNotificationFailException;
 import com.chatbot.backend.domain.board.repository.BoardRepository;
 import com.chatbot.backend.domain.file.dto.PdfRequestDto;
+import com.chatbot.backend.domain.notification.event.Event;
+import com.chatbot.backend.domain.notification.service.NotificationService;
 import com.chatbot.backend.domain.regulation.entity.Regulation;
 import com.chatbot.backend.domain.regulation.repository.RegulationRepository;
 
@@ -27,10 +32,12 @@ import reactor.core.scheduler.Schedulers;
  */
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class BoardNotificationService {
 	private final WebClient webClient;
 	private final RegulationRepository regulationRepository;
+	private final NotificationService notificationService;
 
 	/**
 	 * 게시판 알림을 처리
@@ -42,7 +49,12 @@ public class BoardNotificationService {
 		createBoardNotification(file, title, level)    // 알림 생성 요청을 실행
 			.subscribeOn(Schedulers.boundedElastic())
 			.subscribe(
-				success -> log.info("Notification processed successfully"),
+				success -> {
+					Map<String, Object> data = new HashMap<>();
+					data.put("title", title);
+					notificationService.notifyAll(Event.UPDATE_VECTOR_DB, "규정 등록 및 변경 여부가 DB에 반영되었습니다.", data);
+					log.info("Notification processed successfully");
+				},
 				error -> handleSummaryError()    // 오류 시 예외 처리
 			);
 	}
@@ -70,7 +82,7 @@ public class BoardNotificationService {
 	 * @param level 게시글의 접근 수준
 	 * @return FastAPI 요청에 대한 Mono 객체
 	 */
-	private Mono<Void> createBoardNotification(MultipartFile file, String title, Integer level) {
+	private Mono<String> createBoardNotification(MultipartFile file, String title, Integer level) {
 		try {
 			String pdfText = null;
 
@@ -81,6 +93,8 @@ public class BoardNotificationService {
 			}
 
 			List<Regulation> regulationList = regulationRepository.findAll();
+
+			System.out.println(regulationList);
 
 			// Request DTO 생성
 			PdfRequestDto requestDto = PdfRequestDto.of(pdfText, title, level, regulationList);
@@ -95,9 +109,8 @@ public class BoardNotificationService {
 				.contentType(MediaType.APPLICATION_JSON)    // JSON 형식의 콘텐츠 타입
 				.body(BodyInserters.fromValue(requestDto))    // 요청 Body에 DTO 삽입
 				.retrieve()
-				.bodyToMono(Void.class)
+				.bodyToMono(String.class)
 				.doOnNext(response -> log.info("Response from FastAPI: {}", response))
-				.then()
 				.doOnError(e -> log.error("Error sending request to FastAPI: ", e))
 				.doOnSuccess(v -> log.info("Request sent to FastAPI successfully"));
 		} catch (Exception e) {
