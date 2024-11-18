@@ -1,5 +1,8 @@
 package com.chatbot.backend.domain.file.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
@@ -11,6 +14,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.chatbot.backend.domain.board.entity.Board;
 import com.chatbot.backend.domain.board.repository.BoardRepository;
 import com.chatbot.backend.domain.file.exception.FileSummaryFailException;
+import com.chatbot.backend.domain.notification.event.Event;
+import com.chatbot.backend.domain.notification.service.NotificationService;
+import com.mongodb.internal.VisibleForTesting;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,12 +29,19 @@ import reactor.core.scheduler.Schedulers;
 public class FileSummaryService {
 	private final WebClient webClient;
 	private final BoardRepository boardRepository;
+	private final NotificationService notificationService;
 
 	public void processFileSummaryAsync(MultipartFile file, Long boardId) {
+		String fileName = file.getOriginalFilename();
 		getSummary(file)
 			.subscribeOn(Schedulers.boundedElastic())
 			.subscribe(
-				summary -> updateBoardSummary(boardId, summary.substring(1, summary.length() - 1)),
+				summary -> {
+					Map<String, Object> data = new HashMap<>();
+					data.put("fileName", fileName);
+					notificationService.notifyAll(Event.SUMMARY_FILE, "규정 파일이 요약되었습니다.", data);
+					updateBoardSummary(boardId, summary.substring(1, summary.length() - 1));
+				},
 				error -> handleSummaryError(boardId, error)
 			);
 	}
