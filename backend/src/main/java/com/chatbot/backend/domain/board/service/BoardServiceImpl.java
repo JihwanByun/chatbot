@@ -40,7 +40,6 @@ public class BoardServiceImpl implements BoardService {
 	private final FileService fileService;
 	private final CategoryRepository categoryRepository;
 	private final BoardLikeRepository boardLikeRepository;
-	private final BoardLikeService boardLikeService;
 	private final BoardValidator boardValidator;
 	private final RegulationService regulationService;
 	private final FileSummaryService fileSummaryService;
@@ -79,7 +78,7 @@ public class BoardServiceImpl implements BoardService {
 				boardCreateRequestDto.regulationRequest());
 		}
 
-		boardNotificationService.processBoardNotification(file, file == null ? "" : file.getOriginalFilename(),
+		boardNotificationService.processBoardNotification(file, file == null ? board.getTitle() : file.getOriginalFilename(),
 			board.getLevel());
 
 		// 파일이 있는 경우 비동기로 요약 처리 시작
@@ -122,7 +121,7 @@ public class BoardServiceImpl implements BoardService {
 				boardUpdateRequestDto.regulationRequest());
 		}
 
-		boardNotificationService.processBoardNotification(file, file == null ? "" : file.getOriginalFilename(),
+		boardNotificationService.processBoardNotification(file, file == null ? board.getTitle() : file.getOriginalFilename(),
 			board.getLevel());
 
 		// File 저장
@@ -153,6 +152,12 @@ public class BoardServiceImpl implements BoardService {
 
 		// 연관된 BoardLike 삭제
 		boardLikeRepository.deleteAllByBoardId(boardId);
+
+		// 연관된 규정 삭제
+		regulationService.deleteRegulation(boardId);
+
+		// 규정 업데이트
+		boardNotificationService.processBoardNotification(null, board.getTitle(), 0);
 
 		board.deleteBoard();
 	}

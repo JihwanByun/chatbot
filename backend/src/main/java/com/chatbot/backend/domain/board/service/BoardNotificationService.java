@@ -52,7 +52,7 @@ public class BoardNotificationService {
 				success -> {
 					Map<String, Object> data = new HashMap<>();
 					data.put("title", title);
-					notificationService.notifyAll(Event.UPDATE_VECTOR_DB, "규정 등록 및 변경 여부가 DB에 반영되었습니다.", data);
+					notificationService.notifyAll(Event.UPDATE_VECTOR_DB, "규정 관련 작업 여부가 DB에 반영되었습니다.", data);
 					log.info("Notification processed successfully");
 				},
 				error -> handleSummaryError()    // 오류 시 예외 처리
@@ -93,8 +93,6 @@ public class BoardNotificationService {
 			}
 
 			List<Regulation> regulationList = regulationRepository.findAll();
-
-			System.out.println(regulationList);
 
 			// Request DTO 생성
 			PdfRequestDto requestDto = PdfRequestDto.of(pdfText, title, level, regulationList);
