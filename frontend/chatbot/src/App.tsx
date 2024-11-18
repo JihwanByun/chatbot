@@ -38,7 +38,7 @@ function App() {
 								path="/board/:id"
 								element={<RegulationPage/>}
 							/>
-							<Route path="/tree/:id" element={<TreeView />} />
+							{/* <Route path="/tree/:id" element={<TreeView />} /> */}
 							<Route path="/treecreate" element={<TreeCreate />} />
 						</Route>
 						{/* <Route path="/adminPage" element={<AdminPage />} />

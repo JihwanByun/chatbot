@@ -76,27 +76,23 @@ const BoardListPage: React.FC = () => {
   // 게시글 목록 조회
   const fetchBoards = useCallback(async () => {
     try {
-      // const cleanedCondition = Object.fromEntries(
-      //   Object.entries(searchCondition).filter(([key, value]) => value !== undefined && value !== "")
-      // );
-
       const boardList: TableResponse | null = await getBoardListAPI(searchCondition, pageInfo);
       if (boardList == null) return;
-      if (boardList) {
-        // 날짜 포맷팅이 적용된 데이터로 변환
-        const formattedRows = boardList.contents.map((row) => ({
-          ...row,
-          columns: [
-            row.columns[0], // 첫 번째 열
-            row.columns[1], // 두 번째 열
-            formatDate(row.columns[2]), // 세 번째 열 (날짜)
-          ],
-        }));
+      console.log("!!!!!");
+      
+      // 날짜 포맷팅이 적용된 데이터로 변환
+      const formattedRows = boardList.contents.map((row) => ({
+        ...row,
+        columns: [
+          row.columns[0], // 첫 번째 열
+          row.columns[1], // 두 번째 열
+          formatDate(row.columns[2]), // 세 번째 열 (날짜)
+        ],
+      }));
 
-        setTableRows(formattedRows);
-        setIconPaths(boardList.iconPaths);
-        setTotalPages(boardList.totalPages);
-      }
+      setTableRows(formattedRows);
+      setIconPaths(boardList.iconPaths);
+      setTotalPages(boardList.totalPages);
     } catch (error) {
       handleError(error);
     } 
@@ -218,10 +214,6 @@ const BoardListPage: React.FC = () => {
       fetchBoards();
     }
     
-    // state로 들어왔다면 state 초기화
-    if (location.state?.refresh) {
-      navigate(location.pathname, { replace: true });
-    }
   }, [error, location.state?.refresh, fetchBoards, navigate, location.pathname]);
 
   // 날짜 포맷팅 함수
