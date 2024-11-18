@@ -130,7 +130,7 @@ public class BoardServiceImpl implements BoardService {
 				boardUpdateRequestDto.regulationRequest());
 		}
 
-		boardNotificationService.processBoardNotification(file, file != null ? file.getName() : "", board.getLevel());
+		boardNotificationService.processBoardNotification(file, file != null ? file.getOriginalFilename() : "", board.getLevel());
 
 		BoardLike boardLike = boardLikeRepository.findByBoardIdAndUserId(boardId, userId).orElse(null);
 		return BoardDetailResponseDto.of(board, boardLike, regulationResponse);
