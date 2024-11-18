@@ -12,13 +12,13 @@ import ReactMarkdown from "react-markdown";
 import { setTreeData } from "@app/slices/treeSlice";
 import { ButtonWithIconProps } from "@pages/chat";
 import { fetchFavoriteBoards, updateFavoriteStatus } from "@app/slices/favoriteBoardsSlice";
-import { logoutUser } from "@app/slices/userSlice";
 import { UserRole } from "@util/userConfig";
 import BoardUpdate from "@pages/board/BoardUpdate";
 import { deleteAlert, errorAlert } from "@util/alert";
 import { deleteBoardAPI } from "@apis/board/boardApi";
 import { getNavigationConfig } from "@pages/admin/adminNavigation";
 import { Avatar } from "@components/atoms/avatar/Avatar";
+import { lightGreen } from "@mui/material/colors";
 interface BoardParams {
   id: string;
   [key: string]: string | undefined;
@@ -36,8 +36,6 @@ const BoardDetailPage: React.FC = () => {
   // Redux state
   const isRevisionMode = useAppSelector((state) => state.tree.isRevisionMode);
   const editNodeData = useAppSelector((state) => state.tree.editNodeData);
-  const footStyle =
-    "flex bg-transparent text-white py-2 px-4 rounded mx-1 transform hover:translate-x-1 transition-all duration-200 cursor-pointer";
   const boardButtonStyle =
     "flex bg-transparent border border-white text-white py-2 px-4 rounded mx-1 hover:bg-blue-900 transition-colors duration-100 ease-in-out";
 
@@ -136,17 +134,23 @@ const BoardDetailPage: React.FC = () => {
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     try {
-      if (boardDetail) deleteBoardAPI(boardDetail?.boardId);
-      else throw new Error("게시글 정보가 없습니다.");
+      if (boardDetail) {
+        deleteBoardAPI(boardDetail?.boardId)
+        .then(()=>{
+          setTimeout(() => {
+            navigate("/board");
+          }, 100); // 1000ms = 1초
+        }) 
+      } else {
+        throw new Error("게시글 정보가 없습니다.");
+      }
     } catch (error) {
       if (error instanceof Error) {
         errorAlert(error);
       }
-    } finally {
-      navigate("/board", { state: { refresh: true } });
-    }
+    } 
   };
 
   useEffect(() => {
