@@ -30,6 +30,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [connected, setConnected] = useState(false);
 
   const connect = (userId: string) => {
+    console.log("연결 시도...");
+    
     if (eventSource) {
       eventSource.close();
     }
