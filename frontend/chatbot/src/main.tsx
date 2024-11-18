@@ -6,12 +6,19 @@ import App from "./App.tsx";
 import "./index.css";
 import store from "./app/store.ts";
 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { NotificationProvider } from "@contexts/NotificationContext.tsx";
+
 createRoot(document.getElementById("root")!).render(
 	// <StrictMode>
 	<BrowserRouter>
-		<Provider store={store}>
-			<App />
-		</Provider>
+		<NotificationProvider>
+			<Provider store={store}>
+				<App />
+				<ToastContainer />
+			</Provider>
+		</NotificationProvider>
 	</BrowserRouter>
 	// </StrictMode>
 );

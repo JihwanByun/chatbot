@@ -14,6 +14,7 @@ import TreeCreate from "@pages/board/BoardCreatePage";
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from '@app/store';
+import NotificationBound from "@contexts/NotificationBound";
 
 function App() {
 	return (
@@ -25,7 +26,10 @@ function App() {
 						<Route path="/" element={<LoginForm />} />
 						<Route path="/login" element={<LoginForm />} />
 						<Route path="/register" element={<RegisterPage />} />
-						<Route element={<PrivateRoute />}>
+						<Route element={
+							<NotificationBound>
+          			<PrivateRoute />
+        			</NotificationBound>}>
 							<Route path="/boardcontent" element={<BoardContentTree />} />
 							<Route path="/adminPage" element={<AdminPage />} />
 							<Route path="/chat" element={<Chat />} />
