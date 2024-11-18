@@ -52,6 +52,8 @@ public class NotificationService {
         });
 
         emitters.put(userId, emitter);
+
+        log.info("Emitter : {}", emitter);
         return emitter;
     }
 

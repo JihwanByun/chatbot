@@ -42,6 +42,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
     );
 
+    console.log("event source : " + newEventSource);
+    
+
     // 연결 이벤트 리스너
     newEventSource.addEventListener('connect', (event) => {
       console.log('Connected to notification stream:', event.data);
