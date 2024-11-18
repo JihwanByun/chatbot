@@ -34,7 +34,11 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       eventSource.close();
     }
 
-    const newEventSource = new EventSource(`${BACKEND_URL}/api/notifications/subscribe/${userId}`);
+    const newEventSource = new EventSource(`${BACKEND_URL}/api/notifications/subscribe/${userId}`, 
+      {
+        withCredentials: true  // HTTPS에서 쿠키/인증 정보 전송 허용
+      }
+    );
 
     // 연결 이벤트 리스너
     newEventSource.addEventListener('connect', (event) => {
