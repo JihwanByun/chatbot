@@ -1,5 +1,7 @@
 package com.chatbot.backend.domain.board.service;
 
+import java.util.List;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.http.MediaType;
@@ -9,7 +11,10 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.chatbot.backend.domain.board.exception.BoardNotificationFailException;
+import com.chatbot.backend.domain.board.repository.BoardRepository;
 import com.chatbot.backend.domain.file.dto.PdfRequestDto;
+import com.chatbot.backend.domain.regulation.entity.Regulation;
+import com.chatbot.backend.domain.regulation.repository.RegulationRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +30,7 @@ import reactor.core.scheduler.Schedulers;
 @RequiredArgsConstructor
 public class BoardNotificationService {
 	private final WebClient webClient;
+	private final RegulationRepository regulationRepository;
 
 	/**
 	 * 게시판 알림을 처리
@@ -74,8 +80,10 @@ public class BoardNotificationService {
 				log.info(pdfText);
 			}
 
+			List<Regulation> regulationList = regulationRepository.findAll();
+
 			// Request DTO 생성
-			PdfRequestDto requestDto = PdfRequestDto.of(pdfText, title, level);
+			PdfRequestDto requestDto = PdfRequestDto.of(pdfText, title, level, regulationList);
 			log.info("RequestDto 정보 : (Text)" + requestDto.text());
 			log.info("RequestDto 정보 : (Title)" + requestDto.title());
 			log.info("RequestDto 정보 : (Level)" + requestDto.level());
