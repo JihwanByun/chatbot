@@ -69,7 +69,7 @@ public class SecurityConfig {
 					// ADMIN과 USER 모두 접근 가능
 					// 권한에 따른 board 접근 제어
 					.requestMatchers(HttpMethod.GET, "/api/boards/**", "/api/categories", "/api/files/**",
-						"/api/feedbacks")
+						"/api/feedbacks","/api/notifications/**")
 					.hasAnyAuthority(Role.ADMIN.getKey(), Role.USER.getKey(), Role.USER_WRITE.getKey())
 
 					.requestMatchers(HttpMethod.POST, "/api/boards/{boardId}/favorite")
