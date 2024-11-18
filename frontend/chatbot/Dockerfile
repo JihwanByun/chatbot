@@ -10,6 +10,14 @@ RUN npm ci
 # Copy source code
 COPY . .
 
+# 빌드 시 환경변수 받기
+ARG VITE_BACKEND_URL
+ARG VITE_AI_URL
+
+# 환경변수 설정
+ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
+ENV VITE_AI_URL=$VITE_AI_URL
+
 # Build app
 # ENV CI=false
 RUN npm run build
