@@ -27,11 +27,14 @@ public class NotificationService {
     public SseEmitter subscribe(String userId) {
         SseEmitter emitter = new SseEmitter(TIME_OUT);
 
+        log.info("Subscribing to user {}", userId);
+
         try {
             // 연결 시 초기 이벤트 전송
 			emitter.send(SseEmitter.event()
                 .name("connect")
                 .data("Connected!"));
+            log.info("Finished subscribing to user {}", userId);
         } catch (IOException e) {
             log.error("Error sending initial events", e);
             emitter.complete();
