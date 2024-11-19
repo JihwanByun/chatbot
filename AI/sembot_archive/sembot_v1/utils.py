@@ -1,19 +1,66 @@
-from langchain_community.vectorstores.utils import DistanceStrategy
-from langchain_community.vectorstores import FAISS
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.schema import Document
-from mongo_client import MongoDBClient
+import json
+import os
+from pathlib import Path
 
-def file_splitter(pdf_file, mongo_data):
+from config import (
+    EMBEDDINGS_ENCODE_KWARGS,
+    EMBEDDINGS_MODEL_KWARGS,
+    EMBEDDINGS_MODEL_NAME,
+)
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import PDFPlumberLoader
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain.schema import Document
+
+
+def get_embeddings():
+    """
+    벡터 DB에 사용할 임베딩 모델을 가져옵니다.
+
+    Returns:
+        HuggingFaceEmbeddings
+
+    """
+    return HuggingFaceEmbeddings(
+        model_name=EMBEDDINGS_MODEL_NAME,
+        model_kwargs=EMBEDDINGS_MODEL_KWARGS,
+        encode_kwargs=EMBEDDINGS_ENCODE_KWARGS,
+    )
+
+
+# PDF 파일명들을 로드하는 함수
+def load_files(file_path: str):
+    """
+    주어진 디렉토리에서 모든 PDF 파일들을 로드합니다.
+
+    Args:
+        file_path (str): file 디렉토리 경로
+        file_type (str): file type
+
+    Returns:
+        pdf 파일 경로 리스트
+
+    """
+
+    data_files = []
+    for root, dirs, files in os.walk(file_path):
+        for file in files:
+            data_files.append(os.path.join(root, file))
+
+    return data_files
+
+
+def file_splitter(file_dir_path: str):
     """
     PDF를 splitter로 작은 청크로 분리합니다.
 
     Args:
-        pdf_file: pdf_file을 받습니다.
+        file_dir_path (str): pdf 파일이 있는 디렉토리 경로
 
     Returns:
         청크로 분리된 pdf 파일 객체 리스트
     """
+    files = load_files(file_dir_path)
 
     all_documents = []
 
@@ -23,24 +70,13 @@ def file_splitter(pdf_file, mongo_data):
         chunk_overlap=32,  # 청크 간 중복되는 문자 수
     )
 
-    # board
-    # gpu 서버에서는 몽고 디비 포트로 접근이 안됨
-    # client = MongoDBClient()
+    for file in files:
+        if file.endswith("pdf"):
+            loader = PDFPlumberLoader(file)
+            documents = loader.load()  # PDF 문서를 로드합니다
 
-    # regulations = client.find_regulations()
-
-    for regulation in mongo_data:       
-        documents = make_data_for_vectorDB(regulation)
-
-        chunked_documents = text_splitter.split_documents(documents)
-        all_documents.extend(chunked_documents)
-
-    # pdf
-    # 현재 pdf는 하나만 가능하도록 함
-    if(pdf_file["content"]):
-        documents = text_splitter.create_documents([pdf_file["content"]])
-        documents[0].metadata["file_name"] = pdf_file["title"]
-        documents[0].metadata["level"] = pdf_file["level"]
+        elif file.endswith("json"):
+            documents = make_data_for_vectorDB(file)
 
         chunked_documents = text_splitter.split_documents(documents)
         all_documents.extend(chunked_documents)
@@ -48,11 +84,13 @@ def file_splitter(pdf_file, mongo_data):
     return all_documents
 
 
-def make_data_for_vectorDB(regulation):
+def make_data_for_vectorDB(json_file):
 
-    file_name = regulation["title"]
+    json_data = json.loads(Path(json_file).read_text(encoding="utf-8"))
 
-    pages = regulation["itemList"]
+    file_name = json_file.split("/")[-1].split(".")[0]
+
+    pages = json_data["itemList"]
 
     page_title = ""
     all_documents = []
@@ -63,10 +101,8 @@ def make_data_for_vectorDB(regulation):
         for article_index, article in enumerate(page["itemList"], 1):
             content = ""
 
-            article_title = article['title'] if article['title'] else ""
-            
             data_source = (
-                f"{file_name} {page_title} 제{article_index}조({article_title})"
+                f"{file_name} {page_title} 제{article_index}조({article['title']})"
             )
 
             # article의 content가 있으면 추가
@@ -88,26 +124,10 @@ def make_data_for_vectorDB(regulation):
                             )
 
             document = Document(
-                metadata={"file_name": data_source, "level": regulation["level"]},
+                metadata={"file_name": data_source, "level": json_data["level"]},
                 page_content=content,
             )
 
             all_documents.append(document)
 
     return all_documents
-
-
-def create_vector_store(vectorstore_path, embeddings, pdf_file, mongo_data):
-    chunked_docs = file_splitter(pdf_file, mongo_data)
-
-    vectorstore = FAISS.from_documents(
-        documents=chunked_docs,
-        embedding=embeddings,
-        distance_strategy=DistanceStrategy.COSINE,
-    )
-
-    print("vectorstore 생성 중....")
-    vectorstore.save_local(vectorstore_path)
-    print("vectorstore 생성 완료....")
-
-    return vectorstore
