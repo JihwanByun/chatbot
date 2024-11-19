@@ -4,7 +4,7 @@ from config import PDF_DIR_PATH, PROMPT, VECTORSTORE_PATH
 from langchain.schema import Document
 from langchain_community.vectorstores import FAISS
 from utils import get_embeddings
-from vectorstore_manager import get_vectorestore_by_FAISS
+from vectorstore_manager import get_vectorestore_by_FAISS, cret
 
 
 class SembotDocs:
@@ -15,11 +15,10 @@ class SembotDocs:
     def __init__(
         self,
         file_dir_path,
-        file_type,
         vectorstore_path=VECTORSTORE_PATH,
     ):
         self.vector_store = get_vectorestore_by_FAISS(
-            vectorstore_path, file_dir_path, file_type
+            vectorstore_path, file_dir_path
         )
         self.retriever = self.vector_store.as_retriever(
             search_type="similarity_score_threshold",
@@ -188,6 +187,10 @@ class SembotDocs:
             filtered_docs.append(doc)
 
         return filtered_docs
+    
+    def update_vectorstore():
+
+        pass
 
 
 if __name__ == "__main__":
@@ -213,14 +216,13 @@ if __name__ == "__main__":
                 "answer": "안녕하세요! 연차는 다음과 같은 절차를 따르면 신청할 수 있습니다.",
             },
         ],
-        "question": "국외출장시 여비이외에 그 수속에 필요한 서류를 알려주세요",
+        "question": "코로나 주요 증상이 무엇인가요?",
     }
 
-    file_dir_path = r"../kisa_json/"
-    file_type = "json"
-    vectorstore_path = "./vector_store_path_by_json"
+    file_dir_path = r"../sembot_provision/"
+    vectorstore_path = "./sembot_vector_store"
 
-    pre_sembot = SembotDocs(file_dir_path, file_type, vectorstore_path)
+    pre_sembot = SembotDocs(file_dir_path, vectorstore_path)
 
     docs = pre_sembot.docs_invoke(input_data)
 
