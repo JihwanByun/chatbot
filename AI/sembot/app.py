@@ -21,6 +21,8 @@ from vectorstore_manager import create_vector_store
 from summarize.summarizer import PDFSummarizer
 from dotenv import load_dotenv
 
+load_dotenv()
+
 BASE_DIR = ''
 
 EMBEDDINGS_MODEL_PATH = os.path.join(BASE_DIR, "local_embedding")
@@ -31,7 +33,7 @@ VECTORSTORE_PATH = os.path.join(BASE_DIR, "vector_store_path_by_json")
 MODEL_PATH = os.path.join(BASE_DIR, "local_model_ncsoft")
 MODEL_ID = "NCSOFT/Llama-VARCO-8B-Instruct"
 
-OPENAI_API_KEY='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'
+OPENAI_API_KEY=os.environ.get('OPENAI_API_KEY')
 
 app = FastAPI()
 
