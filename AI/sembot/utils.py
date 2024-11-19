@@ -29,7 +29,7 @@ def get_embeddings():
 
 
 # PDF 파일명들을 로드하는 함수
-def load_files(file_path: str, file_type: str):
+def load_files(file_path: str):
     """
     주어진 디렉토리에서 모든 PDF 파일들을 로드합니다.
 
@@ -45,23 +45,22 @@ def load_files(file_path: str, file_type: str):
     data_files = []
     for root, dirs, files in os.walk(file_path):
         for file in files:
-            if file.endswith(f".{file_type}"):
-                data_files.append(os.path.join(root, file))
+            data_files.append(os.path.join(root, file))
 
     return data_files
 
 
-def file_splitter(file_dir_path: str, file_type: str):
+def file_splitter(file_dir_path: str):
     """
     PDF를 splitter로 작은 청크로 분리합니다.
 
     Args:
-        pdf_path (str): pdf 파일이 있는 디렉토리 경로
+        file_dir_path (str): pdf 파일이 있는 디렉토리 경로
 
     Returns:
         청크로 분리된 pdf 파일 객체 리스트
     """
-    files = load_files(file_dir_path, file_type)
+    files = load_files(file_dir_path)
 
     all_documents = []
 
@@ -72,12 +71,12 @@ def file_splitter(file_dir_path: str, file_type: str):
     )
 
     for file in files:
-        if file_type == "pdf":
+        if file.endswith("pdf"):
             loader = PDFPlumberLoader(file)
             documents = loader.load()  # PDF 문서를 로드합니다
 
-        elif file_type == "json":
-            documents = make_data_for_vectorDB(file)           
+        elif file.endswith("json"):
+            documents = make_data_for_vectorDB(file)
 
         chunked_documents = text_splitter.split_documents(documents)
         all_documents.extend(chunked_documents)
@@ -93,19 +92,17 @@ def make_data_for_vectorDB(json_file):
 
     pages = json_data["itemList"]
 
-    article_seq = 0
     page_title = ""
     all_documents = []
 
     for index, page in enumerate(pages, 1):
         page_title = f"제{index}장({page['content']})"
 
-        for article in page["itemList"]:
-            article_seq += 1
+        for article_index, article in enumerate(page["itemList"], 1):
             content = ""
 
             data_source = (
-                f"{file_name} {page_title} 제{article_seq}조({article['title']})"
+                f"{file_name} {page_title} 제{article_index}조({article['title']})"
             )
 
             # article의 content가 있으면 추가
@@ -127,7 +124,7 @@ def make_data_for_vectorDB(json_file):
                             )
 
             document = Document(
-                metadata={"source": data_source, "level": json_data["level"]},
+                metadata={"file_name": data_source, "level": json_data["level"]},
                 page_content=content,
             )
 
